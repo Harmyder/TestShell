@@ -11,18 +11,20 @@
 #include "UserLevel/Mesh/UserMesh.h"
 #include "UserLevel/Scene/UserScene.h"
 #include "UserLevel/Mesh/Algorithm/UserMeshFromInputMesh.h"
+#include "Viewer\Viewport.h"
 
 namespace Pipeline
 {
     void UserSceneFactory::Build(UserScene &userScene, const InputScene &inputScene)
     {
         const uint_t meshesCount = inputScene.GetMeshesCount();
+        auto& viewport = userScene.GetViewport();
         for (uint_t i = 0; i < meshesCount; i++)
         {
             const InputMesh &inputMesh = inputScene.GetMesh(i);
-            UserMesh *mesh = new UserMesh(inputMesh);
+            UserMesh *mesh = new UserMesh(inputMesh, viewport.GetRenderItem((uint32)i));
             UserMeshFromInputMesh restorer(*mesh);
-            restorer.Restore();
+            restorer.Restore(viewport);
             userScene.AddMesh(mesh);
         }
     }

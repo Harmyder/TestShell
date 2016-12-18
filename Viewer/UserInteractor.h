@@ -53,8 +53,8 @@ namespace Viewer
     private:
         MenuWalker *menuWalker_;
 
-        std::unique_ptr<Viewport> viewport_;
         std::unique_ptr<GameInput> gameInput_;
+        std::unique_ptr<Viewport> viewport_;
 
         std::unique_ptr<Pile::Timer> timer_;
         float dT_;

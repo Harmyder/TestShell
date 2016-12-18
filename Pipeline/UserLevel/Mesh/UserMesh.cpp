@@ -3,13 +3,15 @@
 #include "UserLevel/Mesh/UserMesh.h"
 #include "InputLevel/Mesh/InputMesh.h"
 
+#include "Viewer\RenderItem.h"
+
 namespace Pipeline
 {
     // **************************************************************************************
-    UserMesh::UserMesh(const InputMesh &mesh) :
-        m_Input(mesh)
-    {
-    }
+    UserMesh::UserMesh(const InputMesh &mesh, Viewer::RenderItem& renderItem) :
+        input_(mesh),
+        renderItem_(renderItem)
+    {}
 
     // **************************************************************************************
     void UserMesh::SetName(const char *name)
@@ -26,13 +28,13 @@ namespace Pipeline
     // **************************************************************************************
     const XMFLOAT4X4& UserMesh::GetTransform() const
     {
-        return m_Transform;
+        return transform_;
     }
 
     // **************************************************************************************
     void UserMesh::SetTransform(const XMFLOAT4X4& transform)
     {
-        m_Transform = transform;
+        transform_ = transform;
     }
 
     // **************************************************************************************
@@ -50,6 +52,6 @@ namespace Pipeline
     // **************************************************************************************
     const InputMesh& UserMesh::GetInput() const
     {
-        return m_Input;
+        return input_;
     }
 }

@@ -4,7 +4,7 @@
 
 namespace Viewer
 {
-    class Camera
+    __declspec(align(16)) class Camera
     {
     public:
         void SetTransform(const DirectX::XMMATRIX& tranform);

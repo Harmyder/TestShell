@@ -71,7 +71,7 @@ void Game::FillSimulationsMenu(Menu &menu, const SimulationManager &simulationMa
         const uint_t simsNodeId = menu.AddNode(Menu::ROOT_ID, "Simulations");
         for (uint_t i = 0; i < factoriesCount; i++)
         {
-            GameCommandSetNextSimulation *command = new GameCommandSetNextSimulation(i);
+            GameCommandSetNextSimulation *command = new GameCommandSetNextSimulation((uint32)i);
             command->SetReceiver(this);
 
             const char *title = simulationManager.GetFactory(i)->GetName();

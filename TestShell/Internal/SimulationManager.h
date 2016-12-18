@@ -10,8 +10,8 @@ public:
     void Init();
     void Close();
 
-    uint32       GetFactoriesCount() const;
-    BaseFactory *GetFactory(uint32 i) const;
+    uint_t GetFactoriesCount() const;
+    BaseFactory *GetFactory(uint_t i) const;
 
 private:
     void RegisterSimulations();

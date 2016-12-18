@@ -5,6 +5,10 @@
 
 #include "Pile\Attribute\NonCopyable.h"
 
+namespace Viewer {
+    class Viewport;
+}
+
 namespace Pipeline
 {
     class UserMesh;
@@ -15,7 +19,7 @@ namespace Pipeline
     public:
         UserMeshFromInputMesh(UserMesh &mesh);
 
-        void Restore();
+        void Restore(Viewer::Viewport& viewport);
 
     private:
         UserMesh &mesh_;

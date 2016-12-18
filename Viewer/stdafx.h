@@ -14,4 +14,5 @@
 #include <map>
 #include <cassert>
 
-#include "Pile/Types.h"
+#include "Pile\DirectXInclude.h"
+#include "Pile\Types.h"

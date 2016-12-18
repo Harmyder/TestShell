@@ -22,7 +22,7 @@
     <ProjectGuid>{B0FA436F-A6E0-496B-BEF8-A6CF096BE847}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Viewport</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
     <ProjectName>Viewer</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraController.h" />
+    <ClInclude Include="RenderItem.h" />
     <ClInclude Include="GameInput.h" />
     <ClInclude Include="Menu\Menu.h" />
     <ClInclude Include="Menu\MenuWalker.h" />
@@ -163,6 +164,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CameraController.cpp" />
+    <ClCompile Include="RenderItem.cpp" />
     <ClCompile Include="GameInput.cpp" />
     <ClCompile Include="Menu\Menu.cpp" />
     <ClCompile Include="Menu\MenuWalker.cpp" />

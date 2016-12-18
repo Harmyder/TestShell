@@ -21,8 +21,8 @@ namespace Viewer
     }
 
     UserInteractor::UserInteractor(HINSTANCE hInst) :
-        viewport_(make_unique<Viewport>(CreateDemoWindow(hInst, 800, 600))),
         gameInput_(make_unique<GameInput>()),
+        viewport_(make_unique<Viewport>(CreateDemoWindow(hInst, 800, 600), *gameInput_)),
         timer_(make_unique<Timer>())
     {}
 

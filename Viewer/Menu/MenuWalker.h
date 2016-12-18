@@ -16,11 +16,11 @@ namespace Viewer
         void GoNextHandle();
         void GoPrevious();
 
-        typedef std::pair<uint32, const char *> VisibleItem;
+        typedef std::pair<uint_t, const char *> VisibleItem;
         void GetVisibleItems(std::vector<VisibleItem> &items, uint_t &selectedItem);
 
     private:
-        int GetVisibleItemsInternal(std::vector<VisibleItem> &items, const uint_t level);
+        int_t GetVisibleItemsInternal(std::vector<VisibleItem> &items, const uint_t level);
 
         void GoSibling(bool isForward);
 

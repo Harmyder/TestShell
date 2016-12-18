@@ -4,26 +4,25 @@
 
 #include <DirectXMath.h>
 
+namespace Viewer {
+    class RenderItem;
+    struct Vertex;
+}
+
 namespace Pipeline
 {
     class InputMesh;
 
     struct MeshGeometry
     {
-        struct Vertex
-        {
-            DirectX::XMFLOAT3 Position;
-            DirectX::XMFLOAT4 Color;
-        };
-
-        std::vector<Vertex> Vertices;
+        std::vector<Viewer::Vertex> Vertices;
         std::vector<uint16> Indices;
     };
 
     class UserMesh : public Pile::NonCopyable
     {
     public:
-        UserMesh(const InputMesh &mesh);
+        UserMesh(const InputMesh &mesh, Viewer::RenderItem& renderItem);
 
         void SetName(const char *name);
         const char *GetName();
@@ -33,15 +32,18 @@ namespace Pipeline
 
         const MeshGeometry &GetGeometry() const;
         MeshGeometry &GetNonConstGeometry();
+        const Viewer::RenderItem &GetRenderItem() const { return renderItem_; }
+        Viewer::RenderItem &GetNonConstRenderItem() { return renderItem_; }
 
         const InputMesh& GetInput() const;
 
     private:
-        const InputMesh &m_Input;
+        const InputMesh &input_;
+        Viewer::RenderItem& renderItem_;
 
         const char *name_;
         MeshGeometry meshGeometry_;
 
-        DirectX::XMFLOAT4X4 m_Transform;
+        DirectX::XMFLOAT4X4 transform_;
     };
 }

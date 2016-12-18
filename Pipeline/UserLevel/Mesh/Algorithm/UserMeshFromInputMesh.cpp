@@ -8,6 +8,10 @@
 
 #include "UserLevel/Mesh/UserMesh.h"
 #include "InputLevel/Mesh/InputMesh.h"
+#include "Viewer\Viewport.h"
+
+using namespace std;
+using namespace Viewer;
 
 namespace Pipeline
 {
@@ -17,7 +21,7 @@ namespace Pipeline
     {
     }
 
-    void UserMeshFromInputMesh::Restore()
+    void UserMeshFromInputMesh::Restore(Viewport& viewport)
     {
         mesh_.SetName(inputMesh_.GetName());
         mesh_.SetTransform(inputMesh_.GetTransform());
@@ -42,5 +46,7 @@ namespace Pipeline
         for (uint32 i = 0; i < triangleVerticesCount; ++i) {
             mg.Indices[i] = vertices[triangleVertices[i]].PositionIndex;
         }
+
+        viewport.CreateRenderItem(mg.Vertices, mg.Indices, mesh_.GetNonConstRenderItem());
     }
 }

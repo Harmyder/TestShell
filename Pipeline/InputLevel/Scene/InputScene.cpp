@@ -22,19 +22,19 @@ namespace Pipeline
     }
 
     // **************************************************************************************
-    const uint32 InputScene::GetMeshesCount() const
+    const uint_t InputScene::GetMeshesCount() const
     {
         return meshes_.size();
     }
 
     // **************************************************************************************
-    const InputMesh& InputScene::GetMesh(uint32 index) const
+    const InputMesh& InputScene::GetMesh(uint_t index) const
     {
         return *meshes_[index];
     }
 
     // **************************************************************************************
-    uint32 InputScene::SearchMesh(const char* name) const
+    uint_t InputScene::SearchMesh(const char* name) const
     {
         const uint_t meshesCount = meshes_.size();
         for (uint_t i = 0; i < meshesCount; ++i)

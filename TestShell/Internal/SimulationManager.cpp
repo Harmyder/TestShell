@@ -47,7 +47,7 @@ uint_t SimulationManager::GetFactoriesCount() const
     return factories_->size();
 }
 
-BaseFactory *SimulationManager::GetFactory(uint32 i) const
+BaseFactory *SimulationManager::GetFactory(uint_t i) const
 {
     return (*factories_)[i];
 }

@@ -13,9 +13,9 @@ namespace Pipeline
         ~InputScene();
 
         void AddMesh(InputMesh *mesh);
-        const uint32 GetMeshesCount() const;
-        const InputMesh& GetMesh(uint32 index) const;
-        uint32 SearchMesh(const char* name) const;
+        const uint_t GetMeshesCount() const;
+        const InputMesh& GetMesh(uint_t index) const;
+        uint_t SearchMesh(const char* name) const;
 
     private:
         std::vector<InputMesh*> meshes_;

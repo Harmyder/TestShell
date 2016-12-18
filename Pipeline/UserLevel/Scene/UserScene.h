@@ -2,6 +2,10 @@
 
 #include "Pile\Attribute\NonCopyable.h"
 
+namespace Viewer {
+    class Viewport;
+}
+
 namespace Pipeline
 {
     class UserMesh;
@@ -10,22 +14,27 @@ namespace Pipeline
     class UserScene : public Pile::NonCopyable
     {
     public:
+        UserScene(Viewer::Viewport &viewport);
         ~UserScene();
 
         void AddMesh(UserMesh *mesh);
-        const uint32 GetMeshesCount() const;
-        const UserMesh& GetMesh(uint32 index) const;
-        UserMesh& GetNonConstMesh(uint32 index);
-        uint32 SearchMesh(const char* name) const;
+        const uint_t GetMeshesCount() const;
+        const UserMesh& GetMesh(uint_t index) const;
+        UserMesh& GetNonConstMesh(uint_t index);
+        uint_t SearchMesh(const char* name) const;
 
         void AddCollider(UserCollider *collider);
-        const uint32 GetCollidersCount() const;
-        const UserCollider& GetCollider(uint32 index) const;
-        UserCollider& GetNonConstCollider(uint32 index);
-        uint32 SearchCollider(const char* name) const;
+        const uint_t GetCollidersCount() const;
+        const UserCollider& GetCollider(uint_t index) const;
+        UserCollider& GetNonConstCollider(uint_t index);
+        uint_t SearchCollider(const char* name) const;
 
+        Viewer::Viewport& GetViewport() { return viewport_; }
+        
     private:
         std::vector<UserMesh*>     meshes_;
         std::vector<UserCollider*> colliders_;
+
+        Viewer::Viewport& viewport_;
     };
 }

@@ -153,6 +153,8 @@
     <ClInclude Include="Attribute\NamedObject.h" />
     <ClInclude Include="Attribute\NonCopyable.h" />
     <ClInclude Include="Consts.h" />
+    <ClInclude Include="DirectXInclude.h" />
+    <ClInclude Include="Math\XmFloatHelper.h" />
     <ClInclude Include="Pattern\Command.h" />
     <ClInclude Include="Pattern\Singleton.h" />
     <ClInclude Include="Print\DebugPrint.h" />
