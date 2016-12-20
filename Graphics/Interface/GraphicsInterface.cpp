@@ -25,18 +25,24 @@ void grEndScene() {
 }
 
 void grDrawRenderItem(grRenderItem renderItem) {
-    const RenderItem* ri = static_cast<RenderItemHandle>(renderItem).GetValue();
+    const RenderItem* ri = static_cast<RenderItemHandle*>(&renderItem)->GetValue();
     GraphicsCore::GetInstance().DrawRenderItem(*ri);
+}
+
+grCommandContext grGetGraphicsContext() {
+    auto cc = grCommandContext(GraphicsCore::GetInstance().GetCommandContext());
+    return cc;
 }
 
 grRenderItem grCreateRenderItem(const void* vertices, const uint_t vertexSize, const uint_t verticesCount,
     const uint16* indices, const uint_t indicesCount, grCommandContext commandContext) {
-    CommandContext* commandContextInternal = static_cast<CommandContextHandle>(commandContext).GetValue();
+    CommandContext* commandContextInternal = static_cast<CommandContextHandle*>(&commandContext)->GetValue();
     RenderItem *renderItem;
     RenderItem::Create(vertices, vertexSize, verticesCount, indices, sizeof(uint16), indicesCount, DXGI_FORMAT_R16_UINT, *commandContextInternal, renderItem);
     return grRenderItem(renderItem);
 }
 
-grCommandContext grGetGraphicsContext() {
-    return grCommandContext(GraphicsCore::GetInstance().GetCommandContext());
+void grDestroyRenderItem(grRenderItem renderItem) {
+    RenderItem* ri = static_cast<RenderItemHandle>(renderItem).GetValue();
+    delete ri;
 }

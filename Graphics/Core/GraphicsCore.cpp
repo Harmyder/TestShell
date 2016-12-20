@@ -324,6 +324,7 @@ namespace Graphics
             D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
         commandContext_->Flush(true);
+        commandContext_->Reset();
 
         screenViewport_->TopLeftX = 0;
         screenViewport_->TopLeftY = 0;

@@ -5,7 +5,7 @@ namespace Graphics
 {
     extern ComPtr<ID3D12Device> g_device;
 
-    UploadBuffer::UploadBuffer(uint32 elementCount, uint_t elementByteSize) {
+    UploadBuffer::UploadBuffer(uint32 elementCount, uint_t elementByteSize, bool isConstantBuffer) : isConstantBuffer_(isConstantBuffer) {
         elementByteSize_ = elementByteSize;
 
         const uint_t bufferByteSize = isConstantBuffer_ ? Utility::CalcConstBufSize(elementByteSize_) : elementByteSize_;

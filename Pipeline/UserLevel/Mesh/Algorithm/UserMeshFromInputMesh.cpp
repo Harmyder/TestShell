@@ -32,7 +32,7 @@ namespace Pipeline
 
         const auto& positions = inputMesh_.GetPositions();
         const auto positionsCount = positions.size();
-        mg.Vertices.reserve(positionsCount);
+        mg.Vertices = move(decltype(mg.Vertices)(positionsCount));
         for (uint32 i = 0; i < positionsCount; ++i) {
             XMFloat4to3(mg.Vertices[i].Position, positions[i]);
             mg.Vertices[i].Color = XMFLOAT4(DirectX::Colors::White);
@@ -42,7 +42,7 @@ namespace Pipeline
         const auto& triangleVertices = inputMesh_.GetTrianglesVertices();
         const auto verticesCount = vertices.size();
         const auto triangleVerticesCount = triangleVertices.size();
-        mg.Indices.reserve(triangleVerticesCount);
+        mg.Indices = move(decltype(mg.Indices)(triangleVerticesCount));
         for (uint32 i = 0; i < triangleVerticesCount; ++i) {
             mg.Indices[i] = vertices[triangleVertices[i]].PositionIndex;
         }

@@ -24,7 +24,10 @@ namespace Viewer
         gameInput_(make_unique<GameInput>()),
         viewport_(make_unique<Viewport>(CreateDemoWindow(hInst, 800, 600), *gameInput_)),
         timer_(make_unique<Timer>())
-    {}
+    {
+        assert(s_Instance == NULL);
+        s_Instance = this;
+    }
 
     UserInteractor::~UserInteractor() {}
 
@@ -52,6 +55,8 @@ namespace Viewer
 
         HWND wnd = CreateWindow(szWindowClass, "Demo Window", WS_OVERLAPPEDWINDOW,
             0, 0, rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, instance, NULL);
+
+        ShowWindow(wnd, SW_SHOWDEFAULT);
 
         return wnd;
     }

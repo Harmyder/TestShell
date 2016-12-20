@@ -31,6 +31,7 @@ namespace Graphics
         lock_guard<mutex> g(allocators_mutex_);
         
         auto it = find_if(begin(allocators_), end(allocators_), [&allocator](auto cp) { return cp.Get() == allocator; });
-        enqueued_.push(make_pair(fence, distance(it, begin(allocators_))));
+        uint_t allocatorIndex = distance(begin(allocators_), it);
+        enqueued_.push(make_pair(fence, allocatorIndex));
     }
 }

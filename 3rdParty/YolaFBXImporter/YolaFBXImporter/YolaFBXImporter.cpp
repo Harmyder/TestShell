@@ -182,13 +182,6 @@ Node *ImportNode(FbxNode* fbxNode)
             {
                 FbxMesh* pMesh = (FbxMesh*)fbxNode->GetNodeAttribute();
 
-                const auto vertexColorCount = pMesh->GetElementVertexColorCount();
-                if (vertexColorCount > 0) {
-                    FbxLayerElementVertexColor* vertexColor = pMesh->GetElementVertexColor();
-                    // For now i can't check layer name, looks like it doesn't get exported from 3ds max
-                    // if (!strcmp(vertexColor->GetName(), "Collider")) {}
-                }
-
                 Mesh *mesh = CreateElement<Mesh>();
                 node->element = mesh;
     

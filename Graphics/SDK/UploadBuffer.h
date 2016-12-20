@@ -6,7 +6,7 @@ namespace Graphics
     {
         friend class GraphicsCore;
     public:
-        UploadBuffer(uint32 elementCount, uint_t elementByteSize);
+        UploadBuffer(uint32 elementCount, uint_t elementByteSize, bool isConstantBuffer);
 
         ~UploadBuffer();
 
@@ -28,8 +28,6 @@ namespace Graphics
     class ConstantBuffer : public UploadBuffer {
     public:
         ConstantBuffer(uint32 elementCount, uint_t elementByteSize) : 
-            UploadBuffer(elementCount, elementByteSize) {
-            isConstantBuffer_ = true;
-        }
+            UploadBuffer(elementCount, elementByteSize, true) {}
     };
 }

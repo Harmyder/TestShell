@@ -285,3 +285,6 @@ Bin/*
 
 Bin/TestShell/*
 !Bin/TestShell/Resources
+
+#Compiled shaders
+Graphics/Shaders/Compiled/
