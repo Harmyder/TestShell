@@ -3,7 +3,7 @@
 
 namespace Utility
 {
-    std::string basename(std::string const& pathname) {
+    std::string inline basename(std::string const& pathname) {
         return std::string(std::find_if(pathname.rbegin(), pathname.rend(), [](char ch) { return ch == '\\'; }).base(), pathname.end());
     }
 
@@ -20,7 +20,7 @@ namespace Utility
         return AlignUpWithMask(value, alignment - 1);
     }
 
-    uint32 CalcConstBufSize(uint_t unalignedSize) {
+    uint32 inline CalcConstBufSize(uint_t unalignedSize) {
         return (uint32)AlignUp(unalignedSize, 256);
     }
 }

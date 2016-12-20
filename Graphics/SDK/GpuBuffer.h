@@ -1,15 +1,17 @@
 #pragma once
 
 #include <wrl.h>
-
+#include "Pile\Attribute\NonCopyable.h"
 struct ID3D12Resource;
 
 namespace Graphics
 {
     class CommandContext;
+    class RenderItem;
 
-    class GpuBuffer
+    class GpuBuffer : public Pile::NonCopyable
     {
+        friend class RenderItem;
     public:
         ~GpuBuffer();
 
@@ -19,9 +21,12 @@ namespace Graphics
             const uint_t elementSize,
             const void* data,
             CommandContext* commandContext_);
-        void ReleaseUpload();
 
     private:
+        typedef UINT64 D3D12_GPU_VIRTUAL_ADDRESS;
+        D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const;
+        void ReleaseUpload();
+
         Microsoft::WRL::ComPtr<ID3D12Resource> buffer_;
         Microsoft::WRL::ComPtr<ID3D12Resource> uploadBuffer_;
 

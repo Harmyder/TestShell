@@ -1,11 +1,14 @@
 #include "stdafx.h"
+#include "Core\GraphicsCore.h"
 
-#include "GraphicsCore.h"
-#include "CommandQueue.h"
-#include "FrameResource.h"
-#include "UploadBuffer.h"
+#include <DirectXColors.h>
+
+#include "SDK\CommandQueue.h"
+#include "Core\FrameResource.h"
+#include "SDK\UploadBuffer.h"
 #include "Consts.h"
-#include "CommandContext.h"
+#include "SDK\CommandContext.h"
+#include "Core\RenderItem.h"
 
 #include "Shaders\Compiled\pixel.h"
 #include "Shaders\Compiled\vertex.h"
@@ -14,6 +17,8 @@ using namespace std;
 
 namespace Graphics
 {
+    DEFINE_SINGLETON(GraphicsCore);
+
     ComPtr<ID3D12Device> g_device;
     const uint32 g_frameResourcesCount = 3;
 
@@ -22,14 +27,23 @@ namespace Graphics
     static DXGI_FORMAT BACK_BUFFER_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
     static DXGI_FORMAT DEPTH_STENCIL_FORMAT = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
-    GraphicsCore::GraphicsCore() : 
-        screenViewport_(make_unique<D3D12_VIEWPORT>())
-    {}
     GraphicsCore::~GraphicsCore() {}
 
     void GraphicsCore::Initialize(HWND hwnd)
     {
+        screenViewport_ = make_unique<D3D12_VIEWPORT>();
         hwnd_ = hwnd;
+
+#if _DEBUG
+        Microsoft::WRL::ComPtr<ID3D12Debug> debugInterface;
+        if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface)))) {
+            //Direct3D will enable extra debugging and send debug messages to the VC++ output window
+            debugInterface->EnableDebugLayer();
+        }
+        else {
+            OutputDebugString("WARNING:  Unable to enable D3D12 debug validation layer.\n");
+        }
+#endif
 
         THROW_IF_FAILED(D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&g_device)));
         THROW_IF_FAILED(CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(&dxgiFactory_)));
@@ -54,7 +68,7 @@ namespace Graphics
         CreateConstantBufferViews();
         CreatePSO();
 
-        commandQueue_->Flush();
+        commandContext_->Flush(true);
     }
 
     void GraphicsCore::CreateSwapChain() {
@@ -219,8 +233,7 @@ namespace Graphics
 
     void GraphicsCore::CreateFrameResources() {
         for (int i = 0; i < g_frameResourcesCount; ++i) {
-            frameResources_.push_back(make_unique<FrameResource>(*commandQueue_,
-                kPassesCountAllowed, kSceneObjectsCountAllowed));
+            frameResources_.push_back(make_unique<FrameResource>(kPassesCountAllowed, kSceneObjectsCountAllowed));
         }
     }
 
@@ -283,9 +296,9 @@ namespace Graphics
     }
 
     void GraphicsCore::Resize() {
-        commandQueue_->Flush();
+        commandContext_->Flush(true);
+        commandContext_->Reset();
         auto commandList = commandContext_->GetCommandList();
-        commandList->Reset(commandQueue_->AcquireAllocator(), nullptr);
 
         RECT rc;
         GetClientRect(hwnd_, &rc);
@@ -310,9 +323,7 @@ namespace Graphics
         commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(depthStencilBuffer_.Get(),
             D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
-        commandQueue_->ExecuteCommandList(commandList);
-
-        commandQueue_->Flush();
+        commandContext_->Flush(true);
 
         screenViewport_->TopLeftX = 0;
         screenViewport_->TopLeftY = 0;
@@ -322,5 +333,48 @@ namespace Graphics
         screenViewport_->MaxDepth = 1.0f;
 
         scissorRect_ = D3D12_RECT{ 0, 0, static_cast<long>(width), static_cast<long>(height) };
+    }
+
+    void GraphicsCore::BeginScene() {
+        commandContext_->Reset();
+        auto commandList = commandContext_->GetCommandList();
+
+        commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+            D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+        commandList->ClearRenderTargetView(CurrentBackBufferView(), DirectX::Colors::LightSteelBlue, 0, nullptr);
+        commandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+
+        commandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
+
+        ID3D12DescriptorHeap* descriptorHeaps[] = { cbvHeap_.Get() };
+        commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
+        commandList->SetGraphicsRootSignature(rootSignature_.Get());
+    }
+
+    void GraphicsCore::EndScene() {
+        auto commandList = commandContext_->GetCommandList();
+
+        commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+            D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+
+        commandContext_->Flush(false);
+
+        THROW_IF_FAILED(swapChain_->Present(0, 0));
+        currentBackBuffer_ = (currentBackBuffer_ + 1) % SWAP_CHAIN_BUFFERS_COUNT;
+    }
+
+    void GraphicsCore::DrawRenderItem(const RenderItem& ri) {
+        auto commandList = commandContext_->GetCommandList();
+
+        commandList->IASetVertexBuffers(0, 1, &ri.VertexBufferView());
+        commandList->IASetIndexBuffer(&ri.IndexBufferView());
+        commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+        commandList->SetGraphicsRootDescriptorTable(0, cbvHeap_->GetGPUDescriptorHandleForHeapStart());
+
+        // I believe this must be done before calling SetDescriptorHeaps
+        commandList->DrawIndexedInstanced(ri.IndicesCount(), 1, 0, 0, 0);
     }
 }

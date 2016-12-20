@@ -3,14 +3,11 @@
 #include "UserLevel/Mesh/UserMesh.h"
 #include "InputLevel/Mesh/InputMesh.h"
 
-#include "Viewer\RenderItem.h"
-
 namespace Pipeline
 {
     // **************************************************************************************
-    UserMesh::UserMesh(const InputMesh &mesh, Viewer::RenderItem& renderItem) :
-        input_(mesh),
-        renderItem_(renderItem)
+    UserMesh::UserMesh(const InputMesh &mesh) :
+        input_(mesh)
     {}
 
     // **************************************************************************************

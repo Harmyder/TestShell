@@ -1,15 +1,18 @@
 #include "stdafx.h"
 
 #include "Simulations/FbxSimulation.h"
+#include "Viewer\Viewport.h"
+
+using namespace Viewer;
 
 FbxSimulation::FbxSimulation() :
     BaseSimulation("FbxSimulation")
 {
 }
 
-void FbxSimulation::Init()
+void FbxSimulation::Init(Viewport &viewport)
 {
-    BaseSimulation::Init();
+    BaseSimulation::Init(viewport);
 
     ImportScene("C:\\Yola\\Canoe\\FBX\\teapot001.fbx");
 }

@@ -18,6 +18,7 @@ namespace Graphics
         uint64 CurrentFence() { return currentFence_; }
         void ExecuteCommandList(ID3D12GraphicsCommandList* list);
         void WaitForFence(uint64 fenceValue);
+        void WaitAllDone();
 
         ID3D12CommandQueue* GetCommandQueue();
 

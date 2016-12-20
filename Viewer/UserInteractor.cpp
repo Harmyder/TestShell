@@ -198,4 +198,16 @@ namespace Viewer
             currentDtInTicks = currentTicks - startTicks_;
         } while (currentDtInTicks < dtInTicks);
     }
+
+    void UserInteractor::BeforeRender() {
+        viewport_->BeforeDraw();
+    }
+
+    void UserInteractor::Render() {
+        viewport_->DrawRenderItems();
+    }
+
+    void UserInteractor::AfterRender() {
+        viewport_->AfterDraw();
+    }
 }

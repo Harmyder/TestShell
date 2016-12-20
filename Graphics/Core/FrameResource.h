@@ -25,14 +25,11 @@ namespace Graphics {
     {
         friend class Graphics;
     public:
-        FrameResource(CommandQueue& cq, uint32 passesCount, uint32 objsCount);
+        FrameResource(uint32 passesCount, uint32 objsCount);
         ~FrameResource();
 
         uint64 Fence;
         std::unique_ptr<ConstantBuffer> passCB;
         std::unique_ptr<ConstantBuffer> objCB;
-
-    private:
-        ID3D12CommandAllocator* cmdAlloc_;
     };
 }

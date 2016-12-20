@@ -114,6 +114,9 @@
     <Link>
       <SubSystem>Windows</SubSystem>
     </Link>
+    <Lib>
+      <AdditionalDependencies>d3d12.lib;dxgi.lib;</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -150,34 +153,39 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CommandAllocatorPool.h" />
-    <ClInclude Include="CommandContext.h" />
-    <ClInclude Include="CommandQueue.h" />
+    <ClInclude Include="SDK\CommandAllocatorPool.h" />
+    <ClInclude Include="SDK\CommandContext.h" />
+    <ClInclude Include="SDK\CommandQueue.h" />
     <ClInclude Include="Consts.h" />
-    <ClInclude Include="FrameResource.h" />
-    <ClInclude Include="GpuBuffer.h" />
-    <ClInclude Include="GraphicsContext.h" />
-    <ClInclude Include="GraphicsCore.h" />
+    <ClInclude Include="Core\FrameResource.h" />
+    <ClInclude Include="SDK\GpuBuffer.h" />
+    <ClInclude Include="Core\GraphicsCore.h" />
+    <ClInclude Include="Interface\GraphicsHandle.h" />
+    <ClInclude Include="Interface\GraphicsInterface.h" />
+    <ClInclude Include="Interface\InternalHandle.h" />
+    <ClInclude Include="Core\RenderItem.h" />
     <ClInclude Include="Shaders\cb.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="UploadBuffer.h" />
+    <ClInclude Include="SDK\UploadBuffer.h" />
     <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CommandAllocatorPool.cpp" />
-    <ClCompile Include="CommandContext.cpp" />
-    <ClCompile Include="CommandQueue.cpp" />
-    <ClCompile Include="FrameResource.cpp" />
-    <ClCompile Include="GpuBuffer.cpp" />
-    <ClCompile Include="GraphicsContext.cpp" />
-    <ClCompile Include="GraphicsCore.cpp" />
+    <ClCompile Include="SDK\CommandAllocatorPool.cpp" />
+    <ClCompile Include="SDK\CommandContext.cpp" />
+    <ClCompile Include="SDK\CommandQueue.cpp" />
+    <ClCompile Include="Core\FrameResource.cpp" />
+    <ClCompile Include="SDK\GpuBuffer.cpp" />
+    <ClCompile Include="Core\GraphicsCore.cpp" />
+    <ClCompile Include="Interface\GraphicsInterface.cpp" />
+    <ClCompile Include="Interface\InternalHandle.cpp" />
+    <ClCompile Include="Core\RenderItem.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="UploadBuffer.cpp" />
+    <ClCompile Include="SDK\UploadBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\pixel.hlsl">

@@ -13,7 +13,7 @@ namespace Graphics
         lock_guard<mutex> g(allocators_mutex_);
 
         ID3D12CommandAllocator* ret;
-        if (enqueued_.front().first < currentFence) {
+        if (!enqueued_.empty() && enqueued_.front().first < currentFence) {
             ret = allocators_[enqueued_.front().second].Get();
             THROW_IF_FAILED(ret->Reset());
             enqueued_.pop();

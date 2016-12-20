@@ -4,10 +4,8 @@
 #include "Camera.h"
 #include "CameraController.h"
 #include "GameInput.h"
-#include "RenderItem.h"
 
-#include "Graphics\GraphicsCore.h"
-#include "Graphics\GpuBuffer.h"
+#include "Graphics\Interface\GraphicsInterface.h"
 
 using namespace std;
 using namespace Graphics;
@@ -19,20 +17,36 @@ namespace Viewer
         camera_(make_unique<Camera>()),
         cameraCtrl_(make_unique<CameraController>(*camera_, gameInput))
     {
-        graphicsCore_->Initialize(hwnd_);
+        grInit(hwnd_);
     }
 
-    Viewport::~Viewport() {}
-
-    void Viewport::CreateRenderItem(const std::vector<Vertex>& vertices, const std::vector<uint16>& indices, RenderItem &renderItem) {
-        auto commandContext = graphicsCore_->GetCommandContext();
-        renderItem.vertexBuffer_->Create("renderItem", vertices.size(), sizeof(Vertex), vertices.data(), commandContext);
-        renderItem.indexBuffer_->Create("renderItem", indices.size(), sizeof(Vertex), indices.data(), commandContext);
-
-
+    Viewport::~Viewport() {
+        grShutdown();
     }
 
-    void Viewport::UpdateRenderItem(const std::vector<Vertex>& vertices, const std::vector<uint16>& indices, RenderItem &renderItem) {
-
+    uint_t Viewport::CreateRenderItem(const std::vector<Vertex>& vertices, const std::vector<uint16>& indices) {
+        grRenderItem ri = grCreateRenderItem(vertices.data(), sizeof(Vertex), vertices.size(), indices.data(), indices.size(), grGetGraphicsContext());
+        renderItems_.push_back(ri);
+        return renderItems_.size() - 1;
     }
+
+    void Viewport::UpdateRenderItem(const std::vector<Vertex>& vertices, const std::vector<uint16>& indices, uint_t index) {
+        vertices, indices, index;
+        throw;
+    }
+
+    void Viewport::BeforeDraw() {
+        grBeginScene();
+    }
+
+    void Viewport::AfterDraw() {
+        grEndScene();
+    }
+
+    void Viewport::DrawRenderItems() {
+        for (const auto& ri : renderItems_) {
+            grDrawRenderItem(ri);
+        }
+    }
+
 }

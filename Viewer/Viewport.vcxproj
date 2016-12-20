@@ -109,7 +109,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;..;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;..\Graphics;</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
@@ -153,18 +153,17 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraController.h" />
-    <ClInclude Include="RenderItem.h" />
     <ClInclude Include="GameInput.h" />
     <ClInclude Include="Menu\Menu.h" />
     <ClInclude Include="Menu\MenuWalker.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="UserInteractor.h" />
+    <ClInclude Include="Vertex.h" />
     <ClInclude Include="Viewport.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CameraController.cpp" />
-    <ClCompile Include="RenderItem.cpp" />
     <ClCompile Include="GameInput.cpp" />
     <ClCompile Include="Menu\Menu.cpp" />
     <ClCompile Include="Menu\MenuWalker.cpp" />
@@ -176,6 +175,14 @@
     </ClCompile>
     <ClCompile Include="UserInteractor.cpp" />
     <ClCompile Include="Viewport.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Graphics\Graphics.vcxproj">
+      <Project>{02d77ff1-10b9-4892-ba57-608aeab0768b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Pile\Pile.vcxproj">
+      <Project>{2f76dd6a-5f4a-48c0-b377-2cca96985032}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

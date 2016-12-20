@@ -13,6 +13,9 @@ class SimulationManager;
 class Game
 {
 public:
+    Game();
+    ~Game();
+
     int Run(HINSTANCE hInstance);
 
     void SetNextSimulation(const uint_t nextSimulation);

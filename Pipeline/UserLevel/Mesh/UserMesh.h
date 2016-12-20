@@ -2,12 +2,7 @@
 
 #include "Pile/Attribute/NonCopyable.h"
 
-#include <DirectXMath.h>
-
-namespace Viewer {
-    class RenderItem;
-    struct Vertex;
-}
+#include "Viewer\Vertex.h"
 
 namespace Pipeline
 {
@@ -22,7 +17,7 @@ namespace Pipeline
     class UserMesh : public Pile::NonCopyable
     {
     public:
-        UserMesh(const InputMesh &mesh, Viewer::RenderItem& renderItem);
+        UserMesh(const InputMesh &mesh);
 
         void SetName(const char *name);
         const char *GetName();
@@ -32,14 +27,14 @@ namespace Pipeline
 
         const MeshGeometry &GetGeometry() const;
         MeshGeometry &GetNonConstGeometry();
-        const Viewer::RenderItem &GetRenderItem() const { return renderItem_; }
-        Viewer::RenderItem &GetNonConstRenderItem() { return renderItem_; }
+        uint_t GetRenderItemIndex() const { return renderItemIndex_; }
+        void SetRenderItemIndex(uint_t index) { renderItemIndex_ = index; }
 
         const InputMesh& GetInput() const;
 
     private:
         const InputMesh &input_;
-        Viewer::RenderItem& renderItem_;
+        uint_t renderItemIndex_;
 
         const char *name_;
         MeshGeometry meshGeometry_;

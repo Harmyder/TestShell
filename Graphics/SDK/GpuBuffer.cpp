@@ -1,13 +1,15 @@
 #include "stdafx.h"
 #include "GpuBuffer.h"
 
-#include "CommandContext.h"
+#include "SDK\CommandContext.h"
 
 namespace Graphics
 {
     extern ComPtr<ID3D12Device> g_device;
 
     GpuBuffer::~GpuBuffer() {}
+
+    D3D12_GPU_VIRTUAL_ADDRESS GpuBuffer::GetGPUVirtualAddress() const { return buffer_->GetGPUVirtualAddress(); }
 
     void GpuBuffer::Create(
         const std::string& name,

@@ -47,6 +47,7 @@ namespace Pipeline
             mg.Indices[i] = vertices[triangleVertices[i]].PositionIndex;
         }
 
-        viewport.CreateRenderItem(mg.Vertices, mg.Indices, mesh_.GetNonConstRenderItem());
+        auto rii = viewport.CreateRenderItem(mg.Vertices, mg.Indices);
+        mesh_.SetRenderItemIndex(rii);
     }
 }

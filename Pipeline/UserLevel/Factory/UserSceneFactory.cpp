@@ -22,7 +22,7 @@ namespace Pipeline
         for (uint_t i = 0; i < meshesCount; i++)
         {
             const InputMesh &inputMesh = inputScene.GetMesh(i);
-            UserMesh *mesh = new UserMesh(inputMesh, viewport.GetRenderItem((uint32)i));
+            UserMesh *mesh = new UserMesh(inputMesh);
             UserMeshFromInputMesh restorer(*mesh);
             restorer.Restore(viewport);
             userScene.AddMesh(mesh);

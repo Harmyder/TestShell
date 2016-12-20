@@ -14,27 +14,11 @@ namespace Graphics
         D3D12_COMMAND_QUEUE_DESC queueDesc = {};
         queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
         queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-        THROW_IF_FAILED(device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&commandQueue_)));
+        THROW_IF_FAILED(device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(commandQueue_.GetAddressOf())));
 
         THROW_IF_FAILED(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_)));
 
         commandAllocatorPool_ = make_unique<CommandAllocatorPool>(device, D3D12_COMMAND_LIST_TYPE_DIRECT);
-    }
-
-    void CommandQueue::Flush() {
-        currentFence_++;
-
-        THROW_IF_FAILED(commandQueue_->Signal(fence_.Get(), currentFence_));
-
-        if (fence_->GetCompletedValue() < currentFence_)
-        {
-            HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
-
-            THROW_IF_FAILED(fence_->SetEventOnCompletion(currentFence_, eventHandle));
-
-            WaitForSingleObject(eventHandle, INFINITE);
-            CloseHandle(eventHandle);
-        }
     }
 
     ID3D12CommandAllocator* CommandQueue::AcquireAllocator() {
@@ -62,6 +46,11 @@ namespace Graphics
             CloseHandle(eventHandle);
         }
     }
+
+    void CommandQueue::WaitAllDone() {
+        WaitForFence(currentFence_);
+    }
+
 
     ID3D12CommandQueue* CommandQueue::GetCommandQueue() { return commandQueue_.Get(); }
 }

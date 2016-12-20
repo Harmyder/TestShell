@@ -10,19 +10,20 @@ namespace Graphics
 
     class CommandContext
     {
-        friend class GpuBuffer;
-        friend class GraphicsCore;
     public:
         CommandContext(CommandQueue *commandQueue);
 
         void Initialize();
 
-    private:
+        void Reset();
+        void Flush(bool wait);
+
         ID3D12GraphicsCommandList* GetCommandList() { return commandList_.Get(); }
 
     private:
         CommandQueue* commandQueue_;
 
+        ID3D12CommandAllocator* currentAllocator_;
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_;
     };
 }

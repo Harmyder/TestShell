@@ -8,7 +8,7 @@ public:
     FbxSimulation();
 
 public:
-    void Init() override;
+    void Init(Viewer::Viewport &viewport) override;
     void Step(float deltaTime) override;
     void Quit() override;
 };

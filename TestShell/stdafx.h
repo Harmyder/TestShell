@@ -8,7 +8,7 @@
 #include <cassert>
 #include <vector>
 #include <memory>
+#include <Windows.h>
 
 #include "Pile\Types.h"
-
 

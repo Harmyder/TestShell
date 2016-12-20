@@ -21,6 +21,8 @@ namespace Viewer
         UserInteractor(HINSTANCE hInst);
         ~UserInteractor();
 
+        Viewport& GetViewport() { return *viewport_; }
+
     private:
         static UserInteractor *s_Instance;
 
@@ -32,6 +34,10 @@ namespace Viewer
 
         void BeforeStep();
         void AfterStep();
+
+        void BeforeRender();
+        void Render();
+        void AfterRender();
 
     private:
         HWND CreateDemoWindow(HINSTANCE instance, uint32 width, uint32 height);

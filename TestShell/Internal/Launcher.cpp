@@ -18,7 +18,7 @@ void Launcher::Init(UserInteractor *userInteractor, BaseSimulation *simulation) 
     simulation_ = simulation;
     isMustStop_ = false;
 
-    simulation_->Init();
+    simulation_->Init(userInteractor_->GetViewport());
 }
 
 void Launcher::Loop() {

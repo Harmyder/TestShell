@@ -3,7 +3,7 @@
 
 namespace Graphics
 {
-    extern ID3D12Device* g_device;
+    extern ComPtr<ID3D12Device> g_device;
 
     UploadBuffer::UploadBuffer(uint32 elementCount, uint_t elementByteSize) {
         elementByteSize_ = elementByteSize;

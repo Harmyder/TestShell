@@ -17,6 +17,9 @@ using namespace std;
 using namespace Pipeline;
 using namespace Viewer;
 
+Game::Game() {}
+Game::~Game() {}
+
 int Game::Run(HINSTANCE hInstance)
 {
     userInteractor_ = make_unique<UserInteractor>(hInstance);

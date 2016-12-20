@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Pile\Attribute\NonCopyable.h"
+#include "Pile\Pattern\Singleton.h"
 #include <wrl.h>
 
 struct D3D12_CPU_DESCRIPTOR_HANDLE;
@@ -9,7 +10,6 @@ struct D3D12_INPUT_ELEMENT_DESC;
 struct ID3D12Resource;
 struct IDXGIFactory4;
 struct IDXGISwapChain;
-struct ID3D12GraphicsCommandList;
 struct ID3D12DescriptorHeap;
 struct ID3D12RootSignature;
 struct ID3D12PipelineState;
@@ -21,16 +21,23 @@ namespace Graphics
     class CommandQueue;
     class FrameResource;
     class CommandContext;
+    class RenderItem;
 
     class GraphicsCore : Pile::NonCopyable
     {
     public:
-        GraphicsCore();
+        DECLARE_CLASS_SINGLETON(GraphicsCore);
+
+    public:
         ~GraphicsCore();
 
         void Initialize(HWND hwnd);
 
         void Resize();
+
+        void BeginScene();
+        void EndScene();
+        void DrawRenderItem(const RenderItem& ri);
 
         CommandContext* GetCommandContext() { return commandContext_.get(); }
 

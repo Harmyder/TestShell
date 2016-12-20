@@ -19,9 +19,6 @@ using Microsoft::WRL::ComPtr;
 #include <dxgi1_4.h>
 #include "3rdParty\d3dx12.h"
 
-#pragma comment(lib, "d3d12.lib")
-#pragma comment(lib, "dxgi.lib")
-
 #include <string>
 #include <vector>
 #include <queue>

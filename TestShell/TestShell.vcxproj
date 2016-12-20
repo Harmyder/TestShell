@@ -121,6 +121,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\Libs;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -185,6 +186,20 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TestShell.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Harmyder\Harmyder.vcxproj">
+      <Project>{13e30793-5687-4af1-8b13-5c727c224337}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Pile\Pile.vcxproj">
+      <Project>{2f76dd6a-5f4a-48c0-b377-2cca96985032}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Pipeline\Pipeline.vcxproj">
+      <Project>{594aa245-f13b-4e5c-8503-9afdbc9fd282}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Viewer\Viewport.vcxproj">
+      <Project>{b0fa436f-a6e0-496b-bef8-a6cf096be847}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
