@@ -6,7 +6,9 @@
 
 namespace Graphics
 {
-    RenderItemHandle::~RenderItemHandle() { delete static_cast<RenderItem*>(m_RenderItem); }
+    RenderItemHandle::~RenderItemHandle() { delete static_cast<RenderItem*>(renderItem_); }
+    
+    RenderIndexedItemHandle::~RenderIndexedItemHandle() { delete static_cast<RenderItem*>(renderIndexedItem_); }
 
-    CommandContextHandle::~CommandContextHandle() { delete static_cast<CommandContext*>(m_CommandContext); }
+    CommandContextHandle::~CommandContextHandle() { delete static_cast<CommandContext*>(commandContext_); }
 }

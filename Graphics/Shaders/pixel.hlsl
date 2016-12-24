@@ -1,8 +1,4 @@
-struct VertexOut
-{
-    float4 PosH  : SV_POSITION;
-    float4 Color : COLOR;
-};
+#include "cb.hlsli"
 
 float4 main(VertexOut pin) : SV_Target
 {

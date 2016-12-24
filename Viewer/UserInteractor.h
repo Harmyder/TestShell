@@ -13,6 +13,7 @@ namespace Viewer
     class MenuWalker;
     class Viewport;
     class GameInput;
+    class CameraController;
 
     class UserInteractor : public Pile::NonCopyable
     {
@@ -61,6 +62,7 @@ namespace Viewer
 
         std::unique_ptr<GameInput> gameInput_;
         std::unique_ptr<Viewport> viewport_;
+        std::unique_ptr<CameraController> cameraCtrl_;
 
         std::unique_ptr<Pile::Timer> timer_;
         float dT_;

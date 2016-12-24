@@ -13,6 +13,8 @@ namespace Pile
         inline double GetTime();
 
         inline uint64 GetFrequency();
+        inline double GetInvFrequency();
+
     private:
         uint64 m_Frequency;
         double m_InvFrequency;
@@ -43,5 +45,10 @@ namespace Pile
     inline uint64 Timer::GetFrequency()
     {
         return m_Frequency;
+    }
+
+    inline double Timer::GetInvFrequency()
+    {
+        return m_InvFrequency;
     }
 }

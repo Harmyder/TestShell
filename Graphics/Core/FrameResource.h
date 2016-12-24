@@ -15,9 +15,9 @@ namespace Graphics {
 
     struct PerPassConsts
     { 
-        DirectX::XMFLOAT4X4 View = Pile::Identity4x4();
-        DirectX::XMFLOAT4X4 Proj = Pile::Identity4x4();
-        DirectX::XMFLOAT4X4 ViewProj = Pile::Identity4x4();
+        DirectX::XMFLOAT4X4 View;
+        DirectX::XMFLOAT4X4 Proj;
+        DirectX::XMFLOAT4X4 ViewProj;
         DirectX::XMFLOAT3 EyePosW = { 0.0f, 0.0f, 0.0f };
     };
 

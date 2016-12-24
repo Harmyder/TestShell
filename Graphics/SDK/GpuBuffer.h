@@ -12,11 +12,12 @@ namespace Graphics
     class GpuBuffer : public Pile::NonCopyable
     {
         friend class RenderItem;
+        friend class RenderIndexedItem;
     public:
         ~GpuBuffer();
 
         void Create(
-            const std::string& name, 
+            const std::wstring& name, 
             const uint_t elementsCount,
             const uint_t elementSize,
             const void* data,

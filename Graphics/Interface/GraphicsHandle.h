@@ -2,16 +2,24 @@
 
 struct grCommandContext
 {
-    grCommandContext(void *commandContext) : m_CommandContext(commandContext) {}
+    grCommandContext(void *commandContext) : commandContext_(commandContext) {}
 
 protected:
-    void *m_CommandContext;
+    void *commandContext_;
 }; 
 
 struct grRenderItem
 {
-    grRenderItem(void *renderItem) : m_RenderItem(renderItem) {}
+    grRenderItem(void *renderItem) : renderItem_(renderItem) {}
 
 protected:
-    void *m_RenderItem;
+    void *renderItem_;
+};
+
+struct grRenderIndexedItem
+{
+    grRenderIndexedItem(void *renderIndexedItem) : renderIndexedItem_(renderIndexedItem) {}
+
+protected:
+    void *renderIndexedItem_;
 };

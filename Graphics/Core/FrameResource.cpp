@@ -9,8 +9,8 @@ using namespace std;
 namespace Graphics
 {
     FrameResource::FrameResource(uint32 passesCount, uint32 objsCount) {
-        passCB = make_unique<ConstantBuffer>(passesCount, sizeof(PerPassConsts));
-        objCB = make_unique<ConstantBuffer>(objsCount, sizeof(PerObjConsts));
+        passCB = make_unique<ConstantBuffer>(L"fr passes", passesCount, sizeof(PerPassConsts));
+        objCB = make_unique<ConstantBuffer>(L"fr objs", objsCount, sizeof(PerObjConsts));
     }
 
     FrameResource::~FrameResource() {}

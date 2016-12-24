@@ -10,51 +10,69 @@ namespace Viewer
         buttons_[0][Input::kMouseWheel] = false;
     }
 
-    void GameInput::OnMouseLDown(int x, int y) {
-        buttons_[0][Input::kMouseLbutton] = true;
-        mousePressed_ = { x,y };
+    void GameInput::OnLostFocus() {
+        memset(buttons_[0], 0, sizeof(buttons_[0]));
+        memset(buttons_[1], 0, sizeof(buttons_[1]));
     }
 
-    void GameInput::OnMouseRDown(int x, int y) {
-        buttons_[0][Input::kMouseRbutton] = true;
-        mousePressed_ = { x,y };
+    void GameInput::OnMouseLDown(int, int) {
+        buttons_[1][Input::kMouseLbutton] = true;
+    }
+
+    void GameInput::OnMouseRDown(int, int) {
+        buttons_[1][Input::kMouseRbutton] = true;
     }
 
     void GameInput::OnMouseMove(int x, int y) {
+        mousePrevious_ = mouseCurrent_;
         mouseCurrent_ = { x,y };
     }
 
-    void GameInput::OnMouseLUp(int x, int y) {
-        buttons_[1][Input::kMouseLbutton] = true;
-        mouseCurrent_ = { x,y };
+    void GameInput::OnMouseLUp(int, int) {
+        buttons_[1][Input::kMouseLbutton] = false;
     }
 
-    void GameInput::OnMouseRUp(int x, int y) {
-        buttons_[1][Input::kMouseRbutton] = true;
-        mouseCurrent_ = { x,y };
+    void GameInput::OnMouseRUp(int, int) {
+        buttons_[1][Input::kMouseRbutton] = false;
     }
 
     void GameInput::OnKeyDown(int keyCode) {
+        KeyUpDown(keyCode, true);
+    }
+
+    void GameInput::OnKeyUp(int keyCode) {
+        KeyUpDown(keyCode, false);
+    }
+
+    void GameInput::KeyUpDown(int keyCode, bool value) {
         switch (keyCode) {
         case VK_MENU:
-            buttons_[0][Input::kMenuKey] = true;
+            buttons_[0][Input::kMenuKey] = value;
             break;
         case VK_ESCAPE:
-            buttons_[0][Input::kEscapeKey] = true;
+            buttons_[0][Input::kEscapeKey] = value;
+            break;
+        case 0x41:
+            buttons_[0][Input::kKeyA] = value;
+            break;
+        case 0x53:
+            buttons_[0][Input::kKeyS] = value;
+            break;
+        case 0x44:
+            buttons_[0][Input::kKeyD] = value;
+            break;
+        case 0x57:
+            buttons_[0][Input::kKeyW] = value;
+            break;
+        case 0x45:
+            buttons_[0][Input::kKeyE] = value;
+            break;
+        case 0x51:
+            buttons_[0][Input::kKeyQ] = value;
             break;
         }
     }
 
-    void GameInput::OnKeyUp(int keyCode) {
-        switch (keyCode) {
-        case VK_MENU:
-            buttons_[0][Input::kMenuKey] = true;
-            break;
-        case VK_ESCAPE:
-            buttons_[0][Input::kEscapeKey] = true;
-            break;
-        }
-    }
 
     void GameInput::OnWheelRotate(int delta) {
         buttons_[1][Input::kMouseWheel] = false;

@@ -6,6 +6,7 @@
 #pragma once
 
 #pragma warning(disable:4238) // nonstandard extension used : class rvalue used as lvalue
+#pragma warning(disable:4324) // structure was padded due to __declspec(align())
 
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 
@@ -29,4 +30,5 @@ using Microsoft::WRL::ComPtr;
 
 #include "Pile/Types.h"
 #include "Pile/Print/DebugPrint.h"
+#include "Pile/DirectXInclude.h"
 #include "Utility.h"

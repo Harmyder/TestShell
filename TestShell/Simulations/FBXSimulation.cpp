@@ -14,6 +14,7 @@ void FbxSimulation::Init(Viewport &viewport)
 {
     BaseSimulation::Init(viewport);
 
+//    ImportScene("C:\\Yola\\TestShell\\FBX\\Box.fbx");
     ImportScene("C:\\Yola\\Canoe\\FBX\\teapot001.fbx");
 }
 

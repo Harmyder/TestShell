@@ -7,9 +7,13 @@
 #include "Menu/MenuWalker.h"
 #include "GameInput.h"
 #include "Viewport.h"
+#include "CameraController.h"
 
 using namespace std;
 using namespace Pile;
+
+constexpr uint32 kWidth = 800;
+constexpr uint32 kHeight = 600;
 
 namespace Viewer
 {
@@ -22,7 +26,8 @@ namespace Viewer
 
     UserInteractor::UserInteractor(HINSTANCE hInst) :
         gameInput_(make_unique<GameInput>()),
-        viewport_(make_unique<Viewport>(CreateDemoWindow(hInst, 800, 600), *gameInput_)),
+        viewport_(make_unique<Viewport>(CreateDemoWindow(hInst, kWidth, kHeight))),
+        cameraCtrl_(make_unique<CameraController>(*gameInput_, CameraController::UpVector::Y)),
         timer_(make_unique<Timer>())
     {
         assert(s_Instance == NULL);
@@ -113,7 +118,9 @@ namespace Viewer
         return DefWindowProc(wnd, msg, wParam, lParam);
     }
 
-    void UserInteractor::OnLostFocus() {}
+    void UserInteractor::OnLostFocus() {
+        gameInput_->OnLostFocus();
+    }
 
     void UserInteractor::OnMouseLDown(int x, int y)
     {
@@ -184,7 +191,12 @@ namespace Viewer
 
     void UserInteractor::BeforeStep()
     {
-        startTicks_ = timer_->GetCounts();
+        uint64 newStartTicks = timer_->GetCounts();
+        const float frameTime = static_cast<float>((newStartTicks - startTicks_) * timer_->GetInvFrequency());
+        startTicks_ = newStartTicks;
+
+        gameInput_->PreUpdate();
+        cameraCtrl_->Update(frameTime);
     }
 
     void UserInteractor::AfterStep()

@@ -5,7 +5,7 @@ namespace Graphics
 {
     extern ComPtr<ID3D12Device> g_device;
 
-    UploadBuffer::UploadBuffer(uint32 elementCount, uint_t elementByteSize, bool isConstantBuffer) : isConstantBuffer_(isConstantBuffer) {
+    UploadBuffer::UploadBuffer(std::wstring name, uint32 elementCount, uint_t elementByteSize, bool isConstantBuffer) : isConstantBuffer_(isConstantBuffer) {
         elementByteSize_ = elementByteSize;
 
         const uint_t bufferByteSize = isConstantBuffer_ ? Utility::CalcConstBufSize(elementByteSize_) : elementByteSize_;
@@ -17,6 +17,7 @@ namespace Graphics
             D3D12_RESOURCE_STATE_GENERIC_READ,
             nullptr,
             IID_PPV_ARGS(uploadBuffer_.GetAddressOf())));
+        uploadBuffer_->SetName(name.c_str());
 
         THROW_IF_FAILED(uploadBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&mappedData_)));
     }

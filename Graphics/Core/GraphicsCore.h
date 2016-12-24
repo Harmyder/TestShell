@@ -2,6 +2,8 @@
 
 #include "Pile\Attribute\NonCopyable.h"
 #include "Pile\Pattern\Singleton.h"
+#include "Pile\DirectXInclude.h"
+#include "Core\Camera.h"
 #include <wrl.h>
 
 struct D3D12_CPU_DESCRIPTOR_HANDLE;
@@ -22,6 +24,7 @@ namespace Graphics
     class FrameResource;
     class CommandContext;
     class RenderItem;
+    class RenderIndexedItem;
 
     class GraphicsCore : Pile::NonCopyable
     {
@@ -35,11 +38,14 @@ namespace Graphics
 
         void Resize();
 
+        void Update();
         void BeginScene();
         void EndScene();
+        void DrawRenderIndexedItem(const RenderIndexedItem& ri);
         void DrawRenderItem(const RenderItem& ri);
 
         CommandContext* GetCommandContext() { return commandContext_.get(); }
+        Camera& GetCamera() { return camera_; }
 
     private:
         void CreateSwapChain();
@@ -56,6 +62,9 @@ namespace Graphics
         D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView();
         ID3D12Resource* CurrentBackBuffer();
         CD3DX12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView();
+
+        void UpdatePassesCBs();
+        void UpdateObjectsCBs();
 
     private:
         HWND hwnd_;
@@ -89,5 +98,8 @@ namespace Graphics
         std::vector<std::unique_ptr<FrameResource>> frameResources_;
         uint32 currFrameResource_ = 0;
         uint32 passCbvOffset_;
+        uint32 currentObject_;
+
+        Camera camera_;
     };
 }

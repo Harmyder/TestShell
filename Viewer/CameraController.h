@@ -5,18 +5,29 @@ namespace Viewer
     class Camera;
     class GameInput;
 
-    class CameraController
+    __declspec(align(16)) class CameraController
     {
     public:
-        CameraController(Camera& camera, const GameInput& gameInput);
+        enum class UpVector { Y, Z };
+        CameraController(const GameInput& gameInput, UpVector upVector);
 
         void Update(float dT);
 
     private:
-        Camera& camera_;
+        XMVECTOR worldUp_;
+        XMVECTOR worldNorth_;
+        XMVECTOR worldEast_;
+        
+        const float kMouseSensitivityX = .2f;
+        const float kMouseSensitivityY = .2f;
+        const float kKeyboardSensitivity = 3.f;
+
         const GameInput& gameInput_;
 
         float currentPitch_ = 0.f;
         float currentYaw_ = 0.f;
+        float currentStrafe_ = 0.f;
+        float currentWalk_ = 0.f;
+        float currentAscent_ = 0.f;
     };
 }

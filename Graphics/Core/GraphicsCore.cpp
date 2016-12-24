@@ -14,6 +14,7 @@
 #include "Shaders\Compiled\vertex.h"
 
 using namespace std;
+using namespace DirectX;
 
 namespace Graphics
 {
@@ -107,7 +108,6 @@ namespace Graphics
         THROW_IF_FAILED(g_device->CreateDescriptorHeap(
             &rtvHeapDesc, IID_PPV_ARGS(rtvHeap_.GetAddressOf())));
 
-
         D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc;
         dsvHeapDesc.NumDescriptors = 1;
         dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
@@ -171,13 +171,13 @@ namespace Graphics
         CD3DX12_DESCRIPTOR_RANGE cbvTable0;
         cbvTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
         CD3DX12_DESCRIPTOR_RANGE cbvTable1;
-        cbvTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
+        cbvTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
 
         CD3DX12_ROOT_PARAMETER slotRootParameter[2];
         slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable0);
-        slotRootParameter[1].InitAsDescriptorTable(2, &cbvTable1);
+        slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable1);
 
-        CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(1, slotRootParameter, 0, nullptr,
+        CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(2, slotRootParameter, 0, nullptr,
             D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
         ComPtr<ID3DBlob> serializedRootSig = nullptr;
@@ -213,6 +213,7 @@ namespace Graphics
         opaquePsoDesc.VS = { g_shvertex, sizeof(g_shvertex) };
         opaquePsoDesc.PS = { g_shpixel, sizeof(g_shpixel) };
         opaquePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+        opaquePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
         opaquePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
         opaquePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
         opaquePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
@@ -250,8 +251,7 @@ namespace Graphics
         THROW_IF_FAILED(g_device->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(cbvHeap_.GetAddressOf())));
     }
 
-    void GraphicsCore::CreateConstantBufferViews()
-    {
+    void GraphicsCore::CreateConstantBufferViews() {
         UINT objCBByteSize = Utility::CalcConstBufSize(sizeof(PerObjConsts));
 
         for (int frameIndex = 0; frameIndex < g_frameResourcesCount; ++frameIndex)
@@ -334,11 +334,49 @@ namespace Graphics
         screenViewport_->MaxDepth = 1.0f;
 
         scissorRect_ = D3D12_RECT{ 0, 0, static_cast<long>(width), static_cast<long>(height) };
+    
+        commandList->RSSetViewports(1, screenViewport_.get());
+        commandList->RSSetScissorRects(1, &scissorRect_);
+    }
+
+    void GraphicsCore::Update() {
+        camera_.Update();
+        UpdatePassesCBs();
+        UpdateObjectsCBs();
+    }
+
+    void GraphicsCore::UpdatePassesCBs() {
+        const XMMATRIX& view = camera_.GetViewMatrix();
+        const XMMATRIX& proj = camera_.GetProjMatrix();
+
+        PerPassConsts pass;
+        XMStoreFloat4x4(&pass.ViewProj, XMMatrixMultiply(proj, view));
+        XMStoreFloat4x4(&pass.View, view);
+        XMStoreFloat4x4(&pass.Proj, proj);
+        XMStoreFloat3(&pass.EyePosW, camera_.GetEyePos());
+
+        auto currPassCB = frameResources_[currFrameResource_]->passCB.get();
+        currPassCB->CopyData(0, &pass);
+    }
+
+    void GraphicsCore::UpdateObjectsCBs() {
+        auto currObjectCB = frameResources_[currFrameResource_]->objCB.get();
+        for (int i = 0; i < kSceneObjectsCountAllowed; ++i) {
+            PerObjConsts objConstants;
+            XMMATRIX world = DirectX::XMMatrixIdentity();
+            world.r[3] = XMVECTOR{ 0.f, 0.f, 0.f, 1.f };
+            XMStoreFloat4x4(&objConstants.World, world);
+
+            currObjectCB->CopyData(i, &objConstants);
+        }
     }
 
     void GraphicsCore::BeginScene() {
+        Update();
+
         commandContext_->Reset();
         auto commandList = commandContext_->GetCommandList();
+        commandList->SetPipelineState(psos_["opaque"].Get());
 
         commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
             D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
@@ -352,6 +390,15 @@ namespace Graphics
         commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
         commandList->SetGraphicsRootSignature(rootSignature_.Get());
+        commandList->RSSetViewports(1, screenViewport_.get());
+        commandList->RSSetScissorRects(1, &scissorRect_);
+
+        int passCbvIndex = passCbvOffset_ + currFrameResource_;
+        auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
+        passCbvHandle.Offset(passCbvIndex, cbvSrvUavDescriptorSize_);
+        commandList->SetGraphicsRootDescriptorTable(1, passCbvHandle);
+
+        currentObject_ = 0;
     }
 
     void GraphicsCore::EndScene() {
@@ -360,22 +407,44 @@ namespace Graphics
         commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
             D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
-        commandContext_->Flush(false);
+        commandContext_->Flush(true);
 
         THROW_IF_FAILED(swapChain_->Present(0, 0));
         currentBackBuffer_ = (currentBackBuffer_ + 1) % SWAP_CHAIN_BUFFERS_COUNT;
     }
 
-    void GraphicsCore::DrawRenderItem(const RenderItem& ri) {
+    void GraphicsCore::DrawRenderIndexedItem(const RenderIndexedItem& ri) {
         auto commandList = commandContext_->GetCommandList();
 
         commandList->IASetVertexBuffers(0, 1, &ri.VertexBufferView());
         commandList->IASetIndexBuffer(&ri.IndexBufferView());
         commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-        commandList->SetGraphicsRootDescriptorTable(0, cbvHeap_->GetGPUDescriptorHandleForHeapStart());
+        auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
+        cbvHandle.Offset(0, cbvSrvUavDescriptorSize_);
 
-        // I believe this must be done before calling SetDescriptorHeaps
+        commandList->SetGraphicsRootDescriptorTable(0, cbvHandle);
+
         commandList->DrawIndexedInstanced(ri.IndicesCount(), 1, 0, 0, 0);
+    }
+
+    void GraphicsCore::DrawRenderItem(const RenderItem& ri) {
+        assert(currentObject_ < kSceneObjectsCountAllowed);
+        auto currObjectCB = frameResources_[currFrameResource_]->objCB.get();
+        PerObjConsts objConstants;
+        objConstants.World = ri.GetTransform();
+        currObjectCB->CopyData(currentObject_++, &objConstants);
+
+        auto commandList = commandContext_->GetCommandList();
+
+        commandList->IASetVertexBuffers(0, 1, &ri.VertexBufferView());
+        commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+        auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
+        cbvHandle.Offset(0, cbvSrvUavDescriptorSize_);
+
+        commandList->SetGraphicsRootDescriptorTable(0, cbvHandle);
+
+        commandList->DrawInstanced(ri.VerticesCount(), 1, 0, 0);
     }
 }
