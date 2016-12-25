@@ -32,12 +32,12 @@ void grEndScene() {
 }
 
 void grDrawRenderItem(grRenderItem renderItem) {
-    const RenderItem* ri = static_cast<RenderItemHandle*>(&renderItem)->GetValue();
+    RenderItem* ri = static_cast<RenderItemHandle*>(&renderItem)->GetValue();
     GraphicsCore::GetInstance().DrawRenderItem(*ri);
 }
 
 void grDrawRenderIndexedItem(grRenderIndexedItem renderIndexedItem) {
-    const RenderIndexedItem* ri = static_cast<RenderIndexedItemHandle*>(&renderIndexedItem)->GetValue();
+    RenderIndexedItem* ri = static_cast<RenderIndexedItemHandle*>(&renderIndexedItem)->GetValue();
     GraphicsCore::GetInstance().DrawRenderIndexedItem(*ri);
 }
 

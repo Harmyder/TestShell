@@ -21,7 +21,7 @@ namespace Graphics
     DEFINE_SINGLETON(GraphicsCore);
 
     ComPtr<ID3D12Device> g_device;
-    const uint32 g_frameResourcesCount = 3;
+    extern const uint32 g_frameResourcesCount = 3;
 
     const uint32 kGpuAllocatorPageSize = 0x10000;	// 64K. Resource heap must be a multiple of 64K
 
@@ -213,8 +213,7 @@ namespace Graphics
         opaquePsoDesc.VS = { g_shvertex, sizeof(g_shvertex) };
         opaquePsoDesc.PS = { g_shpixel, sizeof(g_shpixel) };
         opaquePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-        opaquePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-        opaquePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+//        opaquePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
         opaquePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
         opaquePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
         opaquePsoDesc.SampleMask = UINT_MAX;
@@ -342,7 +341,6 @@ namespace Graphics
     void GraphicsCore::Update() {
         camera_.Update();
         UpdatePassesCBs();
-        UpdateObjectsCBs();
     }
 
     void GraphicsCore::UpdatePassesCBs() {
@@ -357,18 +355,6 @@ namespace Graphics
 
         auto currPassCB = frameResources_[currFrameResource_]->passCB.get();
         currPassCB->CopyData(0, &pass);
-    }
-
-    void GraphicsCore::UpdateObjectsCBs() {
-        auto currObjectCB = frameResources_[currFrameResource_]->objCB.get();
-        for (int i = 0; i < kSceneObjectsCountAllowed; ++i) {
-            PerObjConsts objConstants;
-            XMMATRIX world = DirectX::XMMatrixIdentity();
-            world.r[3] = XMVECTOR{ 0.f, 0.f, 0.f, 1.f };
-            XMStoreFloat4x4(&objConstants.World, world);
-
-            currObjectCB->CopyData(i, &objConstants);
-        }
     }
 
     void GraphicsCore::BeginScene() {
@@ -413,7 +399,7 @@ namespace Graphics
         currentBackBuffer_ = (currentBackBuffer_ + 1) % SWAP_CHAIN_BUFFERS_COUNT;
     }
 
-    void GraphicsCore::DrawRenderIndexedItem(const RenderIndexedItem& ri) {
+    void GraphicsCore::DrawRenderIndexedItem(RenderIndexedItem& ri) {
         auto commandList = commandContext_->GetCommandList();
 
         commandList->IASetVertexBuffers(0, 1, &ri.VertexBufferView());
@@ -428,12 +414,18 @@ namespace Graphics
         commandList->DrawIndexedInstanced(ri.IndicesCount(), 1, 0, 0, 0);
     }
 
-    void GraphicsCore::DrawRenderItem(const RenderItem& ri) {
+    void GraphicsCore::DrawRenderItem(RenderItem& ri) {
         assert(currentObject_ < kSceneObjectsCountAllowed);
-        auto currObjectCB = frameResources_[currFrameResource_]->objCB.get();
-        PerObjConsts objConstants;
-        objConstants.World = ri.GetTransform();
-        currObjectCB->CopyData(currentObject_++, &objConstants);
+
+        auto cbIndex = currentObject_ + currFrameResource_ * kSceneObjectsCountAllowed;
+        if (ri.IsDirty()) {
+            auto currObjectCB = frameResources_[currFrameResource_]->objCB.get();
+            PerObjConsts objConstants;
+            objConstants.World = ri.GetTransform();
+            currObjectCB->CopyData(cbIndex, &objConstants);
+            ri.DecreaseDirtyFramesCount();
+        }
+        currentObject_++;
 
         auto commandList = commandContext_->GetCommandList();
 
@@ -441,7 +433,7 @@ namespace Graphics
         commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
         auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
-        cbvHandle.Offset(0, cbvSrvUavDescriptorSize_);
+        cbvHandle.Offset(cbIndex, cbvSrvUavDescriptorSize_);
 
         commandList->SetGraphicsRootDescriptorTable(0, cbvHandle);
 
