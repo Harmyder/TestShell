@@ -34,8 +34,8 @@ namespace Viewer
 
         float GetDurationPressed(Input i) { return holdDuration_[(uint32)i]; }
 
-        int GetMouseDeltaX() const { return mousePrevious_.x - mouseCurrent_.x; }
-        int GetMouseDeltaY() const { return mousePrevious_.y - mouseCurrent_.y; }
+        int GetMousePressedDeltaX() const { return mousePressed_.x - mouseCurrent_.x; }
+        int GetMousePressedDeltaY() const { return mousePressed_.y - mouseCurrent_.y; }
         int GetMouseWheelDelta() const { return wheelDelta_; }
 
         void PreUpdate();
@@ -53,7 +53,7 @@ namespace Viewer
 
     private:
         struct Point { int x, y; };
-        Point mousePrevious_;
+        Point mousePressed_;
         Point mouseCurrent_;
 
         int wheelDelta_;

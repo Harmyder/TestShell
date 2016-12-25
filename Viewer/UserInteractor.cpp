@@ -74,6 +74,8 @@ namespace Viewer
         case WM_ACTIVATE:
             if (wParam == WA_INACTIVE)
                 userInteractor.OnLostFocus();
+            else if (wParam == WA_ACTIVE)
+                userInteractor.OnGotFocus();
             return 0;
         case WM_LBUTTONDOWN:
             userInteractor.OnMouseLDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
@@ -122,13 +124,18 @@ namespace Viewer
         gameInput_->OnLostFocus();
     }
 
+    void UserInteractor::OnGotFocus() {
+    }
+
     void UserInteractor::OnMouseLDown(int x, int y)
     {
+        SetCapture(viewport_->GetHwnd());
         gameInput_->OnMouseLDown(x, y);
     }
 
     void UserInteractor::OnMouseRDown(int x, int y)
     {
+        SetCapture(viewport_->GetHwnd());
         gameInput_->OnMouseRDown(x, y);
     }
 
@@ -139,11 +146,13 @@ namespace Viewer
 
     void UserInteractor::OnMouseLUp(int x, int y)
     {
+        ReleaseCapture();
         gameInput_->OnMouseLUp(x, y);
     }
 
     void UserInteractor::OnMouseRUp(int x, int y)
     {
+        ReleaseCapture();
         gameInput_->OnMouseRUp(x, y);
     }
 

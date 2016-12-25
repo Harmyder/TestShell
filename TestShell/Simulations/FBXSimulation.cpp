@@ -14,8 +14,8 @@ void FbxSimulation::Init(Viewport &viewport)
 {
     BaseSimulation::Init(viewport);
 
-    ImportScene("C:\\Yola\\TestShell\\FBX\\Box.fbx");
-//    ImportScene("C:\\Yola\\TestShell\\FBX\\teapot001.fbx");
+//    ImportScene("C:\\Yola\\TestShell\\FBX\\Box.fbx");
+    ImportScene("C:\\Yola\\TestShell\\FBX\\teapot001.fbx");
 }
 
 void FbxSimulation::Step(float deltaTime)

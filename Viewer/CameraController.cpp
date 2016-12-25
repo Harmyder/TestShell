@@ -4,6 +4,7 @@
 
 #include "GameInput.h"
 #include "Graphics\Interface\GraphicsInterface.h"
+#include "Pile\Print\DebugPrint.h"
 
 using namespace std;
 using namespace DirectX;
@@ -18,13 +19,19 @@ namespace Viewer
     }
 
     void CameraController::Update(float dT) {
-        if (gameInput_.IsPressed(GameInput::Input::kMenuKey)) {
-            if (gameInput_.IsPressed(GameInput::Input::kMouseLbutton)) {
-                const float yaw = gameInput_.GetMouseDeltaX() * kMouseSensitivityX;
-                const float pitch = gameInput_.GetMouseDeltaY() * kMouseSensitivityY;
-                currentYaw_ += yaw;
-                currentPitch_ += pitch;
-            }
+        if (gameInput_.IsPressed(GameInput::Input::kMenuKey) &&
+            gameInput_.IsPressed(GameInput::Input::kMouseLbutton))
+        {
+            float yaw = gameInput_.GetMousePressedDeltaX() * kMouseSensitivityX;
+            float pitch = gameInput_.GetMousePressedDeltaY() * kMouseSensitivityY;
+            Pile::DebugPrintf("%f %f - %f %f\n", yaw, pitch, lastYaw_, lastPitch_);
+            currentYaw_ += yaw - lastYaw_;
+            currentPitch_ += pitch - lastPitch_;
+            lastYaw_ = yaw;
+            lastPitch_ = pitch;
+        }
+        if (gameInput_.IsFirstReleased(GameInput::Input::kMouseLbutton)) {
+            lastYaw_ = lastPitch_ = 0;
         }
 
         if (gameInput_.IsPressed(GameInput::Input::kKeyA)) {
@@ -48,9 +55,9 @@ namespace Viewer
 
         XMMATRIX transform(worldEast_, worldUp_, worldNorth_, g_XMIdentityR3);
         transform = transform
+            * XMMatrixTranslation(currentStrafe_, currentAscent_, currentWalk_)
             * XMMatrixRotationAxis(worldUp_, currentYaw_)
-            * XMMatrixRotationAxis(worldEast_, currentPitch_)
-            * XMMatrixTranslation(currentStrafe_, currentAscent_, currentWalk_);
+            * XMMatrixRotationAxis(worldEast_, currentPitch_);
 
         grSetCameraAffineTransform(transform);
     }

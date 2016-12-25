@@ -48,6 +48,7 @@ namespace Viewer
     private:
         static LRESULT CALLBACK WndProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam);
         void OnLostFocus();
+        void OnGotFocus();
         void OnMouseLDown(int x, int y);
         void OnMouseRDown(int x, int y);
         void OnMouseMove(int x, int y);

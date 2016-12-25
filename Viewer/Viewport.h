@@ -17,6 +17,8 @@ namespace Viewer
         Viewport(HWND hWnd);
         ~Viewport();
 
+        HWND GetHwnd() { return hwnd_; }
+
         uint_t CreateRenderIndexedItem(const std::vector<Vertex>& vertices, const std::vector<uint16>& indices, const XMFLOAT4X4& transform);
         uint_t CreateRenderItem(const std::vector<Vertex>& vertices, const XMFLOAT4X4& transform);
 

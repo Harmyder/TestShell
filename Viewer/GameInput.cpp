@@ -15,25 +15,27 @@ namespace Viewer
         memset(buttons_[1], 0, sizeof(buttons_[1]));
     }
 
-    void GameInput::OnMouseLDown(int, int) {
-        buttons_[1][Input::kMouseLbutton] = true;
+    void GameInput::OnMouseLDown(int x, int y) {
+        mousePressed_ = { x, y };
+        buttons_[0][Input::kMouseLbutton] = true;
     }
 
-    void GameInput::OnMouseRDown(int, int) {
-        buttons_[1][Input::kMouseRbutton] = true;
+    void GameInput::OnMouseRDown(int x, int y) {
+        mousePressed_ = { x, y };
+        buttons_[0][Input::kMouseRbutton] = true;
     }
 
     void GameInput::OnMouseMove(int x, int y) {
-        mousePrevious_ = mouseCurrent_;
         mouseCurrent_ = { x,y };
+        OutputDebugString("OnMouseMove\n");
     }
 
     void GameInput::OnMouseLUp(int, int) {
-        buttons_[1][Input::kMouseLbutton] = false;
+        buttons_[0][Input::kMouseLbutton] = false;
     }
 
     void GameInput::OnMouseRUp(int, int) {
-        buttons_[1][Input::kMouseRbutton] = false;
+        buttons_[0][Input::kMouseRbutton] = false;
     }
 
     void GameInput::OnKeyDown(int keyCode) {

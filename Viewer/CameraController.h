@@ -18,12 +18,15 @@ namespace Viewer
         XMVECTOR worldNorth_;
         XMVECTOR worldEast_;
         
-        const float kMouseSensitivityX = .2f;
-        const float kMouseSensitivityY = .2f;
+        const float kMouseSensitivityX = .0005f;
+        const float kMouseSensitivityY = .0005f;
         const float kKeyboardSensitivity = 3.f;
 
         const GameInput& gameInput_;
 
+        float lastPitch_ = 0.f;
+        float lastYaw_ = 0.f;
+        
         float currentPitch_ = 0.f;
         float currentYaw_ = 0.f;
         float currentStrafe_ = 0.f;
