@@ -5,6 +5,8 @@
 #include "UserLevel/Collider/UserCollider.h"
 #include "Viewer\Viewport.h"
 
+using namespace std;
+
 namespace Pipeline
 {
     UserScene::UserScene(Viewer::Viewport &viewport) : viewport_(viewport) {}
@@ -38,13 +40,12 @@ namespace Pipeline
         return *meshes_[index];
     }
 
-    uint_t UserScene::SearchMesh(const char* name) const
+    uint_t UserScene::SearchMesh(const string& name) const
     {
         const uint_t meshesCount = meshes_.size();
         for (uint_t i = 0; i < meshesCount; ++i)
         {
-            if (strcmp(meshes_[i]->GetName(), name) == 0)
-            {
+            if (name == meshes_[i]->GetName()) {
                 return i;
             }
         }

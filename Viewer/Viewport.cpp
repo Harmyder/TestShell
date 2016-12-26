@@ -26,14 +26,14 @@ namespace Viewer
         grShutdown();
     }
 
-    uint_t Viewport::CreateRenderIndexedItem(const std::vector<Vertex>& vertices, const std::vector<uint16>& indices, const XMFLOAT4X4& transform) {
-        grRenderIndexedItem ri = grCreateRenderIndexedItem(vertices.data(), sizeof(Vertex), vertices.size(), indices.data(), indices.size(), transform, grGetGraphicsContext());
-        renderIndexedItems_.push_back(ri);
-        return renderIndexedItems_.size() - 1;
-    }
-
-    uint_t Viewport::CreateRenderItem(const std::vector<Vertex>& vertices, const XMFLOAT4X4& transform) {
-        grRenderItem ri = grCreateRenderItem(vertices.data(), sizeof(Vertex), vertices.size(), transform, grGetGraphicsContext());
+    uint_t Viewport::CreateRenderItem(const vector<RenderItemDesc>& viewportDescs) {
+        vector<grRenderItemDesc> descs;
+        descs.reserve(viewportDescs.size());
+        for (const auto& d : viewportDescs) {
+            const grRenderItemDesc descEngine(d.name, (uint8*)(void*)d.vertices.data(), (uint32)d.vertices.size(), d.transform);
+            descs.push_back(descEngine);
+        }
+        grRenderItem ri = grCreateRenderItems(descs, sizeof(Vertex), grGetGraphicsContext());
         renderItems_.push_back(ri);
         return renderItems_.size() - 1;
     }
@@ -49,9 +49,6 @@ namespace Viewer
     void Viewport::DrawRenderItems() {
         for (const auto& ri : renderItems_) {
             grDrawRenderItem(ri);
-        }
-        for (const auto& ri : renderIndexedItems_) {
-            grDrawRenderIndexedItem(ri);
         }
     }
 

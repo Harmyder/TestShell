@@ -24,9 +24,13 @@ using Microsoft::WRL::ComPtr;
 #include <vector>
 #include <queue>
 #include <map>
+#include <unordered_map>
 #include <string>
 #include <memory>
 #include <mutex>
+#include <algorithm>
+#include <numeric>
+#include <tuple>
 
 #include "Pile/Types.h"
 #include "Pile/Print/DebugPrint.h"

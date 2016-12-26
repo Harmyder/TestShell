@@ -27,7 +27,6 @@ namespace Viewer
 
     void GameInput::OnMouseMove(int x, int y) {
         mouseCurrent_ = { x,y };
-        OutputDebugString("OnMouseMove\n");
     }
 
     void GameInput::OnMouseLUp(int, int) {

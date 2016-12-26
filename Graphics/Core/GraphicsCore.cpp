@@ -21,7 +21,6 @@ namespace Graphics
     DEFINE_SINGLETON(GraphicsCore);
 
     ComPtr<ID3D12Device> g_device;
-    extern const uint32 g_frameResourcesCount = 3;
 
     const uint32 kGpuAllocatorPageSize = 0x10000;	// 64K. Resource heap must be a multiple of 64K
 
@@ -232,15 +231,15 @@ namespace Graphics
     }
 
     void GraphicsCore::CreateFrameResources() {
-        for (int i = 0; i < g_frameResourcesCount; ++i) {
+        for (int i = 0; i < kFrameResourcesCount; ++i) {
             frameResources_.push_back(make_unique<FrameResource>(kPassesCountAllowed, kSceneObjectsCountAllowed));
         }
     }
 
     void GraphicsCore::CreateDescriptorHeaps() {
-        UINT numDescriptors = (kSceneObjectsCountAllowed + kPassesCountAllowed) * g_frameResourcesCount;
+        UINT numDescriptors = (kSceneObjectsCountAllowed + kPassesCountAllowed) * kFrameResourcesCount;
 
-        passCbvOffset_ = kSceneObjectsCountAllowed * g_frameResourcesCount;
+        passCbvOffset_ = kSceneObjectsCountAllowed * kFrameResourcesCount;
 
         D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
         cbvHeapDesc.NumDescriptors = numDescriptors;
@@ -253,7 +252,7 @@ namespace Graphics
     void GraphicsCore::CreateConstantBufferViews() {
         UINT objCBByteSize = Utility::CalcConstBufSize(sizeof(PerObjConsts));
 
-        for (int frameIndex = 0; frameIndex < g_frameResourcesCount; ++frameIndex)
+        for (int frameIndex = 0; frameIndex < kFrameResourcesCount; ++frameIndex)
         {
             auto objCB = frameResources_[frameIndex]->objCB->Resource();
             for (UINT i = 0; i < kSceneObjectsCountAllowed; ++i)
@@ -276,7 +275,7 @@ namespace Graphics
 
         UINT passCBByteSize = Utility::CalcConstBufSize(sizeof(PerPassConsts));
 
-        for (int frameIndex = 0; frameIndex < g_frameResourcesCount; ++frameIndex)
+        for (int frameIndex = 0; frameIndex < kFrameResourcesCount; ++frameIndex)
         {
             auto passCB = frameResources_[frameIndex]->passCB->Resource();
             D3D12_GPU_VIRTUAL_ADDRESS cbAddress = passCB->GetGPUVirtualAddress();
@@ -383,8 +382,6 @@ namespace Graphics
         auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
         passCbvHandle.Offset(passCbvIndex, cbvSrvUavDescriptorSize_);
         commandList->SetGraphicsRootDescriptorTable(1, passCbvHandle);
-
-        currentObject_ = 0;
     }
 
     void GraphicsCore::EndScene() {
@@ -399,44 +396,30 @@ namespace Graphics
         currentBackBuffer_ = (currentBackBuffer_ + 1) % SWAP_CHAIN_BUFFERS_COUNT;
     }
 
-    void GraphicsCore::DrawRenderIndexedItem(RenderIndexedItem& ri) {
-        auto commandList = commandContext_->GetCommandList();
-
-        commandList->IASetVertexBuffers(0, 1, &ri.VertexBufferView());
-        commandList->IASetIndexBuffer(&ri.IndexBufferView());
-        commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-        auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
-        cbvHandle.Offset(0, cbvSrvUavDescriptorSize_);
-
-        commandList->SetGraphicsRootDescriptorTable(0, cbvHandle);
-
-        commandList->DrawIndexedInstanced(ri.IndicesCount(), 1, 0, 0, 0);
-    }
-
     void GraphicsCore::DrawRenderItem(RenderItem& ri) {
-        assert(currentObject_ < kSceneObjectsCountAllowed);
+        for (auto it = ri.GetSubItemsBegin(); it != ri.GetSubItemsEnd(); ++it) {
+            auto& rsi = (*it).second;
+            auto cbIndex = rsi.GetObjCbIndex() + currFrameResource_ * kSceneObjectsCountAllowed;
 
-        auto cbIndex = currentObject_ + currFrameResource_ * kSceneObjectsCountAllowed;
-        if (ri.IsDirty()) {
-            auto currObjectCB = frameResources_[currFrameResource_]->objCB.get();
-            PerObjConsts objConstants;
-            objConstants.World = ri.GetTransform();
-            currObjectCB->CopyData(cbIndex, &objConstants);
-            ri.DecreaseDirtyFramesCount();
+            if (rsi.IsDirty()) {
+                auto currObjectCB = frameResources_[currFrameResource_]->objCB.get();
+                PerObjConsts objConstants;
+                objConstants.World = rsi.GetTransform();
+                currObjectCB->CopyData(cbIndex, &objConstants);
+                rsi.DecreaseDirtyFramesCount();
+            }
+
+            auto commandList = commandContext_->GetCommandList();
+
+            commandList->IASetVertexBuffers(0, 1, &ri.VertexBufferView());
+            commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+            auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
+            cbvHandle.Offset(cbIndex, cbvSrvUavDescriptorSize_);
+
+            commandList->SetGraphicsRootDescriptorTable(0, cbvHandle);
+
+            commandList->DrawInstanced(rsi.VerticesCount(), 1, rsi.BaseVertexLocation(), 0);
         }
-        currentObject_++;
-
-        auto commandList = commandContext_->GetCommandList();
-
-        commandList->IASetVertexBuffers(0, 1, &ri.VertexBufferView());
-        commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-        auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
-        cbvHandle.Offset(cbIndex, cbvSrvUavDescriptorSize_);
-
-        commandList->SetGraphicsRootDescriptorTable(0, cbvHandle);
-
-        commandList->DrawInstanced(ri.VerticesCount(), 1, 0, 0);
     }
 }

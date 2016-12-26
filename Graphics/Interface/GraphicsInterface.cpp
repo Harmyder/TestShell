@@ -36,41 +36,16 @@ void grDrawRenderItem(grRenderItem renderItem) {
     GraphicsCore::GetInstance().DrawRenderItem(*ri);
 }
 
-void grDrawRenderIndexedItem(grRenderIndexedItem renderIndexedItem) {
-    RenderIndexedItem* ri = static_cast<RenderIndexedItemHandle*>(&renderIndexedItem)->GetValue();
-    GraphicsCore::GetInstance().DrawRenderIndexedItem(*ri);
-}
-
 grCommandContext grGetGraphicsContext() {
     auto cc = grCommandContext(GraphicsCore::GetInstance().GetCommandContext());
     return cc;
 }
 
-grRenderIndexedItem grCreateRenderIndexedItem(
-    const void* vertices, 
-    const uint_t vertexSize, 
-    const uint_t verticesCount,
-    const uint16* indices, 
-    const uint_t indicesCount,
-    const XMFLOAT4X4& transform,
-    grCommandContext commandContext) 
-{
+grRenderItem grCreateRenderItems(const vector<grRenderItemDesc>& renderItems, uint32 vertexSize, grCommandContext commandContext) {
     CommandContext* commandContextInternal = static_cast<CommandContextHandle*>(&commandContext)->GetValue();
-    RenderIndexedItem *renderIndexedItem;
-    RenderIndexedItem::Create(vertices, vertexSize, verticesCount, indices, sizeof(uint16), indicesCount, DXGI_FORMAT_R16_UINT, transform, *commandContextInternal, renderIndexedItem);
-    return grRenderIndexedItem(renderIndexedItem);
-}
-
-grRenderItem grCreateRenderItem(
-    const void* vertices,
-    const uint_t vertexSize,
-    const uint_t verticesCount,
-    const XMFLOAT4X4& transform,
-    grCommandContext commandContext)
-{
-    CommandContext* commandContextInternal = static_cast<CommandContextHandle*>(&commandContext)->GetValue();
+    auto renderItemsInternal = (vector<RenderItemDesc>*)((void*)&renderItems);
     RenderItem *renderItem;
-    RenderItem::Create(vertices, vertexSize, verticesCount, transform, *commandContextInternal, renderItem);
+    RenderItem::Create(*renderItemsInternal, vertexSize, *commandContextInternal, renderItem);
     return grRenderItem(renderItem);
 }
 

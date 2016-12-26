@@ -8,7 +8,6 @@
 
 #include "UserLevel/Mesh/UserMesh.h"
 #include "InputLevel/Mesh/InputMesh.h"
-#include "Viewer\Viewport.h"
 
 using namespace std;
 using namespace Viewer;
@@ -21,7 +20,7 @@ namespace Pipeline
     {
     }
 
-    void UserMeshFromInputMesh::Restore(Viewport& viewport)
+    void UserMeshFromInputMesh::Restore()
     {
         mesh_.SetName(inputMesh_.GetName());
         mesh_.SetTransform(inputMesh_.GetTransform());
@@ -53,8 +52,5 @@ namespace Pipeline
             nonIndexedVertices.push_back(mg.Vertices[mg.Indices[i]]);
         }
         mg.Vertices = move(nonIndexedVertices);
-
-        auto rii = viewport.CreateRenderItem(mg.Vertices, mesh_.GetTransform());
-        mesh_.SetRenderItemIndex(rii);
     }
 }

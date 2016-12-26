@@ -3,6 +3,8 @@
 #include "UserLevel/Mesh/UserMesh.h"
 #include "InputLevel/Mesh/InputMesh.h"
 
+using namespace std;
+
 namespace Pipeline
 {
     // **************************************************************************************
@@ -11,15 +13,9 @@ namespace Pipeline
     {}
 
     // **************************************************************************************
-    void UserMesh::SetName(const char *name)
+    void UserMesh::SetName(const string name)
     {
         name_ = name;
-    }
-
-    // **************************************************************************************
-    const char *UserMesh::GetName()
-    {
-        return name_;
     }
 
     // **************************************************************************************

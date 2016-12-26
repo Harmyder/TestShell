@@ -21,7 +21,7 @@ namespace Pipeline
         const uint_t GetMeshesCount() const;
         const UserMesh& GetMesh(uint_t index) const;
         UserMesh& GetNonConstMesh(uint_t index);
-        uint_t SearchMesh(const char* name) const;
+        uint_t SearchMesh(const std::string& name) const;
 
         void AddCollider(UserCollider *collider);
         const uint_t GetCollidersCount() const;

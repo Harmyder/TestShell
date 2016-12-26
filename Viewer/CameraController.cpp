@@ -4,7 +4,6 @@
 
 #include "GameInput.h"
 #include "Graphics\Interface\GraphicsInterface.h"
-#include "Pile\Print\DebugPrint.h"
 
 using namespace std;
 using namespace DirectX;
@@ -24,7 +23,6 @@ namespace Viewer
         {
             float yaw = gameInput_.GetMousePressedDeltaX() * kMouseSensitivityX;
             float pitch = gameInput_.GetMousePressedDeltaY() * kMouseSensitivityY;
-            Pile::DebugPrintf("%f %f - %f %f\n", yaw, pitch, lastYaw_, lastPitch_);
             currentYaw_ += yaw - lastYaw_;
             currentPitch_ += pitch - lastPitch_;
             lastYaw_ = yaw;
