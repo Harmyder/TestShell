@@ -1,8 +1,9 @@
 #include "stdafx.h"
 
 #include <algorithm>
+using namespace std;
 
-#include "InputLevel/Mesh/InputMesh.h"
+#include "InputLevel/InputMesh.h"
 
 namespace Pipeline
 {
@@ -12,22 +13,6 @@ namespace Pipeline
             other.PositionIndex == PositionIndex &&
             other.NormalIndex == NormalIndex &&
             other.TexCoordIndex == TexCoordIndex;
-    }
-
-    // **************************************************************************************
-    InputMesh::InputMesh() {
-        name_[0] = 0;
-    }
-
-    // **************************************************************************************
-    void InputMesh::SetName(const char *name) {
-        assert(name);
-        strcpy_s(name_, name);
-    }
-
-    // **************************************************************************************
-    const char *InputMesh::GetName() const {
-        return name_;
     }
 
     // **************************************************************************************
@@ -83,16 +68,6 @@ namespace Pipeline
     // **************************************************************************************
     const std::vector<uint16>& InputMesh::GetTrianglesTexCoords() const {
         return trianglesTexCoords_;
-    }
-
-    // **************************************************************************************
-    void InputMesh::SetTransform(const XMFLOAT4X4& transform) {
-        transform_ = transform;
-    }
-
-    // **************************************************************************************
-    const XMFLOAT4X4& InputMesh::GetTransform() const {
-        return transform_;
     }
 
     // **************************************************************************************

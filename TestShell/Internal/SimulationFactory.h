@@ -5,10 +5,10 @@
 
 class BaseSimulation;
 
-class BaseFactory : public Pile::NamedObject
+class BaseFactory : public Pile::NamedByCopyObject
 {
 public:
-    BaseFactory(const char *name) : NamedObject(name) {}
+    BaseFactory(const char *name) : NamedByCopyObject(name) {}
 
     virtual std::unique_ptr<BaseSimulation> Create() = 0;
     virtual ~BaseFactory() {}

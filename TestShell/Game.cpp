@@ -77,7 +77,7 @@ void Game::FillSimulationsMenu(Menu &menu, const SimulationManager &simulationMa
             GameCommandSetNextSimulation *command = new GameCommandSetNextSimulation((uint32)i);
             command->SetReceiver(this);
 
-            const char *title = simulationManager.GetFactory(i)->GetName();
+            const char *title = simulationManager.GetFactory(i)->GetName().c_str();
             menu.AddLeaf(simsNodeId, command, title);
         }
     }

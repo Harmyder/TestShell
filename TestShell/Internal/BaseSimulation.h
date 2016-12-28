@@ -10,7 +10,7 @@ namespace Viewer {
     class Viewport;
 }
 
-class BaseSimulation : Pile::NamedObject
+class BaseSimulation : Pile::NamedByCopyObject
 {
 public:
     BaseSimulation(const char* name);
@@ -18,7 +18,7 @@ public:
 
 public:
     virtual void Init(Viewer::Viewport& viewport);
-    void ImportScene(const char *filename);
+    void ImportScene(const std::string& path, const std::string& filetitle);
 
     virtual void BeforeStep() ;
     virtual void Step      (float deltaTime) = 0;

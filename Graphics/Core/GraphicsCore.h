@@ -68,7 +68,6 @@ namespace Graphics
         void Update();
         void BeginScene();
         void EndScene();
-        void DrawRenderIndexedItem(RenderIndexedItem& ri);
         void DrawRenderItem(RenderItem& ri);
 
         CommandContext* GetCommandContext() { return commandContext_.get(); }

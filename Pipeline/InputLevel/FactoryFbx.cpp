@@ -2,22 +2,24 @@
 
 #include "stdafx.h"
 
-#include "InputLevel/Factory/FactoryFbx.h"
-#include "InputLevel/Mesh/InputMesh.h"
+#include "InputLevel/FactoryFbx.h"
+#include "InputLevel/InputMesh.h"
+#include "InputLevel/InputCollider.h"
 #include "3rdParty/YolaFbxImporter/YolaFbxImporter/YolaFbxImporter.h"
 
 using namespace DirectX;
+using namespace std;
 
 namespace Pipeline
 {
-    void FactoryFbx::Build(InputMesh &mesh, const ::FBX::Node *fbxNode, const XMFLOAT4X4 &globalTransform, float scaleFactor)
+    unique_ptr<InputMesh> FactoryFbx::BuildMesh(const ::FBX::Node *fbxNode, const XMFLOAT4X4 &globalTransform, float scaleFactor)
     {
         assert(fbxNode->element->m_Type == ::FBX::Element::MESH);
 
         const ::FBX::Mesh *fbxMesh = static_cast<const ::FBX::Mesh *>(fbxNode->element);
 
-        mesh.SetName(fbxNode->name);
-        mesh.SetTransform(globalTransform);
+        auto mesh = make_unique<InputMesh>(fbxNode->name);
+        mesh->SetTransform(globalTransform);
 
         // Import positions
         {
@@ -30,7 +32,7 @@ namespace Pipeline
                 vertices[v].z = fbxMesh->vertices[v].p[2] * scaleFactor;
                 vertices[v].w = fbxMesh->vertices[v].p[3] * scaleFactor;
             }
-            mesh.SetPositions(vertices);
+            mesh->SetPositions(vertices);
         }
 
         // Import normals
@@ -60,7 +62,7 @@ namespace Pipeline
                 normalXM = normalXM / length;
                 XMStoreFloat4(&normals[n], normalXM);
             }
-            mesh.SetNormals(normals);
+            mesh->SetNormals(normals);
         }
 
         // Import triangles positions
@@ -73,7 +75,7 @@ namespace Pipeline
                 trianglesPositions[t * 3 + 1] = static_cast<uint16>(fbxMesh->triangles[t].v[1]);
                 trianglesPositions[t * 3 + 2] = static_cast<uint16>(fbxMesh->triangles[t].v[2]);
             }
-            mesh.SetTrianglesPositions(trianglesPositions);
+            mesh->SetTrianglesPositions(trianglesPositions);
         }
 
         // Import texCoords
@@ -85,7 +87,7 @@ namespace Pipeline
                 uvs[uvIndex].x = fbxMesh->uvs[uvIndex].p[0];
                 uvs[uvIndex].y = fbxMesh->uvs[uvIndex].p[1];
             }
-            mesh.SetTexCoords(uvs);
+            mesh->SetTexCoords(uvs);
         }
 
         // Import triangles texCoords
@@ -98,7 +100,43 @@ namespace Pipeline
                 trianglesTexCoords[t * 3 + 1] = static_cast<uint16>(fbxMesh->triangles[t].uv[1]);
                 trianglesTexCoords[t * 3 + 2] = static_cast<uint16>(fbxMesh->triangles[t].uv[2]);
             }
-            mesh.SetTrianglesTexCoords(trianglesTexCoords);
+            mesh->SetTrianglesTexCoords(trianglesTexCoords);
         }
+
+        return mesh;
+    }
+
+    std::unique_ptr<InputCollider> FactoryFbx::BuildCollider(const FBX::Node *fbxNode, const XMFLOAT4X4 &globalTransform, float scaleFactor, const ColliderFbx& colliderFbx) {
+        assert(fbxNode->element->m_Type == ::FBX::Element::MESH);
+
+        unique_ptr<InputCollider> collider;
+        switch (colliderFbx.type) {
+        case ColliderType::kBox:
+            collider = make_unique<InputBoxCollider>(
+                fbxNode->name,
+                globalTransform,
+                colliderFbx.x * scaleFactor,
+                colliderFbx.y * scaleFactor,
+                colliderFbx.z * scaleFactor
+                );
+            break;
+        case ColliderType::kSphere:
+            collider = make_unique<InputSphereCollider>(
+                fbxNode->name,
+                globalTransform,
+                colliderFbx.radius * scaleFactor
+                );
+            break;
+        case ColliderType::kCapsule:
+            collider = make_unique<InputCapsuleCollider>(
+                fbxNode->name,
+                globalTransform,
+                colliderFbx.height * scaleFactor,
+                colliderFbx.radius * scaleFactor
+                );
+            break;
+        }
+
+        return collider;
     }
 }

@@ -4,10 +4,10 @@
 
 #include "stdafx.h"
 
-#include "UserLevel/Mesh/Algorithm/UserMeshFromInputMesh.h"
+#include "UserLevel/UserMeshFromInputMesh.h"
 
-#include "UserLevel/Mesh/UserMesh.h"
-#include "InputLevel/Mesh/InputMesh.h"
+#include "UserLevel/UserMesh.h"
+#include "InputLevel/InputMesh.h"
 
 using namespace std;
 using namespace Viewer;
@@ -22,7 +22,6 @@ namespace Pipeline
 
     void UserMeshFromInputMesh::Restore()
     {
-        mesh_.SetName(inputMesh_.GetName());
         mesh_.SetTransform(inputMesh_.GetTransform());
 
         MeshGeometry &mg = mesh_.GetNonConstGeometry();
@@ -34,7 +33,6 @@ namespace Pipeline
         mg.Vertices = move(decltype(mg.Vertices)(positionsCount));
         for (uint32 i = 0; i < positionsCount; ++i) {
             XMFloat4to3(mg.Vertices[i].Position, positions[i]);
-            mg.Vertices[i].Color = XMFLOAT4(DirectX::Colors::White);
         }
 
         const auto& vertices = inputMesh_.GetVertices();

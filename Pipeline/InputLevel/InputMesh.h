@@ -1,15 +1,13 @@
-// **************************************************************************************
-// Desc: Stores mesh data
-// **************************************************************************************
+#pragma once
+
+#include "Pile\Attribute\NamedObject.h"
+
 namespace Pipeline
 {
-    class InputMesh
+    class InputMesh : public Pile::NamedByCopyObject
     {
     public:
-        InputMesh();
-
-        void SetName(const char *name);
-        const char *GetName() const;
+        InputMesh(const std::string& name) : NamedByCopyObject(name) {}
 
         void SetPositions(std::vector<XMFLOAT4> &positions);
         void SetTrianglesPositions(std::vector<uint16> &triangles);
@@ -24,8 +22,8 @@ namespace Pipeline
         const std::vector<XMFLOAT2>& GetTexCoords() const;
         const std::vector<uint16>&   GetTrianglesTexCoords() const;
 
-        void SetTransform(const XMFLOAT4X4& transform);
-        const XMFLOAT4X4& GetTransform() const;
+        void SetTransform(const XMFLOAT4X4& transform) { transform_ = transform; }
+        const XMFLOAT4X4& GetTransform() const { return transform_; }
 
         struct Vertex
         {
@@ -43,7 +41,6 @@ namespace Pipeline
         void ComputeVertices();
 
     private:
-        char name_[128];
         std::vector<XMFLOAT4> positions_;
         std::vector<uint16>   trianglesPositions_;
         std::vector<XMFLOAT4> normals_;

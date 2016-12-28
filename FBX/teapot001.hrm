@@ -1,0 +1,3 @@
+-name Box001 -type Box -y 12.6188 -x 19.2042 -z 58.7893
+-name Box002 -type Box -y 78.9109 -x 26.9344 -z 8.6284
+-name Sphere001 -type Sphere -radius 21.5884

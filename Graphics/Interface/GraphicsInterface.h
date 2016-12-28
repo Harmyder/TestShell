@@ -17,33 +17,30 @@ void grDrawRenderItem(grRenderItem renderItem);
 // of them even in single threaded application
 grCommandContext grGetGraphicsContext();
 
-//grRenderIndexedItem grCreateRenderIndexedItem(
-//    const void* vertices,
-//    const uint_t vertexSize,
-//    const uint_t verticesCount,
-//    const uint16* indices,
-//    const uint_t indicesCount,
-//    const XMFLOAT4X4& transform,
-//    grCommandContext commandContext);
+struct grRenderVertices {
+    grRenderVertices(const uint8* data, const uint32 verticesCount) :
+        data(data),
+        verticesCount(verticesCount) {}
 
-//grRenderItem grCreateRenderItem(
-//    const void* vertices, 
-//    const uint_t vertexSize, 
-//    const uint_t verticesCount, 
-//    const XMFLOAT4X4& transform,
-//    grCommandContext commandContext);
+    const uint8* data;
+    const uint32 verticesCount;
+};
 
 struct grRenderItemDesc
 {
-    grRenderItemDesc(const std::string& name, const uint8* data, const uint32 verticesCount, const XMFLOAT4X4& transform) :
-        name(name), data(data), verticesCount(verticesCount), transform(transform) {}
+    grRenderItemDesc(const std::string& name, const XMFLOAT4X4& transform) :
+        name(name),
+        transform(transform) {}
 
     const std::string& name;
-    const uint8* data;
-    const uint32 verticesCount;
     const XMFLOAT4X4& transform;
 };
-grRenderItem grCreateRenderItems(const std::vector<grRenderItemDesc>& renderItems, uint32 vertexSize, grCommandContext commandContext);
+grRenderItem grCreateRenderItem(
+    const std::vector<grRenderVertices>& vertices,
+    const std::vector<grRenderItemDesc>& renderItems,
+    const std::vector<uint32>& itemsToVertices,
+    uint32 vertexSize,
+    grCommandContext commandContext);
 
 void grDestroyRenderItem(grRenderItem renderItem);
 

@@ -2,17 +2,17 @@
 
 #include "Internal/BaseSimulation.h"
 #include "Pipeline/SceneManager/SceneManager.h"
-#include "Pipeline/UserLevel/Scene/UserScene.h"
-#include "Pipeline/UserLevel/Collider/UserCollider.h"
-#include "Pipeline/UserLevel/Mesh/UserMesh.h"
-#include "Pipeline/UserLevel/Factory/UserSceneFactory.h"
+#include "Pipeline/UserLevel/UserScene.h"
+#include "Pipeline/UserLevel/UserCollider.h"
+#include "Pipeline/UserLevel/UserMesh.h"
+#include "Pipeline/UserLevel/UserSceneFactory.h"
 #include "Viewer\Viewport.h"
 
 using namespace std;
 using namespace Pipeline;
 using namespace Viewer;
 
-BaseSimulation::BaseSimulation(const char* name) : Pile::NamedObject(name) {}
+BaseSimulation::BaseSimulation(const char* name) : Pile::NamedByCopyObject(name) {}
 
 BaseSimulation::~BaseSimulation() {}
 
@@ -22,10 +22,10 @@ void BaseSimulation::Init(Viewport &viewport)
     scene_ = make_unique<UserScene>(viewport);
 }
 
-void BaseSimulation::ImportScene(const char *filename)
+void BaseSimulation::ImportScene(const string& path, const string& filetitle)
 {
     SceneManager &manager = SceneManager::GetInstance();
-    manager.Load(filename);
+    manager.Load(path, filetitle);
 
     InputScene *inputScene = manager.GetScene();
     UserSceneFactory factory;

@@ -3,16 +3,27 @@
 namespace Pile
 {
 
-    class NamedObject
+    class NamedByRefObject
     {
     protected:
-        NamedObject(const char* name) : name_(name) {}
+        NamedByRefObject(const std::string& name) : name_(name) {}
 
     public:
-        const char* GetName() const { return name_; };
+        const std::string& GetName() const { return name_; };
 
     private:
-        const char* name_;
+        const std::string& name_;
     };
 
+    class NamedByCopyObject
+    {
+    protected:
+        NamedByCopyObject(const std::string& name) : name_(name) {}
+
+    public:
+        const std::string& GetName() const { return name_; };
+
+    private:
+        const std::string name_;
+    };
 }

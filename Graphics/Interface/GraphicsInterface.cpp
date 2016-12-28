@@ -41,11 +41,18 @@ grCommandContext grGetGraphicsContext() {
     return cc;
 }
 
-grRenderItem grCreateRenderItems(const vector<grRenderItemDesc>& renderItems, uint32 vertexSize, grCommandContext commandContext) {
+grRenderItem grCreateRenderItem(
+    const std::vector<grRenderVertices>& renderVertices,
+    const std::vector<grRenderItemDesc>& renderItems,
+    const std::vector<uint32>& itemsToVertices,
+    uint32 vertexSize,
+    grCommandContext commandContext)
+{
     CommandContext* commandContextInternal = static_cast<CommandContextHandle*>(&commandContext)->GetValue();
     auto renderItemsInternal = (vector<RenderItemDesc>*)((void*)&renderItems);
+    auto renderVerticesInternal = (vector<RenderVerticesDesc>*)((void*)&renderVertices);
     RenderItem *renderItem;
-    RenderItem::Create(*renderItemsInternal, vertexSize, *commandContextInternal, renderItem);
+    RenderItem::Create(*renderItemsInternal, *renderVerticesInternal, itemsToVertices, vertexSize, *commandContextInternal, renderItem);
     return grRenderItem(renderItem);
 }
 

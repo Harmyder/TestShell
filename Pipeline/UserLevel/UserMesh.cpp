@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
-#include "UserLevel/Mesh/UserMesh.h"
-#include "InputLevel/Mesh/InputMesh.h"
+#include "UserLevel/UserMesh.h"
+#include "InputLevel/InputMesh.h"
 
 using namespace std;
 
@@ -9,14 +9,9 @@ namespace Pipeline
 {
     // **************************************************************************************
     UserMesh::UserMesh(const InputMesh &mesh) :
+        NamedByRefObject(mesh.GetName()),
         input_(mesh)
     {}
-
-    // **************************************************************************************
-    void UserMesh::SetName(const string name)
-    {
-        name_ = name;
-    }
 
     // **************************************************************************************
     const XMFLOAT4X4& UserMesh::GetTransform() const

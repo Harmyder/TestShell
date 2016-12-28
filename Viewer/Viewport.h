@@ -19,15 +19,34 @@ namespace Viewer
 
         HWND GetHwnd() { return hwnd_; }
 
+        enum class PredefinedGeometryType {
+            kBox = 0,
+            kSphere,
+            kSize
+        };
+
         struct RenderItemDesc {
-            RenderItemDesc(const std::string& name, const std::vector<Vertex>& vertices, const XMFLOAT4X4& transform) :
-                name(name), vertices(vertices), transform(transform) {}
+            RenderItemDesc(const std::string& name, const XMFLOAT4X4& transform) :
+                name(name), transform(transform) {}
 
             const std::string& name;
-            const std::vector<Vertex>& vertices;
-            const XMFLOAT4X4& transform;
+            const XMFLOAT4X4 transform;
         };
-        uint_t CreateRenderItem(const std::vector<RenderItemDesc>& viewportDescs);
+        struct RenderItemVerticesDesc : RenderItemDesc {
+            RenderItemVerticesDesc(const std::string& name, const std::vector<Vertex>& vertices, const XMFLOAT4X4& transform) :
+                RenderItemDesc(name, transform),
+                vertices(vertices) {}
+
+            const std::vector<Vertex>& vertices;
+        };
+        struct RenderItemTypeDesc : RenderItemDesc {
+            RenderItemTypeDesc(const std::string& name, const PredefinedGeometryType type, const XMFLOAT4X4& transform) :
+                RenderItemDesc(name, transform),
+                type(type) {}
+
+            const PredefinedGeometryType type;
+        };
+        uint_t CreateRenderItem(const std::vector<RenderItemVerticesDesc>& viewportVerticesDescs, const std::vector<RenderItemTypeDesc>& viewportTypeDescs);
 
         void BeforeDraw();
         void AfterDraw();
@@ -35,8 +54,14 @@ namespace Viewer
         void DrawRenderItems();
 
     private:
+        void PrepareGeometry();
+
+    private:
         HWND hwnd_;
 
         std::vector<grRenderItem> renderItems_;
+        std::array<std::vector<Vertex>, (size_t)PredefinedGeometryType::kSize> geometries_;
     };
+
+    using PredefinedGeometryType = Viewport::PredefinedGeometryType;
 }

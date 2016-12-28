@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="GameInput.h" />
+    <ClInclude Include="GeometryGenerator.h" />
     <ClInclude Include="Menu\Menu.h" />
     <ClInclude Include="Menu\MenuWalker.h" />
     <ClInclude Include="stdafx.h" />
@@ -163,6 +164,7 @@
   <ItemGroup>
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="GameInput.cpp" />
+    <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="Menu\Menu.cpp" />
     <ClCompile Include="Menu\MenuWalker.cpp" />
     <ClCompile Include="stdafx.cpp">

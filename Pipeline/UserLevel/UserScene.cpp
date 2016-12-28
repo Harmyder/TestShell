@@ -1,8 +1,8 @@
 #include "stdafx.h"
 
-#include "UserLevel/Scene/UserScene.h"
-#include "UserLevel/Mesh/UserMesh.h"
-#include "UserLevel/Collider/UserCollider.h"
+#include "UserLevel\UserScene.h"
+#include "UserLevel\UserMesh.h"
+#include "UserLevel\UserCollider.h"
 #include "Viewer\Viewport.h"
 
 using namespace std;
@@ -77,7 +77,7 @@ namespace Pipeline
         const uint_t collidersCount = colliders_.size();
         for (uint_t i = 0; i < collidersCount; ++i)
         {
-            if (strcmp(colliders_[i]->GetName(), name) == 0)
+            if (strcmp(colliders_[i]->GetName().c_str(), name) == 0)
             {
                 return i;
             }

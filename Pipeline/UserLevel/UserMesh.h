@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Pile/Attribute/NonCopyable.h"
+#include "Pile\Attribute\NamedObject.h"
 
 #include "Viewer\Vertex.h"
 
@@ -14,13 +15,10 @@ namespace Pipeline
         std::vector<uint16> Indices;
     };
 
-    class UserMesh : public Pile::NonCopyable
+    class UserMesh : public Pile::NamedByRefObject, public Pile::NonCopyable
     {
     public:
         UserMesh(const InputMesh &mesh);
-
-        void SetName(const std::string name);
-        const std::string& GetName() const { return name_; }
 
         const DirectX::XMFLOAT4X4& GetTransform() const;
         void SetTransform(const DirectX::XMFLOAT4X4& transform);
@@ -36,7 +34,6 @@ namespace Pipeline
         const InputMesh &input_;
         uint_t renderItemIndex_;
 
-        std::string name_;
         MeshGeometry meshGeometry_;
 
         DirectX::XMFLOAT4X4 transform_;

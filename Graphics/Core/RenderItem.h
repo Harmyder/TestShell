@@ -5,11 +5,14 @@
 
 namespace Graphics {
 
+    struct RenderVerticesDesc // keep in sync with grRenderVertices
+    {
+        uint8 *data;
+        uint32 verticesCount;
+    };
     struct RenderItemDesc // keep in sync with grRenderItemDesc
     {
         std::string& name;
-        uint8 *data;
-        uint32 verticesCount;
         XMFLOAT4X4& transform;
     };
 
@@ -56,25 +59,48 @@ namespace Graphics {
     class RenderItem
     {
     public:
-        static void Create(const std::vector<RenderItemDesc>& descs, uint32 vertexSize, CommandContext& commandContext_, RenderItem *&pri) {
+        static void Create(
+            const std::vector<RenderItemDesc>& itemsDescs,
+            const std::vector<RenderVerticesDesc>& verticesDescs,
+            const std::vector<uint32> itemsToVertices,
+            uint32 vertexSize, CommandContext& commandContext_,
+            RenderItem *&pri)
+        {
             pri = new RenderItem();
-            uint_t verticesCount = 0;
             auto objCbIndices = GraphicsCore::GetInstance().GetFreePerObjCbIndices();
-            for (auto& d : descs) {
-                pri->subItems_.emplace(std::piecewise_construct, std::forward_as_tuple(d.name), std::forward_as_tuple((uint32)verticesCount, d.verticesCount, d.transform, objCbIndices.AcquireIndex(), *pri));
-                verticesCount += d.verticesCount;
+            std::vector<uint32> verticesOffsets;
+            verticesOffsets.reserve(verticesDescs.size());
+            uint32 totalVerticesCount = 0;
+            for (const auto& vd : verticesDescs) {
+                verticesOffsets.push_back(totalVerticesCount);
+                totalVerticesCount += vd.verticesCount;
+            }
+
+            for (uint_t i = 0; i < itemsDescs.size(); ++i) {
+                const auto& cur_id = itemsDescs[i];
+                const auto& cur_vd = verticesDescs[itemsToVertices[i]];
+                pri->subItems_.emplace(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(cur_id.name),
+                    std::forward_as_tuple(
+                        verticesOffsets[i],
+                        cur_vd.verticesCount,
+                        cur_id.transform,
+                        objCbIndices.AcquireIndex(),
+                        *pri)
+                );
             }
 
             std::vector<uint8> vertices;
-            vertices.reserve(verticesCount * vertexSize);
-            for (auto& d : descs) {
-                vertices.insert(vertices.end(), d.data, d.data + d.verticesCount * vertexSize);
+            vertices.reserve(totalVerticesCount * vertexSize);
+            for (auto& vd : verticesDescs) {
+                vertices.insert(vertices.end(), vd.data, vd.data + vd.verticesCount * vertexSize);
             }
 
             pri->vertexByteStride_ = vertexSize;
-            pri->vbByteSize_ = vertexSize * (uint32)verticesCount;
+            pri->vbByteSize_ = vertexSize * (uint32)totalVerticesCount;
 
-            pri->vertexBuffer_.Create(L"ri_vertex", verticesCount, vertexSize, vertices.data(), &commandContext_);
+            pri->vertexBuffer_.Create(L"ri_vertex", totalVerticesCount, vertexSize, vertices.data(), &commandContext_);
         }
 
         D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const;
