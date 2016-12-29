@@ -5,27 +5,31 @@
 
 namespace Graphics {
 
+    struct Material;
+
     struct RenderVerticesDesc // keep in sync with grRenderVertices
     {
         uint8 *data;
         uint32 verticesCount;
     };
-    struct RenderItemDesc // keep in sync with grRenderItemDesc
+    struct RenderItemDesc // keep in sync with grRenderSubItemDesc
     {
         std::string& name;
         XMFLOAT4X4& transform;
+        Material *material;
     };
 
     class RenderItem;
     
     class RenderSubItem {
     public:
-        RenderSubItem(uint32 baseVertexLocation, uint32 verticesCount, const XMFLOAT4X4& transform, uint32 objCbIndex, const RenderItem& container) :
+        RenderSubItem(uint32 baseVertexLocation, uint32 verticesCount, const XMFLOAT4X4& transform, uint32 objCbIndex, Material* material, const RenderItem& container) :
             baseVertexLocation_(baseVertexLocation),
             verticesCount_(verticesCount),
             objCbIndex_(objCbIndex),
             transform_(transform),
-            dirtyFramesCount_(kFrameResourcesCount),
+            dirtyFramesCount_(GraphicsCore::GetInstance().GetFrameResourcesCount()),
+            material_(*material),
             container_(container)
         {}
 
@@ -34,15 +38,17 @@ namespace Graphics {
         uint32 BaseVertexLocation() const { return baseVertexLocation_; }
         uint32 VerticesCount() const { return verticesCount_; }
         
-        uint32 GetObjCbIndex() const { return objCbIndex_; }
+        uint32 CbIndex() const { return objCbIndex_; }
         const bool IsDirty() const { return dirtyFramesCount_ != 0; }
         const void DecreaseDirtyFramesCount() { --dirtyFramesCount_; }
 
         const XMFLOAT4X4& GetTransform() const { return transform_; }
         void SetTransform(const XMFLOAT4X4& transform) {
             transform_ = transform;
-            dirtyFramesCount_ = kFrameResourcesCount;
+            dirtyFramesCount_ = GraphicsCore::GetInstance().GetFrameResourcesCount();
         }
+
+        Material& GetMaterial() { return material_; }
 
         const RenderItem& Container() const { return container_; }
 
@@ -52,6 +58,7 @@ namespace Graphics {
         uint32 dirtyFramesCount_;
         uint32 objCbIndex_;
         XMFLOAT4X4 transform_;
+        Material& material_;
 
         const RenderItem& container_;
     };
@@ -83,10 +90,11 @@ namespace Graphics {
                     std::piecewise_construct,
                     std::forward_as_tuple(cur_id.name),
                     std::forward_as_tuple(
-                        verticesOffsets[i],
+                        verticesOffsets[itemsToVertices[i]],
                         cur_vd.verticesCount,
                         cur_id.transform,
                         objCbIndices.AcquireIndex(),
+                        cur_id.material,
                         *pri)
                 );
             }
@@ -98,7 +106,7 @@ namespace Graphics {
             }
 
             pri->vertexByteStride_ = vertexSize;
-            pri->vbByteSize_ = vertexSize * (uint32)totalVerticesCount;
+            pri->vbByteSize_ = (uint32)vertices.size();
 
             pri->vertexBuffer_.Create(L"ri_vertex", totalVerticesCount, vertexSize, vertices.data(), &commandContext_);
         }
@@ -110,6 +118,7 @@ namespace Graphics {
         using SubItems = std::unordered_map<std::string, RenderSubItem>;
         const SubItems::iterator GetSubItemsBegin() { return begin(subItems_); }
         const SubItems::iterator GetSubItemsEnd() { return end(subItems_); }
+        RenderSubItem& FindSubItem(const std::string& name) { return subItems_.find(name)->second; }
 
     private:
         SubItems subItems_;

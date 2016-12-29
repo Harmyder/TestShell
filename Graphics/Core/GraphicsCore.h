@@ -4,7 +4,6 @@
 #include "Pile\Pattern\Singleton.h"
 #include "Pile\DirectXInclude.h"
 #include "Core\Camera.h"
-#include "Consts.h"
 #include <wrl.h>
 
 struct D3D12_CPU_DESCRIPTOR_HANDLE;
@@ -31,26 +30,37 @@ namespace Graphics
     // every taken index stores previous free index
     class FreeIndices {
     public:
-        FreeIndices() {
-            std::iota(indices_, indices_ + kSceneObjectsCountAllowed, 1);
+        FreeIndices(uint32 sceneObjectsCountLimit) :
+            indices_(sceneObjectsCountLimit + 1) 
+        {
+            std::iota(std::begin(indices_), std::end(indices_), 1);
         }
 
         uint32 AcquireIndex() {
             const uint32 res = indices_[0];
             indices_[0] = indices_[res];
             indices_[res] = 0;
-            return res;
+            return res - 1;
         }
 
         void ReleaseIndex(uint32 index) {
-            const uint32 prevFree = indices_[index];
-            indices_[index] = indices_[prevFree];
-            indices_[prevFree] = index;
+            auto internalIndex = index + 1;
+            const uint32 prevFree = indices_[internalIndex];
+            indices_[internalIndex] = indices_[prevFree];
+            indices_[prevFree] = internalIndex;
         }
 
     private:
         // One more because first index servers to point to first free real index
-        uint32 indices_[kSceneObjectsCountAllowed + 1];
+        std::vector<uint32> indices_;
+    };
+
+    struct InitParams {
+        uint32 SceneObjectsCountLimit;
+        uint32 PassesCountLimit;
+        uint32 MaterialsCountLimit;
+
+        uint32 FrameResourcesCount;
     };
 
     class GraphicsCore : Pile::NonCopyable
@@ -61,7 +71,7 @@ namespace Graphics
     public:
         ~GraphicsCore();
 
-        void Initialize(HWND hwnd);
+        void Initialize(HWND hwnd, const InitParams& ip);
 
         void Resize();
 
@@ -73,7 +83,9 @@ namespace Graphics
         CommandContext* GetCommandContext() { return commandContext_.get(); }
         Camera& GetCamera() { return camera_; }
 
-        FreeIndices& GetFreePerObjCbIndices() { return freePerObjCbIndices; }
+        FreeIndices& GetFreePerObjCbIndices() { return *freePerObjCbIndices_; }
+        FreeIndices& GetFreeMaterialCbIndices() { return *freeMaterialCbIndices_; }
+        uint32 GetFrameResourcesCount() const { return ip_.FrameResourcesCount; }
 
     private:
         void CreateSwapChain();
@@ -94,6 +106,7 @@ namespace Graphics
         void UpdatePassesCBs();
 
     private:
+        InitParams ip_;
         HWND hwnd_;
         Microsoft::WRL::ComPtr<IDXGIFactory4> dxgiFactory_;
         Microsoft::WRL::ComPtr<IDXGISwapChain> swapChain_;
@@ -116,7 +129,8 @@ namespace Graphics
         Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> cbvHeap_;
         std::map<std::string, Microsoft::WRL::ComPtr<ID3D12PipelineState>> psos_;
-        FreeIndices freePerObjCbIndices;
+        std::unique_ptr<FreeIndices> freePerObjCbIndices_;
+        std::unique_ptr<FreeIndices> freeMaterialCbIndices_;
 
         std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayout_;
 
@@ -126,6 +140,7 @@ namespace Graphics
         std::vector<std::unique_ptr<FrameResource>> frameResources_;
         uint32 currFrameResource_ = 0;
         uint32 passCbvOffset_;
+        uint32 matCbvOffset_;
         uint32 currentObject_;
 
         Camera camera_;

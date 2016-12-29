@@ -154,10 +154,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Core\Camera.h" />
+    <ClInclude Include="Core\Lighting.h" />
     <ClInclude Include="SDK\CommandAllocatorPool.h" />
     <ClInclude Include="SDK\CommandContext.h" />
     <ClInclude Include="SDK\CommandQueue.h" />
-    <ClInclude Include="Consts.h" />
     <ClInclude Include="Core\FrameResource.h" />
     <ClInclude Include="SDK\GpuBuffer.h" />
     <ClInclude Include="Core\GraphicsCore.h" />
@@ -172,6 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core\Camera.cpp" />
+    <ClCompile Include="Core\Lighting.cpp" />
     <ClCompile Include="SDK\CommandAllocatorPool.cpp" />
     <ClCompile Include="SDK\CommandContext.cpp" />
     <ClCompile Include="SDK\CommandQueue.cpp" />

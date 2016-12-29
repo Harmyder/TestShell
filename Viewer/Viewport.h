@@ -2,9 +2,9 @@
 
 #include "Pile\Attribute\NonCopyable.h"
 #include "Graphics\Interface\GraphicsHandle.h"
-#include "Graphics\Consts.h"
-#include <array>
 #include "Vertex.h"
+#include <array>
+#include <unordered_map>
 
 namespace Viewer
 {
@@ -61,6 +61,7 @@ namespace Viewer
 
         std::vector<grRenderItem> renderItems_;
         std::array<std::vector<Vertex>, (size_t)PredefinedGeometryType::kSize> geometries_;
+        std::unordered_map<std::string, grMaterial> materials_;
     };
 
     using PredefinedGeometryType = Viewport::PredefinedGeometryType;

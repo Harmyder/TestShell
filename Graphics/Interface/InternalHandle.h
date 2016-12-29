@@ -6,6 +6,7 @@ namespace Graphics
     class RenderItem;
     class RenderIndexedItem;
     class CommandContext;
+    struct Material;
 
     struct RenderItemHandle : public grRenderItem {
         RenderItemHandle(grRenderItem ri) : grRenderItem(ri) {}
@@ -23,5 +24,11 @@ namespace Graphics
         CommandContextHandle(grCommandContext cc) : grCommandContext(cc) {}
         ~CommandContextHandle();
         CommandContext* GetValue() { return static_cast<CommandContext*>(commandContext_); }
+    };
+
+    struct MaterialHandle : public grMaterial {
+        MaterialHandle(grMaterial m) : grMaterial(m) {}
+        ~MaterialHandle();
+        Material* GetValue() { return static_cast<Material*>(material_); }
     };
 }

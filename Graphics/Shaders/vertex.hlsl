@@ -11,7 +11,7 @@ VertexOut main(VertexIn vin)
     vout.PosH = posW;
 
     // Just pass vertex color into the pixel shader.
-    vout.Color = float4(1.f, 1.f, 1.f, 1.f);
+    vout.Color = gDiffuse;// float4(1.f, 1.f, 1.f, 1.f);
 
     return vout;
 }

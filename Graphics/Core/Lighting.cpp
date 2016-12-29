@@ -1,0 +1,63 @@
+#include "stdafx.h"
+
+#include "Core\Lighting.h"
+
+using namespace std;
+
+namespace Graphics
+{
+    static constexpr float CalcFresnelR0(float ior) {
+        return (ior - 1) / (ior + 1) * (ior - 1) / (ior + 1);
+    }
+
+    // Roughness - guessed values
+    unique_ptr<Material> Material::Create(Type type, const string& name, uint32 cbIndex) {
+        auto ret = make_unique<Material>(name, cbIndex);
+        XMFLOAT4 ambient;
+        XMFLOAT4 diffuse;
+        XMFLOAT4 specular;
+        float fresnelR0 = 0;
+        float roughness = 0;
+        switch (type) {
+        case Type::kTurquesa:
+            ambient = XMFLOAT4(0.1f, 0.18725f, 0.1745f, 1.f);
+            diffuse = XMFLOAT4(0.396f, 0.74151f, 0.69102f, 1.f);
+            specular = XMFLOAT4(0.297254f, 0.30829f, 0.306678f, 1.f);
+            fresnelR0 = CalcFresnelR0(1.61f);
+            roughness = 0.2f;
+            break;
+        case Type::kEmerald:
+            ambient = XMFLOAT4(0.0215f, 0.1745f, 0.0215f, 1.f);
+            diffuse = XMFLOAT4(0.07568f, 0.61424f, 0.07568f, 1.f);
+            specular = XMFLOAT4(0.633f, 0.727811f, 0.633f, 1.f);
+            fresnelR0 = CalcFresnelR0(1.576f);
+            roughness = 0.1f;
+            break;
+        case Type::kJade:
+            ambient = XMFLOAT4(0.135f, 0.2225f, 0.1575f, 1.f);
+            diffuse = XMFLOAT4(0.54f, 0.89f, 0.63f, 1.f);
+            specular = XMFLOAT4(0.316228f, 0.316228f, 0.316228f, 1.f);
+            fresnelR0 = CalcFresnelR0(1.59f);
+            roughness = 0.4f;
+            break;
+        case Type::kObsidian:
+            ambient = XMFLOAT4(0.05375f, 0.05f, 0.06625f, 1.f);
+            diffuse = XMFLOAT4(0.18275f, 0.17f, 0.22525f, 1.f);
+            specular = XMFLOAT4(0.332741f, 0.328634f, 0.346435f, 1.f);
+            fresnelR0 = CalcFresnelR0(1.5f);
+            roughness = 0.2f;
+            break;
+        case Type::kSilver:
+            ambient = XMFLOAT4(0.19225f, 0.19225f, 0.19225f, 1.f);
+            diffuse = XMFLOAT4(0.50754f, 0.50754f, 0.50754f, 1.f);
+            specular = XMFLOAT4(0.508273f, 0.508273f, 0.508273f, 1.f);
+            fresnelR0 = CalcFresnelR0(1.35f);
+            roughness = 0.2f;
+            break;
+        default:
+            throw "Unknown material";
+        }
+        ret->Update(ambient, diffuse, specular, fresnelR0, roughness);
+        return ret;
+    }
+}

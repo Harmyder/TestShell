@@ -6,9 +6,9 @@
 #include "SDK\CommandQueue.h"
 #include "Core\FrameResource.h"
 #include "SDK\UploadBuffer.h"
-#include "Consts.h"
 #include "SDK\CommandContext.h"
 #include "Core\RenderItem.h"
+#include "Core\Lighting.h"
 
 #include "Shaders\Compiled\pixel.h"
 #include "Shaders\Compiled\vertex.h"
@@ -29,10 +29,14 @@ namespace Graphics
 
     GraphicsCore::~GraphicsCore() {}
 
-    void GraphicsCore::Initialize(HWND hwnd)
+    void GraphicsCore::Initialize(HWND hwnd, const InitParams& ip)
     {
         screenViewport_ = make_unique<D3D12_VIEWPORT>();
         hwnd_ = hwnd;
+        ip_ = ip;
+
+        freePerObjCbIndices_ = make_unique<FreeIndices>(ip_.SceneObjectsCountLimit);
+        freeMaterialCbIndices_ = make_unique<FreeIndices>(ip_.MaterialsCountLimit);
 
 #if _DEBUG
         Microsoft::WRL::ComPtr<ID3D12Debug> debugInterface;
@@ -168,15 +172,18 @@ namespace Graphics
 
     void GraphicsCore::CreateRootSignature() {
         CD3DX12_DESCRIPTOR_RANGE cbvTable0;
-        cbvTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
         CD3DX12_DESCRIPTOR_RANGE cbvTable1;
+        CD3DX12_DESCRIPTOR_RANGE cbvTable2;
+        cbvTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
         cbvTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
+        cbvTable2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 2);
 
-        CD3DX12_ROOT_PARAMETER slotRootParameter[2];
+        CD3DX12_ROOT_PARAMETER slotRootParameter[3];
         slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable0, D3D12_SHADER_VISIBILITY_VERTEX);
         slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable1, D3D12_SHADER_VISIBILITY_VERTEX);
+        slotRootParameter[2].InitAsDescriptorTable(1, &cbvTable2, D3D12_SHADER_VISIBILITY_VERTEX);
 
-        CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(2, slotRootParameter, 0, nullptr,
+        CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(3, slotRootParameter, 0, nullptr,
             D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
         ComPtr<ID3DBlob> serializedRootSig = nullptr;
@@ -231,15 +238,16 @@ namespace Graphics
     }
 
     void GraphicsCore::CreateFrameResources() {
-        for (int i = 0; i < kFrameResourcesCount; ++i) {
-            frameResources_.push_back(make_unique<FrameResource>(kPassesCountAllowed, kSceneObjectsCountAllowed));
+        for (uint_t i = 0; i < ip_.FrameResourcesCount; ++i) {
+            frameResources_.push_back(make_unique<FrameResource>(ip_.PassesCountLimit, ip_.SceneObjectsCountLimit, ip_.MaterialsCountLimit));
         }
     }
 
     void GraphicsCore::CreateDescriptorHeaps() {
-        UINT numDescriptors = (kSceneObjectsCountAllowed + kPassesCountAllowed) * kFrameResourcesCount;
+        UINT numDescriptors = (ip_.SceneObjectsCountLimit + ip_.PassesCountLimit + ip_.MaterialsCountLimit) * ip_.FrameResourcesCount;
 
-        passCbvOffset_ = kSceneObjectsCountAllowed * kFrameResourcesCount;
+        passCbvOffset_ = ip_.SceneObjectsCountLimit * ip_.FrameResourcesCount;
+        matCbvOffset_ = (ip_.SceneObjectsCountLimit + ip_.PassesCountLimit) * ip_.FrameResourcesCount;
 
         D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
         cbvHeapDesc.NumDescriptors = numDescriptors;
@@ -251,22 +259,18 @@ namespace Graphics
 
     void GraphicsCore::CreateConstantBufferViews() {
         UINT objCBByteSize = Utility::CalcConstBufSize(sizeof(PerObjConsts));
-
-        for (int frameIndex = 0; frameIndex < kFrameResourcesCount; ++frameIndex)
+        for (int frameIndex = 0; frameIndex < (int)ip_.FrameResourcesCount; ++frameIndex)
         {
             auto objCB = frameResources_[frameIndex]->objCB->Resource();
-            for (UINT i = 0; i < kSceneObjectsCountAllowed; ++i)
+            D3D12_GPU_VIRTUAL_ADDRESS cbAddress = objCB->GetGPUVirtualAddress();
+            for (UINT i = 0; i < (int)ip_.SceneObjectsCountLimit; ++i)
             {
-                D3D12_GPU_VIRTUAL_ADDRESS cbAddress = objCB->GetGPUVirtualAddress();
-
-                cbAddress += i * objCBByteSize;
-
-                int heapIndex = frameIndex * kSceneObjectsCountAllowed + i;
+                int heapIndex = frameIndex * ip_.SceneObjectsCountLimit + i;
                 auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(cbvHeap_->GetCPUDescriptorHandleForHeapStart());
                 handle.Offset(heapIndex, cbvSrvUavDescriptorSize_);
 
                 D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
-                cbvDesc.BufferLocation = cbAddress;
+                cbvDesc.BufferLocation = cbAddress + i * objCBByteSize;
                 cbvDesc.SizeInBytes = objCBByteSize;
 
                 g_device->CreateConstantBufferView(&cbvDesc, handle);
@@ -274,8 +278,7 @@ namespace Graphics
         }
 
         UINT passCBByteSize = Utility::CalcConstBufSize(sizeof(PerPassConsts));
-
-        for (int frameIndex = 0; frameIndex < kFrameResourcesCount; ++frameIndex)
+        for (int frameIndex = 0; frameIndex < (int)ip_.FrameResourcesCount; ++frameIndex)
         {
             auto passCB = frameResources_[frameIndex]->passCB->Resource();
             D3D12_GPU_VIRTUAL_ADDRESS cbAddress = passCB->GetGPUVirtualAddress();
@@ -290,6 +293,25 @@ namespace Graphics
             cbvDesc.SizeInBytes = passCBByteSize;
 
             g_device->CreateConstantBufferView(&cbvDesc, handle);
+        }
+
+        UINT matCBByteSize = Utility::CalcConstBufSize(sizeof(MatConsts));
+        for (int frameIndex = 0; frameIndex < (int)ip_.FrameResourcesCount; ++frameIndex)
+        {
+            auto matCB = frameResources_[frameIndex]->matCB->Resource();
+            D3D12_GPU_VIRTUAL_ADDRESS cbAddress = matCB->GetGPUVirtualAddress();
+            for (UINT i = 0; i < ip_.MaterialsCountLimit; ++i)
+            {
+                int heapIndex = matCbvOffset_ + frameIndex * ip_.MaterialsCountLimit + i;
+                auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(cbvHeap_->GetCPUDescriptorHandleForHeapStart());
+                handle.Offset(heapIndex, cbvSrvUavDescriptorSize_);
+
+                D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+                cbvDesc.BufferLocation = cbAddress + i * matCBByteSize;
+                cbvDesc.SizeInBytes = matCBByteSize;
+
+                g_device->CreateConstantBufferView(&cbvDesc, handle);
+            }
         }
     }
 
@@ -381,7 +403,7 @@ namespace Graphics
         int passCbvIndex = passCbvOffset_ + currFrameResource_;
         auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
         passCbvHandle.Offset(passCbvIndex, cbvSrvUavDescriptorSize_);
-        commandList->SetGraphicsRootDescriptorTable(1, passCbvHandle);
+        commandList->SetGraphicsRootDescriptorTable(2, passCbvHandle);
     }
 
     void GraphicsCore::EndScene() {
@@ -397,16 +419,33 @@ namespace Graphics
     }
 
     void GraphicsCore::DrawRenderItem(RenderItem& ri) {
+        enum : uint8 { kNotUpdated, kUpdated };
+        vector<uint8> materialsUpdated(ip_.MaterialsCountLimit, kNotUpdated);
         for (auto it = ri.GetSubItemsBegin(); it != ri.GetSubItemsEnd(); ++it) {
             auto& rsi = (*it).second;
-            auto cbIndex = rsi.GetObjCbIndex() + currFrameResource_ * kSceneObjectsCountAllowed;
+            auto cbObjIndex = rsi.CbIndex() + currFrameResource_ * ip_.SceneObjectsCountLimit;
+            auto cbMatIndexBase = matCbvOffset_ + currFrameResource_ * ip_.MaterialsCountLimit;
+            auto cbMatIndex = rsi.GetMaterial().CbIndex() + cbMatIndexBase;
 
             if (rsi.IsDirty()) {
                 auto currObjectCB = frameResources_[currFrameResource_]->objCB.get();
                 PerObjConsts objConstants;
                 objConstants.World = rsi.GetTransform();
-                currObjectCB->CopyData(cbIndex, &objConstants);
+                currObjectCB->CopyData(cbObjIndex, &objConstants);
                 rsi.DecreaseDirtyFramesCount();
+            }
+            if (rsi.GetMaterial().IsDirty() && materialsUpdated[cbMatIndex - cbMatIndexBase] == kNotUpdated) {
+                materialsUpdated[cbMatIndex - cbMatIndexBase] = kUpdated;
+                auto currMaterialCB = frameResources_[currFrameResource_]->matCB.get();
+                MatConsts matConstants;
+                auto& mat = rsi.GetMaterial();
+                matConstants.Ambient = mat.GetAmbient();
+                matConstants.Diffuse = mat.GetDiffuse();
+                matConstants.Specular = mat.GetSpecular();
+                matConstants.FresnelR0 = mat.GetFresnelR0();
+                matConstants.Roughness = mat.GetRoughness();
+                currMaterialCB->CopyData(cbMatIndex - cbMatIndexBase, &matConstants);
+                mat.DecreaseDirtyFramesCount();
             }
 
             auto commandList = commandContext_->GetCommandList();
@@ -414,10 +453,13 @@ namespace Graphics
             commandList->IASetVertexBuffers(0, 1, &ri.VertexBufferView());
             commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-            auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
-            cbvHandle.Offset(cbIndex, cbvSrvUavDescriptorSize_);
+            auto cbvHandleObj = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
+            cbvHandleObj.Offset(cbObjIndex, cbvSrvUavDescriptorSize_);
+            commandList->SetGraphicsRootDescriptorTable(0, cbvHandleObj);
 
-            commandList->SetGraphicsRootDescriptorTable(0, cbvHandle);
+            auto cbvHandleMat = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
+            cbvHandleMat.Offset(cbMatIndex, cbvSrvUavDescriptorSize_);
+            commandList->SetGraphicsRootDescriptorTable(1, cbvHandleMat);
 
             commandList->DrawInstanced(rsi.VerticesCount(), 1, rsi.BaseVertexLocation(), 0);
         }

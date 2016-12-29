@@ -3,6 +3,7 @@
 
 #include "Core\RenderItem.h"
 #include "SDK\CommandContext.h"
+#include "Core\Lighting.h"
 
 namespace Graphics
 {
@@ -11,4 +12,6 @@ namespace Graphics
     RenderIndexedItemHandle::~RenderIndexedItemHandle() { delete static_cast<RenderItem*>(renderIndexedItem_); }
 
     CommandContextHandle::~CommandContextHandle() { delete static_cast<CommandContext*>(commandContext_); }
+
+    MaterialHandle::~MaterialHandle() { delete static_cast<Material*>(material_); }
 }

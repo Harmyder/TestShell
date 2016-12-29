@@ -23,3 +23,11 @@ struct grRenderIndexedItem
 protected:
     void *renderIndexedItem_;
 };
+
+struct grMaterial
+{
+    grMaterial(void *material) : material_(material) {}
+
+protected:
+    void *material_;
+};

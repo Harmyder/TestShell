@@ -7,12 +7,19 @@
 #include "Graphics\Interface\GraphicsInterface.h"
 
 using namespace std;
-using namespace Graphics;
 
 namespace Viewer
 {
+    constexpr uint32 kSceneObjectsCountLimit = 100;
+    constexpr uint32 kPassesCountLimit = 1;
+    constexpr uint32 kMaterialsCountLimit = 2;
+    constexpr uint32 kFrameResourcesCount = 3;
+
+    const string kColliderMaterialKey = "collider";
+    const string kRigidMaterialKey = "rigid";
+
     Viewport::Viewport(HWND hWnd) : hwnd_(hWnd) {
-        grInit(hwnd_);
+        grInit(hwnd_, { kSceneObjectsCountLimit, kPassesCountLimit, kMaterialsCountLimit, kFrameResourcesCount });
 
         RECT rect;
         GetClientRect(hWnd, &rect);
@@ -22,6 +29,9 @@ namespace Viewer
         grSetPerspective(height / width, DirectX::XM_PIDIV4, 1.f, 200.f);
 
         PrepareGeometry();
+
+        materials_.insert(make_pair(kColliderMaterialKey, grCreateStandardMaterial(LibraryMaterial::kSilver, kColliderMaterialKey)));
+        materials_.insert(make_pair(kRigidMaterialKey, grCreateStandardMaterial(LibraryMaterial::kTurquesa, kRigidMaterialKey)));
     }
 
     Viewport::~Viewport() {
@@ -29,7 +39,7 @@ namespace Viewer
     }
 
     uint_t Viewport::CreateRenderItem(const std::vector<RenderItemVerticesDesc>& viewportVerticesDescs, const std::vector<RenderItemTypeDesc>& viewportTypeDescs) {
-        vector<grRenderItemDesc> descs;
+        vector<grRenderSubItemDesc> descs;
         vector<grRenderVertices> vertices;
         vector<uint32> itemsToVertices;
 
@@ -39,24 +49,24 @@ namespace Viewer
 
         uint32 currentItem = 0;
         array<int, (size_t)PredefinedGeometryType::kSize> geometriesIndices;
-        constexpr int NOINDEX = -1;
-        geometriesIndices.fill(NOINDEX);
+        enum { kNoIndex = -1 };
+        geometriesIndices.fill(kNoIndex);
 
         for (const auto& d : viewportTypeDescs) {
             uint_t geometryIndex = (uint_t)d.type;
-            const grRenderItemDesc descEngine(d.name, d.transform);
+            const grRenderSubItemDesc descEngine(d.name, d.transform, materials_.find(kColliderMaterialKey)->second);
             descs.push_back(descEngine);
             const auto& currentGeometry = geometries_[geometryIndex];
-            if (geometriesIndices[geometryIndex] == NOINDEX) {
+            if (geometriesIndices[geometryIndex] == kNoIndex) {
                 geometriesIndices[geometryIndex] = (int)vertices.size();
+                vertices.emplace_back((uint8*)(void*)currentGeometry.data(), (uint32)currentGeometry.size());
             }
             itemsToVertices.push_back(geometriesIndices[geometryIndex]);
-            vertices.emplace_back((uint8*)(void*)currentGeometry.data(), (uint32)currentGeometry.size());
             ++currentItem;
         }
 
         for (const auto& d : viewportVerticesDescs) {
-            const grRenderItemDesc descEngine(d.name, d.transform);
+            const grRenderSubItemDesc descEngine(d.name, d.transform, materials_.find(kRigidMaterialKey)->second);
             descs.push_back(descEngine);
             itemsToVertices.push_back((uint32)vertices.size());
             vertices.emplace_back((uint8*)(void*)d.vertices.data(), (uint32)d.vertices.size());
