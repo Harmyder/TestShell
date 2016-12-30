@@ -6,29 +6,29 @@ namespace Graphics
     class RenderItem;
     class RenderIndexedItem;
     class CommandContext;
-    struct Material;
+    class Material;
+    class DirectionalLight;
+    class SpotLight;
+    class PointLight;
 
-    struct RenderItemHandle : public grRenderItem {
-        RenderItemHandle(grRenderItem ri) : grRenderItem(ri) {}
-        ~RenderItemHandle();
-        RenderItem* GetValue() { return static_cast<RenderItem*>(renderItem_); }
+    template <class C, class H>
+    struct InternalHandle : H {
+        InternalHandle(H ri) : H(ri) {}
+        ~InternalHandle() { delete static_cast<C*>(handle_); }
+        C* GetValue() { return static_cast<C*>(handle_); }
     };
 
-    struct RenderIndexedItemHandle : public grRenderIndexedItem {
-        RenderIndexedItemHandle(grRenderIndexedItem ri) : grRenderIndexedItem(ri) {}
-        ~RenderIndexedItemHandle();
-        RenderIndexedItem* GetValue() { return static_cast<RenderIndexedItem*>(renderIndexedItem_); }
-    };
+    struct RenderItemHandle : InternalHandle<RenderItem, grRenderItem> { using InternalHandle::InternalHandle; };
 
-    struct CommandContextHandle : public grCommandContext {
-        CommandContextHandle(grCommandContext cc) : grCommandContext(cc) {}
-        ~CommandContextHandle();
-        CommandContext* GetValue() { return static_cast<CommandContext*>(commandContext_); }
-    };
+    struct RenderIndexedItemHandle : InternalHandle<RenderIndexedItem, grRenderIndexedItem> { using InternalHandle::InternalHandle; };
 
-    struct MaterialHandle : public grMaterial {
-        MaterialHandle(grMaterial m) : grMaterial(m) {}
-        ~MaterialHandle();
-        Material* GetValue() { return static_cast<Material*>(material_); }
-    };
+    struct CommandContextHandle : InternalHandle<CommandContext, grCommandContext> { using InternalHandle::InternalHandle; };
+
+    struct MaterialHandle : InternalHandle<Material, grMaterial> { using InternalHandle::InternalHandle; };
+
+    struct DirectionalLightHandle : InternalHandle<DirectionalLight, grDirectionalLight> { using InternalHandle::InternalHandle; };
+
+    struct SpotLightHandle : InternalHandle<SpotLight, grSpotLight> { using InternalHandle::InternalHandle; };
+
+    struct PointLightHandle : InternalHandle<PointLight, grPointLight> { using InternalHandle::InternalHandle; };
 }

@@ -7,7 +7,6 @@ struct grInitParams {
     uint32 SceneObjectsCountLimit;
     uint32 PassesCountLimit;
     uint32 MaterialsCountLimit;
-
     uint32 FrameResourcesCount;
 };
 void grInit(HWND hWnd, grInitParams params);
@@ -80,3 +79,15 @@ void grUpdateRenderSubItemTransform(grRenderItem renderItem, const std::string& 
 void grDestroyRenderItem(grRenderItem renderItem);
 
 void __vectorcall grSetCameraAffineTransform(FXMMATRIX affine);
+
+grDirectionalLight grCreateDirectionalLight(DirectX::XMFLOAT3 strength, DirectX::XMFLOAT3 direction);
+grPointLight grCreatePointLight(DirectX::XMFLOAT3 strength, float range, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 attenuation);
+grSpotLight grCreateSpotLight(DirectX::XMFLOAT3 strength, float range, DirectX::XMFLOAT3 position, float spot, DirectX::XMFLOAT3 eirection, DirectX::XMFLOAT3 attenuation);
+
+void grUpdateDirectionalLight(grDirectionalLight light, DirectX::XMFLOAT3 strength, DirectX::XMFLOAT3 direction);
+void grUpdatePointLight(grPointLight light, DirectX::XMFLOAT3 strength, float range, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 attenuation);
+void grUpdateSpotLight(grSpotLight light, DirectX::XMFLOAT3 strength, float range, DirectX::XMFLOAT3 position, float spot, DirectX::XMFLOAT3 eirection, DirectX::XMFLOAT3 attenuation);
+
+void grDestroyDirectionalLight(grDirectionalLight light);
+void grDestroyPointLight(grPointLight light);
+void grDestroySpotLight(grSpotLight light);

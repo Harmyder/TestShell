@@ -9,6 +9,7 @@
 #include "InputLevel/FactoryFbx.h"
 #include "InputLevel/InputMesh.h"
 #include "InputLevel/InputCollider.h"
+#include "Pile\Print\DebugPrint.h"
 
 #include <fstream>
 #include <sstream>
@@ -49,6 +50,11 @@ namespace Pipeline
 
     SceneManager::CollidersFbx SceneManager::LoadColliders(const std::string& filename) {
         ifstream fs(filename, std::ios::in);
+        if (fs.fail()) {
+            char buf[256];
+            strerror_s(buf, errno);
+            Pile::DebugPrintf("Error opening %s file: %s", filename.c_str(), buf);
+        }
 
         const char* kName = "-name";
         const char* kType = "-type";
@@ -141,8 +147,6 @@ namespace Pipeline
         {
             if (node->element->m_Type == ::FBX::Element::MESH)
             {
-                OutputDebugStringA(node->name);
-                OutputDebugStringA("\n");
                 const ColliderFbx* collider = GetColliderFbx(node->name);
                 if (collider == nullptr) {
                     auto inputMesh = FactoryFbx::BuildMesh(node, currentTransform, scaleFactor);

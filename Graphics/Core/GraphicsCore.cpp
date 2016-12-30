@@ -33,10 +33,9 @@ namespace Graphics
     {
         screenViewport_ = make_unique<D3D12_VIEWPORT>();
         hwnd_ = hwnd;
-        ip_ = ip;
 
-        freePerObjCbIndices_ = make_unique<FreeIndices>(ip_.SceneObjectsCountLimit);
-        freeMaterialCbIndices_ = make_unique<FreeIndices>(ip_.MaterialsCountLimit);
+        freePerObjCbIndices_ = make_unique<FreeIndices>(ip.SceneObjectsCountLimit);
+        freeMaterialCbIndices_ = make_unique<FreeIndices>(ip.MaterialsCountLimit);
 
 #if _DEBUG
         Microsoft::WRL::ComPtr<ID3D12Debug> debugInterface;
@@ -65,15 +64,22 @@ namespace Graphics
         CreateRtvDsvHeaps();
         Resize();
 
+        frameResources_ = make_unique<FrameResources>(ip.FrameResourcesCount,
+            ip.PassesCountLimit,
+            ip.SceneObjectsCountLimit,
+            ip.MaterialsCountLimit);
+        lightsHolder_ = make_unique<LightsHolder>();
+
         CreateRootSignature();
         CreateInputLayout();
-        CreateFrameResources();
         CreateDescriptorHeaps();
         CreateConstantBufferViews();
         CreatePSO();
 
         commandContext_->Flush(true);
     }
+
+    uint_t GraphicsCore::GetFrameResourcesCount() const { return frameResources_->Count(); }
 
     void GraphicsCore::CreateSwapChain() {
         RECT rc;
@@ -180,8 +186,8 @@ namespace Graphics
 
         CD3DX12_ROOT_PARAMETER slotRootParameter[3];
         slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable0, D3D12_SHADER_VISIBILITY_VERTEX);
-        slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable1, D3D12_SHADER_VISIBILITY_VERTEX);
-        slotRootParameter[2].InitAsDescriptorTable(1, &cbvTable2, D3D12_SHADER_VISIBILITY_VERTEX);
+        slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable1, D3D12_SHADER_VISIBILITY_ALL);
+        slotRootParameter[2].InitAsDescriptorTable(1, &cbvTable2, D3D12_SHADER_VISIBILITY_ALL);
 
         CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(3, slotRootParameter, 0, nullptr,
             D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -205,7 +211,8 @@ namespace Graphics
         inputLayout_ =
         {
             { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-            { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+            { "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
         };
     }
 
@@ -237,17 +244,11 @@ namespace Graphics
         THROW_IF_FAILED(g_device->CreateGraphicsPipelineState(&opaqueWireframePsoDesc, IID_PPV_ARGS(&psos_["opaque_wireframe"])));
     }
 
-    void GraphicsCore::CreateFrameResources() {
-        for (uint_t i = 0; i < ip_.FrameResourcesCount; ++i) {
-            frameResources_.push_back(make_unique<FrameResource>(ip_.PassesCountLimit, ip_.SceneObjectsCountLimit, ip_.MaterialsCountLimit));
-        }
-    }
-
     void GraphicsCore::CreateDescriptorHeaps() {
-        UINT numDescriptors = (ip_.SceneObjectsCountLimit + ip_.PassesCountLimit + ip_.MaterialsCountLimit) * ip_.FrameResourcesCount;
+        UINT numDescriptors = (frameResources_->ObjsCountLimit + frameResources_->PassesCountLimit + frameResources_->MatsCountLimit) * (uint32)frameResources_->Count();
 
-        passCbvOffset_ = ip_.SceneObjectsCountLimit * ip_.FrameResourcesCount;
-        matCbvOffset_ = (ip_.SceneObjectsCountLimit + ip_.PassesCountLimit) * ip_.FrameResourcesCount;
+        passCbvOffset_ = frameResources_->ObjsCountLimit * (uint32)frameResources_->Count();
+        matCbvOffset_ = (frameResources_->ObjsCountLimit + frameResources_->PassesCountLimit) * (uint32)frameResources_->Count();
 
         D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
         cbvHeapDesc.NumDescriptors = numDescriptors;
@@ -258,57 +259,57 @@ namespace Graphics
     }
 
     void GraphicsCore::CreateConstantBufferViews() {
-        UINT objCBByteSize = Utility::CalcConstBufSize(sizeof(PerObjConsts));
-        for (int frameIndex = 0; frameIndex < (int)ip_.FrameResourcesCount; ++frameIndex)
+        uint_t objCBByteSize = frameResources_->CalcObjCbSize();
+        for (uint_t frameIndex = 0; frameIndex < frameResources_->Count(); ++frameIndex)
         {
-            auto objCB = frameResources_[frameIndex]->objCB->Resource();
+            auto objCB = frameResources_->GetFrameResource(frameIndex).objCB->Resource();
             D3D12_GPU_VIRTUAL_ADDRESS cbAddress = objCB->GetGPUVirtualAddress();
-            for (UINT i = 0; i < (int)ip_.SceneObjectsCountLimit; ++i)
+            for (UINT i = 0; i < frameResources_->ObjsCountLimit; ++i)
             {
-                int heapIndex = frameIndex * ip_.SceneObjectsCountLimit + i;
+                int heapIndex = (int)frameIndex * frameResources_->ObjsCountLimit + i;
                 auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(cbvHeap_->GetCPUDescriptorHandleForHeapStart());
                 handle.Offset(heapIndex, cbvSrvUavDescriptorSize_);
 
                 D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
                 cbvDesc.BufferLocation = cbAddress + i * objCBByteSize;
-                cbvDesc.SizeInBytes = objCBByteSize;
+                cbvDesc.SizeInBytes = (uint32)objCBByteSize;
 
                 g_device->CreateConstantBufferView(&cbvDesc, handle);
             }
         }
 
-        UINT passCBByteSize = Utility::CalcConstBufSize(sizeof(PerPassConsts));
-        for (int frameIndex = 0; frameIndex < (int)ip_.FrameResourcesCount; ++frameIndex)
+        uint_t passCBByteSize = frameResources_->CalcPassCbSize();
+        for (uint_t frameIndex = 0; frameIndex < frameResources_->Count(); ++frameIndex)
         {
-            auto passCB = frameResources_[frameIndex]->passCB->Resource();
+            auto passCB = frameResources_->GetFrameResource(frameIndex).passCB->Resource();
             D3D12_GPU_VIRTUAL_ADDRESS cbAddress = passCB->GetGPUVirtualAddress();
 
             // Offset to the pass cbv in the descriptor heap.
-            int heapIndex = passCbvOffset_ + frameIndex;
+            int heapIndex = passCbvOffset_ + (uint32)frameIndex;
             auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(cbvHeap_->GetCPUDescriptorHandleForHeapStart());
             handle.Offset(heapIndex, cbvSrvUavDescriptorSize_);
 
             D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
             cbvDesc.BufferLocation = cbAddress;
-            cbvDesc.SizeInBytes = passCBByteSize;
+            cbvDesc.SizeInBytes = (uint32)passCBByteSize;
 
             g_device->CreateConstantBufferView(&cbvDesc, handle);
         }
 
-        UINT matCBByteSize = Utility::CalcConstBufSize(sizeof(MatConsts));
-        for (int frameIndex = 0; frameIndex < (int)ip_.FrameResourcesCount; ++frameIndex)
+        uint_t matCBByteSize = frameResources_->CalcMatCbSize();
+        for (uint_t frameIndex = 0; frameIndex < frameResources_->Count(); ++frameIndex)
         {
-            auto matCB = frameResources_[frameIndex]->matCB->Resource();
+            auto matCB = frameResources_->GetFrameResource(frameIndex).matCB->Resource();
             D3D12_GPU_VIRTUAL_ADDRESS cbAddress = matCB->GetGPUVirtualAddress();
-            for (UINT i = 0; i < ip_.MaterialsCountLimit; ++i)
+            for (UINT i = 0; i < frameResources_->MatsCountLimit; ++i)
             {
-                int heapIndex = matCbvOffset_ + frameIndex * ip_.MaterialsCountLimit + i;
+                int heapIndex = matCbvOffset_ + (uint32)frameIndex * frameResources_->MatsCountLimit + i;
                 auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(cbvHeap_->GetCPUDescriptorHandleForHeapStart());
                 handle.Offset(heapIndex, cbvSrvUavDescriptorSize_);
 
                 D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
                 cbvDesc.BufferLocation = cbAddress + i * matCBByteSize;
-                cbvDesc.SizeInBytes = matCBByteSize;
+                cbvDesc.SizeInBytes = (uint32)matCBByteSize;
 
                 g_device->CreateConstantBufferView(&cbvDesc, handle);
             }
@@ -374,7 +375,9 @@ namespace Graphics
         XMStoreFloat4x4(&pass.Proj, proj);
         XMStoreFloat3(&pass.EyePosW, camera_.GetEyePos());
 
-        auto currPassCB = frameResources_[currFrameResource_]->passCB.get();
+        FillPerPassLights(*lightsHolder_, pass);
+
+        auto currPassCB = frameResources_->GetFrameResource(currFrameResource_).passCB.get();
         currPassCB->CopyData(0, &pass);
     }
 
@@ -420,15 +423,15 @@ namespace Graphics
 
     void GraphicsCore::DrawRenderItem(RenderItem& ri) {
         enum : uint8 { kNotUpdated, kUpdated };
-        vector<uint8> materialsUpdated(ip_.MaterialsCountLimit, kNotUpdated);
+        vector<uint8> materialsUpdated(frameResources_->MatsCountLimit, kNotUpdated);
         for (auto it = ri.GetSubItemsBegin(); it != ri.GetSubItemsEnd(); ++it) {
             auto& rsi = (*it).second;
-            auto cbObjIndex = rsi.CbIndex() + currFrameResource_ * ip_.SceneObjectsCountLimit;
-            auto cbMatIndexBase = matCbvOffset_ + currFrameResource_ * ip_.MaterialsCountLimit;
+            auto cbObjIndex = rsi.CbIndex() + currFrameResource_ * frameResources_->ObjsCountLimit;
+            auto cbMatIndexBase = matCbvOffset_ + currFrameResource_ * frameResources_->MatsCountLimit;
             auto cbMatIndex = rsi.GetMaterial().CbIndex() + cbMatIndexBase;
 
             if (rsi.IsDirty()) {
-                auto currObjectCB = frameResources_[currFrameResource_]->objCB.get();
+                auto currObjectCB = frameResources_->GetFrameResource(currFrameResource_).objCB.get();
                 PerObjConsts objConstants;
                 objConstants.World = rsi.GetTransform();
                 currObjectCB->CopyData(cbObjIndex, &objConstants);
@@ -436,8 +439,8 @@ namespace Graphics
             }
             if (rsi.GetMaterial().IsDirty() && materialsUpdated[cbMatIndex - cbMatIndexBase] == kNotUpdated) {
                 materialsUpdated[cbMatIndex - cbMatIndexBase] = kUpdated;
-                auto currMaterialCB = frameResources_[currFrameResource_]->matCB.get();
-                MatConsts matConstants;
+                auto currMaterialCB = frameResources_->GetFrameResource(currFrameResource_).matCB.get();
+                PerMatConsts matConstants;
                 auto& mat = rsi.GetMaterial();
                 matConstants.Ambient = mat.GetAmbient();
                 matConstants.Diffuse = mat.GetDiffuse();

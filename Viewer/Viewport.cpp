@@ -32,6 +32,8 @@ namespace Viewer
 
         materials_.insert(make_pair(kColliderMaterialKey, grCreateStandardMaterial(LibraryMaterial::kSilver, kColliderMaterialKey)));
         materials_.insert(make_pair(kRigidMaterialKey, grCreateStandardMaterial(LibraryMaterial::kTurquesa, kRigidMaterialKey)));
+
+        grCreateDirectionalLight(XMFLOAT3(1.f, 0.f, 1.f), XMFLOAT3(1.f, 0.f, 0.f));
     }
 
     Viewport::~Viewport() {
@@ -96,5 +98,4 @@ namespace Viewer
         GeometryGenerator::CreateCube(geometries_[(size_t)PredefinedGeometryType::kBox]);
         GeometryGenerator::CreateSphere(geometries_[(size_t)PredefinedGeometryType::kSphere], 2);
     }
-
 }

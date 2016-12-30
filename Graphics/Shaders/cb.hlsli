@@ -1,3 +1,6 @@
+#include "lighting.hlsli"
+#include "consts.shared"
+
 cbuffer cbPerObject : register(b0)
 {
     float4x4 gWorld;
@@ -18,17 +21,27 @@ cbuffer cbPass : register(b2)
     float4x4 gProj;
     float4x4 gViewProj;
     float3   gEyePosW;
+    int      pad;
+    DirectionalLight gDl[MAX_DIR_LIGHTS_COUNT];
+    PointLight       gPl[MAX_PNT_LIGHTS_COUNT];
+    SpotLight        gSl[MAX_SPT_LIGHTS_COUNT];
+    uint gDirLightsCount;
+    uint gPntLightsCount;
+    uint gSptLightsCount;
+    int  pad2;
 };
 
 struct VertexIn
 {
-    float3 PosL  : POSITION;
-    float4 Color : COLOR;
+    float3 PosL    : POSITION;
+    float3 NormalL : NORMAL;
+    float2 TexC    : TEXCOORD;
 };
 
 struct VertexOut
 {
-    float4 PosH  : SV_POSITION;
-    float4 Color : COLOR;
+    float4 PosH    : SV_POSITION;
+    float3 PosW    : POSITION;
+    float3 NormalW : NORMAL;
+    float2 TexC    : TEXCOORD;
 };
-

@@ -21,17 +21,19 @@ typedef RECT D3D12_RECT;
 namespace Graphics
 {
     class CommandQueue;
-    class FrameResource;
+    class FrameResources;
     class CommandContext;
     class RenderItem;
     class RenderIndexedItem;
+    class LightsHolder;
 
     // every free index stores next index of free index
     // every taken index stores previous free index
     class FreeIndices {
     public:
         FreeIndices(uint32 sceneObjectsCountLimit) :
-            indices_(sceneObjectsCountLimit + 1) 
+            // One more because first index servers to point to first free real index
+            indices_(sceneObjectsCountLimit + 1)
         {
             std::iota(std::begin(indices_), std::end(indices_), 1);
         }
@@ -51,15 +53,20 @@ namespace Graphics
         }
 
     private:
-        // One more because first index servers to point to first free real index
         std::vector<uint32> indices_;
     };
 
     struct InitParams {
+        InitParams(uint32 sceneObjsCountLimit, uint32 passesCountLimit, uint32 matsCountLimit, uint32 frameResourcesCount) :
+            SceneObjectsCountLimit(sceneObjsCountLimit),
+            PassesCountLimit(passesCountLimit),
+            MaterialsCountLimit(matsCountLimit),
+            FrameResourcesCount(frameResourcesCount)
+        {}
+
         uint32 SceneObjectsCountLimit;
         uint32 PassesCountLimit;
         uint32 MaterialsCountLimit;
-
         uint32 FrameResourcesCount;
     };
 
@@ -85,7 +92,9 @@ namespace Graphics
 
         FreeIndices& GetFreePerObjCbIndices() { return *freePerObjCbIndices_; }
         FreeIndices& GetFreeMaterialCbIndices() { return *freeMaterialCbIndices_; }
-        uint32 GetFrameResourcesCount() const { return ip_.FrameResourcesCount; }
+        LightsHolder& GetLightsHolder() { return *lightsHolder_; }
+
+        uint_t GetFrameResourcesCount() const;
 
     private:
         void CreateSwapChain();
@@ -94,7 +103,6 @@ namespace Graphics
         void CreateDepthStencil(uint32 width, uint32 height);
         void CreateRootSignature();
         void CreateInputLayout();
-        void CreateFrameResources();
         void CreateDescriptorHeaps();
         void CreateConstantBufferViews();
         void CreatePSO();
@@ -106,7 +114,6 @@ namespace Graphics
         void UpdatePassesCBs();
 
     private:
-        InitParams ip_;
         HWND hwnd_;
         Microsoft::WRL::ComPtr<IDXGIFactory4> dxgiFactory_;
         Microsoft::WRL::ComPtr<IDXGISwapChain> swapChain_;
@@ -129,15 +136,17 @@ namespace Graphics
         Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> cbvHeap_;
         std::map<std::string, Microsoft::WRL::ComPtr<ID3D12PipelineState>> psos_;
+
         std::unique_ptr<FreeIndices> freePerObjCbIndices_;
         std::unique_ptr<FreeIndices> freeMaterialCbIndices_;
+        std::unique_ptr<LightsHolder> lightsHolder_;
 
         std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayout_;
 
         std::unique_ptr<D3D12_VIEWPORT> screenViewport_;
         D3D12_RECT scissorRect_;
 
-        std::vector<std::unique_ptr<FrameResource>> frameResources_;
+        std::unique_ptr<FrameResources> frameResources_;
         uint32 currFrameResource_ = 0;
         uint32 passCbvOffset_;
         uint32 matCbvOffset_;

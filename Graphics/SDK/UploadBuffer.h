@@ -11,11 +11,12 @@ namespace Graphics
         ~UploadBuffer();
 
         void CopyData(int elementIndex, const void* data);
+        uint_t ElementByteSize() { return elementByteSize_; }
 
     private:
         ID3D12Resource* Resource() const { return uploadBuffer_.Get(); }
 
-    public:
+    protected:
         bool isConstantBuffer_ = false;
 
     private:

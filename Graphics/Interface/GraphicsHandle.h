@@ -1,33 +1,22 @@
 #pragma once
 
-struct grCommandContext
-{
-    grCommandContext(void *commandContext) : commandContext_(commandContext) {}
+struct grHandle {
+    grHandle(void *handle) : handle_(handle) {}
 
 protected:
-    void *commandContext_;
-}; 
-
-struct grRenderItem
-{
-    grRenderItem(void *renderItem) : renderItem_(renderItem) {}
-
-protected:
-    void *renderItem_;
+    void *handle_;
 };
 
-struct grRenderIndexedItem
-{
-    grRenderIndexedItem(void *renderIndexedItem) : renderIndexedItem_(renderIndexedItem) {}
+struct grCommandContext : grHandle { grCommandContext(void *commandContext) : grHandle(commandContext) {} }; 
 
-protected:
-    void *renderIndexedItem_;
-};
+struct grRenderItem : grHandle { grRenderItem(void *renderItem) : grHandle(renderItem) {} };
 
-struct grMaterial
-{
-    grMaterial(void *material) : material_(material) {}
+struct grRenderIndexedItem : grHandle { grRenderIndexedItem(void *renderIndexedItem) : grHandle(renderIndexedItem) {} };
 
-protected:
-    void *material_;
-};
+struct grMaterial : grHandle { grMaterial(void *material) : grHandle(material) {} };
+
+struct grDirectionalLight : grHandle { grDirectionalLight(void *light) : grHandle(light) {} };
+
+struct grPointLight : grHandle { grPointLight(void *light) : grHandle(light) {} };
+
+struct grSpotLight : grHandle { grSpotLight(void *light) : grHandle(light) {} };

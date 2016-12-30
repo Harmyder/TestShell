@@ -31,6 +31,7 @@ using Microsoft::WRL::ComPtr;
 #include <algorithm>
 #include <numeric>
 #include <tuple>
+#include <array>
 
 #include "Pile/Types.h"
 #include "Pile/Print/DebugPrint.h"

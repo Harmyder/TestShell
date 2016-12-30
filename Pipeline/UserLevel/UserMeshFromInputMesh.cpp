@@ -29,26 +29,16 @@ namespace Pipeline
         const auto XMFloat4to3 = [](XMFLOAT3 &p3, XMFLOAT4 p4) { p3.x = p4.x; p3.y = p4.y; p3.z = p4.z; };
 
         const auto& positions = inputMesh_.GetPositions();
-        const auto positionsCount = positions.size();
-        mg.Vertices = move(decltype(mg.Vertices)(positionsCount));
-        for (uint32 i = 0; i < positionsCount; ++i) {
-            XMFloat4to3(mg.Vertices[i].Position, positions[i]);
-        }
+        const auto& normals = inputMesh_.GetNormals();
+        const auto& texCoords = inputMesh_.GetTexCoords();
+        const auto& trianglePositions = inputMesh_.GetTrianglesPositions();
+        const auto& triangleTexCoords = inputMesh_.GetTrianglesTexCoords();
 
-        const auto& vertices = inputMesh_.GetVertices();
-        const auto& triangleVertices = inputMesh_.GetTrianglesVertices();
-        const auto verticesCount = vertices.size();
-        const auto triangleVerticesCount = triangleVertices.size();
-        mg.Indices = move(decltype(mg.Indices)(triangleVerticesCount));
-        for (uint32 i = 0; i < triangleVerticesCount; ++i) {
-            mg.Indices[i] = vertices[triangleVertices[i]].PositionIndex;
+        mg.Vertices = move(decltype(mg.Vertices)(trianglePositions.size()));
+        for (uint32 i = 0; i < trianglePositions.size(); ++i) {
+            XMFloat4to3(mg.Vertices[i].Position, positions[trianglePositions[i]]);
+            XMFloat4to3(mg.Vertices[i].Normal, normals[trianglePositions[i]]);
+            mg.Vertices[i].TexCoord = texCoords[triangleTexCoords[i]];
         }
-
-        decltype(mg.Vertices) nonIndexedVertices;
-        nonIndexedVertices.reserve(mg.Indices.size());
-        for (uint_t i = 0; i < mg.Indices.size(); ++i) {
-            nonIndexedVertices.push_back(mg.Vertices[mg.Indices[i]]);
-        }
-        mg.Vertices = move(nonIndexedVertices);
     }
 }

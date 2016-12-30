@@ -12,11 +12,11 @@ using namespace Graphics;
 using namespace std;
 
 void grInit(HWND hWnd, grInitParams params) {
-    Graphics::InitParams ip;
-    ip.SceneObjectsCountLimit = params.SceneObjectsCountLimit;
-    ip.PassesCountLimit = params.PassesCountLimit;
-    ip.MaterialsCountLimit = params.MaterialsCountLimit;
-    ip.FrameResourcesCount = params.FrameResourcesCount;
+    Graphics::InitParams ip(
+        params.SceneObjectsCountLimit,
+        params.PassesCountLimit,
+        params.MaterialsCountLimit,
+        params.FrameResourcesCount);
     GraphicsCore::GetInstance().Initialize(hWnd, ip);
 }
 
@@ -127,4 +127,52 @@ void grDestroyRenderItem(grRenderItem renderItem) {
 
 void __vectorcall grSetCameraAffineTransform(FXMMATRIX affine) {
     GraphicsCore::GetInstance().GetCamera().SetAffineTransform(affine);
+}
+
+grDirectionalLight grCreateDirectionalLight(DirectX::XMFLOAT3 strength, DirectX::XMFLOAT3 direction) {
+    auto l = GraphicsCore::GetInstance().GetLightsHolder().CreateDirLightBillet();
+    l->Update(strength, direction);
+    return grDirectionalLight(l);
+}
+
+grPointLight grCreatePointLight(DirectX::XMFLOAT3 strength, float range, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 attenuation) {
+    auto l = GraphicsCore::GetInstance().GetLightsHolder().CreatePntLightBillet();
+    l->Update(strength, range, position, attenuation);
+    return grPointLight(l);
+}
+
+grSpotLight grCreateSpotLight(DirectX::XMFLOAT3 strength, float range, DirectX::XMFLOAT3 position, float spot, DirectX::XMFLOAT3 direction, DirectX::XMFLOAT3 attenuation) {
+    auto l = GraphicsCore::GetInstance().GetLightsHolder().CreateSptLightBillet();
+    l->Update(strength, range, position, spot, direction, attenuation);
+    return grSpotLight(l);
+}
+
+void grUpdateDirectionalLight(grDirectionalLight light, DirectX::XMFLOAT3 strength, DirectX::XMFLOAT3 direction) {
+    auto l = static_cast<DirectionalLightHandle>(light).GetValue();
+    l->Update(strength, direction);
+}
+
+void grUpdatePointLight(grPointLight light, DirectX::XMFLOAT3 strength, float range, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 attenuation) {
+    auto l = static_cast<PointLightHandle>(light).GetValue();
+    l->Update(strength, range, position, attenuation);
+}
+
+void grUpdateSpotLight(grSpotLight light, DirectX::XMFLOAT3 strength, float range, DirectX::XMFLOAT3 position, float spot, DirectX::XMFLOAT3 direction, DirectX::XMFLOAT3 attenuation) {
+    auto l = static_cast<SpotLightHandle>(light).GetValue();
+    l->Update(strength, range, position, spot, direction, attenuation);
+}
+
+void grDestroyDirectionalLight(grDirectionalLight light) {
+    auto l = static_cast<DirectionalLightHandle>(light).GetValue();
+    GraphicsCore::GetInstance().GetLightsHolder().DestroyLight(l);
+}
+
+void grDestroyPointLight(grPointLight light) {
+    auto l = static_cast<PointLightHandle>(light).GetValue();
+    GraphicsCore::GetInstance().GetLightsHolder().DestroyLight(l);
+}
+
+void grDestroySpotLight(grSpotLight light) {
+    auto l = static_cast<SpotLightHandle>(light).GetValue();
+    GraphicsCore::GetInstance().GetLightsHolder().DestroyLight(l);
 }

@@ -5,7 +5,7 @@
 
 namespace Graphics {
 
-    struct Material;
+    class Material;
 
     struct RenderVerticesDesc // keep in sync with grRenderVertices
     {
@@ -28,7 +28,7 @@ namespace Graphics {
             verticesCount_(verticesCount),
             objCbIndex_(objCbIndex),
             transform_(transform),
-            dirtyFramesCount_(GraphicsCore::GetInstance().GetFrameResourcesCount()),
+            dirtyFramesCount_((uint32)GraphicsCore::GetInstance().GetFrameResourcesCount()),
             material_(*material),
             container_(container)
         {}
@@ -45,7 +45,7 @@ namespace Graphics {
         const XMFLOAT4X4& GetTransform() const { return transform_; }
         void SetTransform(const XMFLOAT4X4& transform) {
             transform_ = transform;
-            dirtyFramesCount_ = GraphicsCore::GetInstance().GetFrameResourcesCount();
+            dirtyFramesCount_ = (uint32)GraphicsCore::GetInstance().GetFrameResourcesCount();
         }
 
         Material& GetMaterial() { return material_; }

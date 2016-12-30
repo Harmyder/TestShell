@@ -12,7 +12,6 @@ namespace Pipeline
     struct MeshGeometry
     {
         std::vector<Viewer::Vertex> Vertices;
-        std::vector<uint16> Indices;
     };
 
     class UserMesh : public Pile::NamedByRefObject, public Pile::NonCopyable

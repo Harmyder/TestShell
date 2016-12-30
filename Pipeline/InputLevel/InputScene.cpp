@@ -12,8 +12,7 @@ namespace Pipeline
     InputScene::~InputScene() {}
 
     // **************************************************************************************
-    void InputScene::AddMesh(unique_ptr<InputMesh> mesh)
-    {
+    void InputScene::AddMesh(unique_ptr<InputMesh> mesh) {
         meshes_.push_back(move(mesh));
     }
 
