@@ -101,7 +101,6 @@ namespace Pipeline
         const auto vd = BuildMeshes(userScene, inputScene);
         const auto td = BuildColliders(userScene, inputScene);
 
-        auto& viewport = userScene.GetViewport();
-        viewport.CreateRenderItem(vd, td);
+        userScene.GetViewport().CreateRenderItem(vd, td);
     }
 }

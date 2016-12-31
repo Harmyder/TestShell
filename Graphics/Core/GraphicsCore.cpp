@@ -185,7 +185,7 @@ namespace Graphics
         cbvTable2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 2);
 
         CD3DX12_ROOT_PARAMETER slotRootParameter[3];
-        slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable0, D3D12_SHADER_VISIBILITY_VERTEX);
+        slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable0, D3D12_SHADER_VISIBILITY_ALL);
         slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable1, D3D12_SHADER_VISIBILITY_ALL);
         slotRootParameter[2].InitAsDescriptorTable(1, &cbvTable2, D3D12_SHADER_VISIBILITY_ALL);
 
@@ -226,7 +226,6 @@ namespace Graphics
         opaquePsoDesc.VS = { g_shvertex, sizeof(g_shvertex) };
         opaquePsoDesc.PS = { g_shpixel, sizeof(g_shpixel) };
         opaquePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-//        opaquePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
         opaquePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
         opaquePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
         opaquePsoDesc.SampleMask = UINT_MAX;
@@ -242,6 +241,11 @@ namespace Graphics
         D3D12_GRAPHICS_PIPELINE_STATE_DESC opaqueWireframePsoDesc = opaquePsoDesc;
         opaqueWireframePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
         THROW_IF_FAILED(g_device->CreateGraphicsPipelineState(&opaqueWireframePsoDesc, IID_PPV_ARGS(&psos_["opaque_wireframe"])));
+
+        // PSO for opaque HUD objects.
+        D3D12_GRAPHICS_PIPELINE_STATE_DESC opaqueHudPsoDesc = opaquePsoDesc;
+        opaqueHudPsoDesc.DepthStencilState.DepthEnable = false;
+        THROW_IF_FAILED(g_device->CreateGraphicsPipelineState(&opaqueHudPsoDesc, IID_PPV_ARGS(&psos_["opaque_HUD"])));
     }
 
     void GraphicsCore::CreateDescriptorHeaps() {
@@ -382,8 +386,6 @@ namespace Graphics
     }
 
     void GraphicsCore::BeginScene() {
-        Update();
-
         commandContext_->Reset();
         auto commandList = commandContext_->GetCommandList();
         commandList->SetPipelineState(psos_["opaque"].Get());
@@ -403,10 +405,16 @@ namespace Graphics
         commandList->RSSetViewports(1, screenViewport_.get());
         commandList->RSSetScissorRects(1, &scissorRect_);
 
+        Update();
         int passCbvIndex = passCbvOffset_ + currFrameResource_;
         auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
         passCbvHandle.Offset(passCbvIndex, cbvSrvUavDescriptorSize_);
         commandList->SetGraphicsRootDescriptorTable(2, passCbvHandle);
+    }
+
+    void GraphicsCore::BeginHud() {
+        auto commandList = commandContext_->GetCommandList();
+        commandList->SetPipelineState(psos_["opaque_HUD"].Get());
     }
 
     void GraphicsCore::EndScene() {

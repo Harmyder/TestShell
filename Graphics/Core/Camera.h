@@ -6,16 +6,21 @@ namespace Graphics
     __declspec(align(64)) class Camera
     {
     public:
-        void __vectorcall SetAffineTransform(FXMMATRIX affine);
+        void __vectorcall SetAffineTransform(FXMMATRIX affine, XMVECTOR translation);
 
-        void SetAspectRatio(float heightOverWidth) { aspectRatio_ = heightOverWidth; UpdateProjMatrix(); }
-        void SetVerticalFOV(float fov) { fov_ = fov; UpdateProjMatrix(); }
-        void SetNearFarClipPlanes(float nearCP, float farCP) { n_ = nearCP; f_ = farCP; UpdateProjMatrix(); }
+        void SetPerspective(float heightOverWidth, float fov, float nearCP, float farCP) {
+            aspectRatio_ = heightOverWidth;
+            fov_ = fov;
+            n_ = nearCP;
+            f_ = farCP;
+            UpdateProjMatrix();
+        }
 
         void Update();
 
         XMMATRIX GetProjMatrix() { return proj_; }
         XMMATRIX GetViewMatrix() { return view_; }
+        XMMATRIX GetInvViewMatrix() { return invView_; }
         XMVECTOR GetEyePos() { return cameraTranslation_; }
 
     private:
@@ -25,6 +30,7 @@ namespace Graphics
 
     private:
         XMMATRIX view_;
+        XMMATRIX invView_;
         XMMATRIX proj_;
 
         XMMATRIX cameraRotation_;

@@ -22,15 +22,27 @@ void grInit(HWND hWnd, grInitParams params) {
 
 void grShutdown() {}
 
-void grSetPerspective(float heightOverWidth, float fov, float nearClipPlane, float farClipPlane) {
+void grSetPerspective(float heightOverWidth, float verticalFov, float nearClipPlane, float farClipPlane) {
     auto& camera = GraphicsCore::GetInstance().GetCamera();
-    camera.SetAspectRatio(heightOverWidth);
-    camera.SetVerticalFOV(fov);
-    camera.SetNearFarClipPlanes(nearClipPlane, farClipPlane);
+    camera.SetPerspective(heightOverWidth, verticalFov, nearClipPlane, farClipPlane);
+}
+
+XMMATRIX grGetViewTransform() {
+    auto& camera = GraphicsCore::GetInstance().GetCamera();
+    return camera.GetViewMatrix();
+}
+
+XMMATRIX grGetInvViewTransform() {
+    auto& camera = GraphicsCore::GetInstance().GetCamera();
+    return camera.GetInvViewMatrix();
 }
 
 void grBeginScene() {
     GraphicsCore::GetInstance().BeginScene();
+}
+
+void grBeginHud() {
+    GraphicsCore::GetInstance().BeginHud();
 }
 
 void grEndScene() {
@@ -103,7 +115,8 @@ grRenderItem grCreateRenderItem(
 }
 
 void grUpdateRenderSubItemTransform(grRenderItem renderItem, const std::string& name, const XMFLOAT4X4& transform) {
-    RenderItem* ri = static_cast<RenderItemHandle>(renderItem).GetValue();
+    auto rih = static_cast<RenderItemHandle>(renderItem);
+    auto ri = rih.GetValue();
     auto& subItem = ri->FindSubItem(name);
     subItem.SetTransform(transform);
 }
@@ -125,8 +138,12 @@ void grDestroyRenderItem(grRenderItem renderItem) {
     delete ri;
 }
 
-void __vectorcall grSetCameraAffineTransform(FXMMATRIX affine) {
-    GraphicsCore::GetInstance().GetCamera().SetAffineTransform(affine);
+void __vectorcall grSetCameraAffineTransform(FXMMATRIX affine, XMVECTOR translation) {
+    GraphicsCore::GetInstance().GetCamera().SetAffineTransform(affine, translation);
+}
+
+XMVECTOR __vectorcall grGetCameraPosition() {
+    return GraphicsCore::GetInstance().GetCamera().GetEyePos();
 }
 
 grDirectionalLight grCreateDirectionalLight(DirectX::XMFLOAT3 strength, DirectX::XMFLOAT3 direction) {

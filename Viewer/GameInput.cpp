@@ -16,16 +16,17 @@ namespace Viewer
     }
 
     void GameInput::OnMouseLDown(int x, int y) {
-        mousePressed_ = { x, y };
+        mousePrevious_ = mouseCurrent_ = { x, y };
         buttons_[0][Input::kMouseLbutton] = true;
     }
 
     void GameInput::OnMouseRDown(int x, int y) {
-        mousePressed_ = { x, y };
+        mousePrevious_ = mouseCurrent_ = { x, y };
         buttons_[0][Input::kMouseRbutton] = true;
     }
 
     void GameInput::OnMouseMove(int x, int y) {
+        mousePrevious_ = mouseCurrent_;
         mouseCurrent_ = { x,y };
     }
 

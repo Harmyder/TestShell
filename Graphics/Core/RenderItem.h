@@ -74,7 +74,7 @@ namespace Graphics {
             RenderItem *&pri)
         {
             pri = new RenderItem();
-            auto objCbIndices = GraphicsCore::GetInstance().GetFreePerObjCbIndices();
+            auto& objCbIndices = GraphicsCore::GetInstance().GetFreePerObjCbIndices();
             std::vector<uint32> verticesOffsets;
             verticesOffsets.reserve(verticesDescs.size());
             uint32 totalVerticesCount = 0;
@@ -111,6 +111,9 @@ namespace Graphics {
             pri->vertexBuffer_.Create(L"ri_vertex", totalVerticesCount, vertexSize, vertices.data(), &commandContext_);
         }
 
+        ~RenderItem() {
+            OutputDebugString("RenderItemDestroyed");
+        }
         D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const;
         uint32 VertexByteStride() const { return vertexByteStride_; }
         uint32 VertexBufferByteSize() const { return vbByteSize_; }

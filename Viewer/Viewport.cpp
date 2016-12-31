@@ -4,9 +4,11 @@
 #include "CameraController.h"
 #include "GameInput.h"
 #include "GeometryGenerator.h"
+#include "Pile\Math\XmFloatHelper.h"
 #include "Graphics\Interface\GraphicsInterface.h"
 
 using namespace std;
+using namespace DirectX;
 
 namespace Viewer
 {
@@ -15,10 +17,14 @@ namespace Viewer
     constexpr uint32 kMaterialsCountLimit = 2;
     constexpr uint32 kFrameResourcesCount = 3;
 
+    constexpr auto kNearClipPlane = .3f;
+    constexpr auto kFarClipPlane = 200.f;
+    const auto kVerticalFov = DirectX::XM_PIDIV4;
+
     const string kColliderMaterialKey = "collider";
     const string kRigidMaterialKey = "rigid";
 
-    Viewport::Viewport(HWND hWnd) : hwnd_(hWnd) {
+    Viewport::Viewport(HWND hWnd) : hwnd_(hWnd), referenceFrame_(nullptr) {
         grInit(hwnd_, { kSceneObjectsCountLimit, kPassesCountLimit, kMaterialsCountLimit, kFrameResourcesCount });
 
         RECT rect;
@@ -26,14 +32,23 @@ namespace Viewer
         float width = static_cast<float>(rect.right - rect.left);
         float height = static_cast<float>(rect.bottom - rect.top);
 
-        grSetPerspective(height / width, DirectX::XM_PIDIV4, 1.f, 200.f);
+        grSetPerspective(width / height, kVerticalFov, kNearClipPlane, kFarClipPlane);
 
         PrepareGeometry();
 
-        materials_.insert(make_pair(kColliderMaterialKey, grCreateStandardMaterial(LibraryMaterial::kSilver, kColliderMaterialKey)));
+        materials_.insert(make_pair(kColliderMaterialKey, grCreateStandardMaterial(LibraryMaterial::kEmerald, kColliderMaterialKey)));
         materials_.insert(make_pair(kRigidMaterialKey, grCreateStandardMaterial(LibraryMaterial::kTurquesa, kRigidMaterialKey)));
 
-        grCreateDirectionalLight(XMFLOAT3(1.f, 0.f, 1.f), XMFLOAT3(1.f, 0.f, 0.f));
+        grCreateDirectionalLight(XMFLOAT3(.5f, .5f, .45f), XMFLOAT3(1.f, 0.f, 0.f));
+        grCreateDirectionalLight(XMFLOAT3(.9f, .9f, .8f), XMFLOAT3(0.f, 0.f, 1.f));
+        grCreateDirectionalLight(XMFLOAT3(.3f, .3f, .37f), XMFLOAT3(0.f, 0.f, -1.f));
+
+        vector<Viewport::RenderItemTypeDesc> descs;
+        auto type = PredefinedGeometryType::kCone;
+        descs.emplace_back("X", type, Pile::Identity4x4());
+        descs.emplace_back("Y", type, Pile::Identity4x4());
+        descs.emplace_back("Z", type, Pile::Identity4x4());
+        referenceFrame_ = CreateRenderItemInternal(vector<Viewport::RenderItemVerticesDesc>(), descs);
     }
 
     Viewport::~Viewport() {
@@ -41,6 +56,12 @@ namespace Viewer
     }
 
     uint_t Viewport::CreateRenderItem(const std::vector<RenderItemVerticesDesc>& viewportVerticesDescs, const std::vector<RenderItemTypeDesc>& viewportTypeDescs) {
+        grRenderItem ri = CreateRenderItemInternal(viewportVerticesDescs, viewportTypeDescs);
+        renderItems_.push_back(ri);
+        return renderItems_.size() - 1;
+    }
+
+    grRenderItem Viewport::CreateRenderItemInternal(const std::vector<RenderItemVerticesDesc>& viewportVerticesDescs, const std::vector<RenderItemTypeDesc>& viewportTypeDescs) {
         vector<grRenderSubItemDesc> descs;
         vector<grRenderVertices> vertices;
         vector<uint32> itemsToVertices;
@@ -75,9 +96,7 @@ namespace Viewer
             ++currentItem;
         }
 
-        grRenderItem ri = grCreateRenderItem(vertices, descs, itemsToVertices, sizeof(Vertex), grGetGraphicsContext());
-        renderItems_.push_back(ri);
-        return renderItems_.size() - 1;
+        return grCreateRenderItem(vertices, descs, itemsToVertices, sizeof(Vertex), grGetGraphicsContext());
     }
 
     void Viewport::BeforeDraw() {
@@ -88,14 +107,66 @@ namespace Viewer
         grEndScene();
     }
 
+    void Viewport::BeforeHud() {
+        grBeginHud();
+    }
+
     void Viewport::DrawRenderItems() {
         for (const auto& ri : renderItems_) {
             grDrawRenderItem(ri);
         }
     }
 
+    void Viewport::DrawReferenceFrame() {
+        XMVECTOR referenceFrame = Convert2DTo3D(50, 50);
+        constexpr float length = .1f;
+        constexpr float base = .01f;
+        XMMATRIX scaling = XMMatrixScaling(base, length, base);
+        XMMATRIX translation = XMMatrixTranslationFromVector(referenceFrame);
+
+        XMMATRIX localTranslation = XMMatrixTranslation(length / 2.f, 0, 0);
+        XMMATRIX transform = scaling * XMMatrixRotationZ(-XM_PIDIV2) * translation * localTranslation;
+        XMFLOAT4X4 t; XMStoreFloat4x4(&t, transform);
+        grUpdateRenderSubItemTransform(referenceFrame_, "X", t);
+
+        localTranslation = XMMatrixTranslation(0, length / 2.f, 0);
+        transform = scaling * translation * localTranslation;
+        XMStoreFloat4x4(&t, transform);
+        grUpdateRenderSubItemTransform(referenceFrame_, "Y", t);
+
+        localTranslation = XMMatrixTranslation(0, 0, length / 2.f);
+        transform = scaling * XMMatrixRotationX(XM_PIDIV2) * translation * localTranslation;
+        XMStoreFloat4x4(&t, transform);
+        grUpdateRenderSubItemTransform(referenceFrame_, "Z", t);
+
+        grDrawRenderItem(referenceFrame_);
+    }
+
     void Viewport::PrepareGeometry() {
         GeometryGenerator::CreateCube(geometries_[(size_t)PredefinedGeometryType::kBox]);
         GeometryGenerator::CreateSphere(geometries_[(size_t)PredefinedGeometryType::kSphere], 2);
+        GeometryGenerator::CreateCylinder(geometries_[(size_t)PredefinedGeometryType::kCylinder], 0.5f, 0.5f, 1.f, 8, 4);
+        GeometryGenerator::CreateCone(geometries_[(size_t)PredefinedGeometryType::kCone], 0.5f, 1.f, 8, 4);
+    }
+
+    XMVECTOR Viewport::Convert2DTo3D(uint32 x, uint32 y) const {
+        RECT rect;
+        GetClientRect(hwnd_, &rect);
+        const float width = static_cast<float>(rect.right - rect.left);
+        const float height = static_cast<float>(rect.bottom - rect.top);
+        const float ratio = width / height;
+
+        const float alpha = kVerticalFov;
+        const float tanHalfAlpha = tan(alpha / 2);
+        const float tanHalfBeta = ratio * tanHalfAlpha; 
+
+        const float vx = (2.f * x / width - 1.f) * tanHalfBeta;
+        const float vy = -(2.f * y / height - 1.f) * tanHalfAlpha;
+        const float vz = -1.f;
+
+        XMVECTOR pointInViewSpace = DirectX::XMLoadFloat3(&XMFLOAT3(vx, vy, vz));
+        XMMATRIX invViewTransform = grGetInvViewTransform();
+        XMVECTOR result = XMVector3Transform(pointInViewSpace, invViewTransform);
+        return result;
     }
 }

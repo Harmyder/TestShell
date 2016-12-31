@@ -6,14 +6,16 @@ using namespace std;
 
 namespace Graphics
 {
-    void Camera::SetAffineTransform(FXMMATRIX affine) {
+    void Camera::SetAffineTransform(FXMMATRIX affine, XMVECTOR translation) {
         SetLookDirection(affine.r[2], affine.r[1]);
-        SetPosition(affine.r[3]);
+        SetPosition(translation);
     }
 
     void Camera::Update() {
+        invView_ = cameraRotation_;
+        invView_.r[3] = XMVectorSetW(cameraTranslation_, 1.f);
+
         view_ = XMMatrixTranspose(cameraRotation_);
-        view_.r[2] = g_XMIdentityR2;
         view_.r[3] = XMVectorSetW(XMVector3Transform(-cameraTranslation_, view_), 1.f);
     }
 
@@ -31,7 +33,7 @@ namespace Graphics
 
     void Camera::UpdateProjMatrix() {
         float y = 1.f / std::tanf(fov_ / 2.f);
-        float x = aspectRatio_ * y;
+        float x = y / aspectRatio_;
 
         float A = f_ / (f_ - n_);
         float B = A * (-n_);
@@ -39,7 +41,7 @@ namespace Graphics
         proj_ = XMMATRIX(
             XMVECTOR{ x,    0.f,  0.f,  0.f },
             XMVECTOR{ 0.f,  y,    0.f,  0.f },
-            XMVECTOR{ 0.f,  0.f,  A,    1.f },
+            XMVECTOR{ 0.f,  0.f,  -A,   -1.f },
             XMVECTOR{ 0.f,  0.f,  B,    0.f }
         );
     }

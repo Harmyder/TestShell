@@ -29,8 +29,5 @@ namespace Viewer
         
         float currentPitch_ = 0.f;
         float currentYaw_ = 0.f;
-        float currentStrafe_ = 0.f;
-        float currentWalk_ = 0.f;
-        float currentAscent_ = 0.f;
     };
 }

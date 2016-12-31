@@ -21,10 +21,10 @@ namespace Viewer
         if (gameInput_.IsPressed(GameInput::Input::kMenuKey) &&
             gameInput_.IsPressed(GameInput::Input::kMouseLbutton))
         {
-            float yaw = gameInput_.GetMousePressedDeltaX() * kMouseSensitivityX;
-            float pitch = gameInput_.GetMousePressedDeltaY() * kMouseSensitivityY;
-            currentYaw_ += yaw - lastYaw_;
-            currentPitch_ += pitch - lastPitch_;
+            float yaw = gameInput_.GetMouseDeltaX() * kMouseSensitivityX;
+            float pitch = gameInput_.GetMouseDeltaY() * kMouseSensitivityY;
+            currentYaw_ += yaw;
+            currentPitch_ += pitch;
             lastYaw_ = yaw;
             lastPitch_ = pitch;
         }
@@ -32,31 +32,37 @@ namespace Viewer
             lastYaw_ = lastPitch_ = 0;
         }
 
+        float strafe = 0;
+        float walk = 0;
+        float ascent = 0;
         if (gameInput_.IsPressed(GameInput::Input::kKeyA)) {
-            currentStrafe_ -= dT * kKeyboardSensitivity;
+            strafe = -dT * kKeyboardSensitivity;
         }
         if (gameInput_.IsPressed(GameInput::Input::kKeyD)) {
-            currentStrafe_ += dT * kKeyboardSensitivity;
+            strafe = dT * kKeyboardSensitivity;
         }
         if (gameInput_.IsPressed(GameInput::Input::kKeyS)) {
-            currentWalk_ -= dT * kKeyboardSensitivity;
+            walk = dT * kKeyboardSensitivity;
         }
         if (gameInput_.IsPressed(GameInput::Input::kKeyW)) {
-            currentWalk_ += dT * kKeyboardSensitivity;
+            walk = -dT * kKeyboardSensitivity;
         }
         if (gameInput_.IsPressed(GameInput::Input::kKeyQ)) {
-            currentAscent_ -= dT * kKeyboardSensitivity;
+            ascent = -dT * kKeyboardSensitivity;
         }
         if (gameInput_.IsPressed(GameInput::Input::kKeyE)) {
-            currentAscent_ += dT * kKeyboardSensitivity;
+            ascent = dT * kKeyboardSensitivity;
         }
 
         XMMATRIX transform(worldEast_, worldUp_, worldNorth_, g_XMIdentityR3);
         transform = transform
-            * XMMatrixTranslation(currentStrafe_, currentAscent_, currentWalk_)
-            * XMMatrixRotationAxis(worldUp_, currentYaw_)
-            * XMMatrixRotationAxis(worldEast_, currentPitch_);
+            * XMMatrixRotationAxis(worldEast_, currentPitch_)
+            * XMMatrixRotationAxis(worldUp_, currentYaw_);
 
-        grSetCameraAffineTransform(transform);
+        XMVECTOR frameTranslation = { strafe, ascent, walk, 0.f };
+        frameTranslation = XMVectorSetW(XMVector3Transform(frameTranslation, transform), 1.f);
+        XMVECTOR translation = frameTranslation + grGetCameraPosition();
+        
+        grSetCameraAffineTransform(transform, translation);
     }
 }

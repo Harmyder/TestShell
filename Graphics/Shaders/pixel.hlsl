@@ -17,6 +17,8 @@ float4 main(VertexOut vin) : SV_Target
     float3 toEye = normalize(gEyePosW - vin.PosW);
     ComputeLights(mat, gDl, gPl, gSl, gDirLightsCount, gPntLightsCount, gSptLightsCount, vin.PosW, vin.NormalW, toEye, ambient, diffuse, specular);
 
-    float4 color = float4(ambient + diffuse, 1.f);
+    float4 color;
+    color.rgb = ambient + diffuse + specular;
+    color.a = 1.f;
     return color;
 }

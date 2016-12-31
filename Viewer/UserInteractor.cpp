@@ -3,8 +3,8 @@
 #include "UserInteractor.h"
 #include <WindowsX.h>
 
-#include "Pile/Timer/Timer.h"
-#include "Menu/MenuWalker.h"
+#include "Pile\Timer\Timer.h"
+#include "Menu\MenuWalker.h"
 #include "GameInput.h"
 #include "Viewport.h"
 #include "CameraController.h"
@@ -204,7 +204,6 @@ namespace Viewer
         const float frameTime = static_cast<float>((newStartTicks - startTicks_) * timer_->GetInvFrequency());
         startTicks_ = newStartTicks;
 
-        gameInput_->PreUpdate();
         cameraCtrl_->Update(frameTime);
     }
 
@@ -212,6 +211,11 @@ namespace Viewer
     {
         WaitForDeltaTime();
         TreatMessages();
+    }
+
+    void UserInteractor::DrawHUD() {
+        viewport_->BeforeHud();
+        viewport_->DrawReferenceFrame();
     }
 
     void UserInteractor::WaitForDeltaTime()
@@ -234,6 +238,7 @@ namespace Viewer
     }
 
     void UserInteractor::AfterRender() {
+        DrawHUD();
         viewport_->AfterDraw();
     }
 }

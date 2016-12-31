@@ -22,6 +22,8 @@ namespace Viewer
         enum class PredefinedGeometryType {
             kBox = 0,
             kSphere,
+            kCylinder,
+            kCone,
             kSize
         };
 
@@ -29,7 +31,7 @@ namespace Viewer
             RenderItemDesc(const std::string& name, const XMFLOAT4X4& transform) :
                 name(name), transform(transform) {}
 
-            const std::string& name;
+            const std::string name;
             const XMFLOAT4X4 transform;
         };
         struct RenderItemVerticesDesc : RenderItemDesc {
@@ -50,11 +52,16 @@ namespace Viewer
 
         void BeforeDraw();
         void AfterDraw();
+        void BeforeHud();
 
         void DrawRenderItems();
 
+        void DrawReferenceFrame();
+
     private:
         void PrepareGeometry();
+        XMVECTOR Convert2DTo3D(uint32 x, uint32 y) const;
+        grRenderItem CreateRenderItemInternal(const std::vector<RenderItemVerticesDesc>& viewportVerticesDescs, const std::vector<RenderItemTypeDesc>& viewportTypeDescs);
 
     private:
         HWND hwnd_;
@@ -62,6 +69,8 @@ namespace Viewer
         std::vector<grRenderItem> renderItems_;
         std::array<std::vector<Vertex>, (size_t)PredefinedGeometryType::kSize> geometries_;
         std::unordered_map<std::string, grMaterial> materials_;
+
+        grRenderItem referenceFrame_;
     };
 
     using PredefinedGeometryType = Viewport::PredefinedGeometryType;

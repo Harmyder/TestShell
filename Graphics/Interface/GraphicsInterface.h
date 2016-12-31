@@ -13,8 +13,11 @@ void grInit(HWND hWnd, grInitParams params);
 void grShutdown();
 
 void grSetPerspective(float aspectRatioWidthOverHeight, float fov, float nearClipPlane, float farClipPlane);
+XMMATRIX grGetViewTransform();
+XMMATRIX grGetInvViewTransform();
 
 void grBeginScene();
+void grBeginHud();
 void grEndScene();
 void grDrawRenderItem(grRenderItem renderItem);
 //void grDrawRenderIndexedItem(grRenderIndexedItem renderIndexedItem);
@@ -78,7 +81,8 @@ void grUpdateRenderSubItemTransform(grRenderItem renderItem, const std::string& 
 
 void grDestroyRenderItem(grRenderItem renderItem);
 
-void __vectorcall grSetCameraAffineTransform(FXMMATRIX affine);
+void __vectorcall grSetCameraAffineTransform(FXMMATRIX affine, XMVECTOR translation);
+XMVECTOR __vectorcall grGetCameraPosition();
 
 grDirectionalLight grCreateDirectionalLight(DirectX::XMFLOAT3 strength, DirectX::XMFLOAT3 direction);
 grPointLight grCreatePointLight(DirectX::XMFLOAT3 strength, float range, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 attenuation);

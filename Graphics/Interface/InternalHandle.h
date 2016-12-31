@@ -14,7 +14,6 @@ namespace Graphics
     template <class C, class H>
     struct InternalHandle : H {
         InternalHandle(H ri) : H(ri) {}
-        ~InternalHandle() { delete static_cast<C*>(handle_); }
         C* GetValue() { return static_cast<C*>(handle_); }
     };
 

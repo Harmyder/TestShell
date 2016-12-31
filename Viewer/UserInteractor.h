@@ -44,6 +44,7 @@ namespace Viewer
         HWND CreateDemoWindow(HINSTANCE instance, uint32 width, uint32 height);
         void TreatMessages();
         void WaitForDeltaTime();
+        void DrawHUD();
 
     private:
         static LRESULT CALLBACK WndProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam);
