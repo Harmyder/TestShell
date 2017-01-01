@@ -20,7 +20,7 @@ void grBeginScene();
 void grBeginHud();
 void grEndScene();
 void grDrawRenderItem(grRenderItem renderItem);
-//void grDrawRenderIndexedItem(grRenderIndexedItem renderIndexedItem);
+void grDrawRenderSubItem(grRenderItem renderItem, const std::string& name);
 
 // As context contains CommandList may we need to be able to create several
 // of them even in single threaded application
@@ -42,6 +42,7 @@ void grUpdateMaterial(
     float roughness);
 
 enum class LibraryMaterial {
+    kRed, kGreen, kBlue,
     kTurquesa,
     kEmerald,
     kJade,

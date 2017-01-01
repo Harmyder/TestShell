@@ -75,6 +75,9 @@ namespace Viewer
         }
     }
 
+    void GameInput::OnMouseSet(int x, int y) {
+        mousePrevious_ = mouseCurrent_ = { x, y };
+    }
 
     void GameInput::OnWheelRotate(int delta) {
         buttons_[1][Input::kMouseWheel] = false;

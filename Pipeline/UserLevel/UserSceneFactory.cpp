@@ -38,7 +38,7 @@ namespace Pipeline
             const auto& mesh = userScene.GetMesh(i);
             const auto& mg = mesh.GetGeometry();
 
-            descs.emplace_back(mesh.GetName(), mg.Vertices, mesh.GetTransform());
+            descs.emplace_back(mesh.GetName(), mg.Vertices, mesh.GetTransform(), "rigid");
         }
         return descs;
     }
@@ -90,7 +90,7 @@ namespace Pipeline
             transform = XMLoadFloat4x4(&collider.GetScalingTransform()) * transform;
             XMFLOAT4X4 t;
             XMStoreFloat4x4(&t, transform);
-            descs.emplace_back(collider.GetName(), type, t);
+            descs.emplace_back(collider.GetName(), type, t, "collider");
         }
 
         return descs;

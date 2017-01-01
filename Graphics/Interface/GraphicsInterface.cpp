@@ -70,6 +70,15 @@ grMaterial grCreateStandardMaterial(LibraryMaterial lm, const string& name) {
     auto& freeMatCbIndices = GraphicsCore::GetInstance().GetFreeMaterialCbIndices();
     auto cbIndex = freeMatCbIndices.AcquireIndex();
     switch (lm) {
+    case LibraryMaterial::kRed:
+        m = Material::Create(Material::Type::kRed, name, cbIndex);
+        break;
+    case LibraryMaterial::kGreen:
+        m = Material::Create(Material::Type::kGreen, name, cbIndex);
+        break;
+    case LibraryMaterial::kBlue:
+        m = Material::Create(Material::Type::kBlue, name, cbIndex);
+        break;
     case LibraryMaterial::kEmerald:
         m = Material::Create(Material::Type::kEmerald, name, cbIndex);
         break;
@@ -92,6 +101,11 @@ grMaterial grCreateStandardMaterial(LibraryMaterial lm, const string& name) {
 void grDrawRenderItem(grRenderItem renderItem) {
     RenderItem* ri = static_cast<RenderItemHandle*>(&renderItem)->GetValue();
     GraphicsCore::GetInstance().DrawRenderItem(*ri);
+}
+
+void grDrawRenderSubItem(grRenderItem renderItem, const string& name) {
+    RenderItem* ri = static_cast<RenderItemHandle*>(&renderItem)->GetValue();
+    GraphicsCore::GetInstance().DrawRenderSubItem(*ri, name);
 }
 
 grCommandContext grGetGraphicsContext() {

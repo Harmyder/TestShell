@@ -14,6 +14,9 @@ void FbxSimulation::Init(Viewport &viewport)
 {
     BaseSimulation::Init(viewport);
 
+    viewport.CreateMaterial(Viewport::Material::kEmerald, "rigid");
+    viewport.CreateMaterial(Viewport::Material::kSilver, "collider");
+
 //    ImportScene("C:\\Yola\\TestShell\\FBX\\", "Box");
     ImportScene("C:\\Yola\\TestShell\\FBX\\", "teapot001");
 }

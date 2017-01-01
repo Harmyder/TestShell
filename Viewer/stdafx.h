@@ -16,6 +16,7 @@
 #include <vector>
 #include <unordered_map>
 #include <map>
+#include <set>
 #include <cassert>
 
 #include "Pile\DirectXInclude.h"

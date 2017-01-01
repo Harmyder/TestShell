@@ -18,8 +18,7 @@ namespace Viewer
     }
 
     void CameraController::Update(float dT) {
-        if (gameInput_.IsPressed(GameInput::Input::kMenuKey) &&
-            gameInput_.IsPressed(GameInput::Input::kMouseLbutton))
+        if (gameInput_.IsPressed(GameInput::Input::kMenuKey))
         {
             float yaw = gameInput_.GetMouseDeltaX() * kMouseSensitivityX;
             float pitch = gameInput_.GetMouseDeltaY() * kMouseSensitivityY;
@@ -27,6 +26,14 @@ namespace Viewer
             currentPitch_ += pitch;
             lastYaw_ = yaw;
             lastPitch_ = pitch;
+
+            currentPitch_ = XMMin(XM_PIDIV2, currentPitch_);
+            currentPitch_ = XMMax(-XM_PIDIV2, currentPitch_);
+
+            if (currentYaw_ > XM_PI)
+                currentYaw_ -= XM_2PI;
+            else if (currentYaw_ <= -XM_PI)
+                currentYaw_ += XM_2PI;
         }
         if (gameInput_.IsFirstReleased(GameInput::Input::kMouseLbutton)) {
             lastYaw_ = lastPitch_ = 0;
@@ -64,5 +71,17 @@ namespace Viewer
         XMVECTOR translation = frameTranslation + grGetCameraPosition();
         
         grSetCameraAffineTransform(transform, translation);
+    }
+
+    bool CameraController::IsStartedTrackingMouse() {
+        return gameInput_.IsFirstPressed(GameInput::Input::kMenuKey);
+    }
+
+    bool CameraController::IsStopedTrackingMouse() {
+        return gameInput_.IsFirstReleased(GameInput::Input::kMenuKey);
+    }
+
+    bool CameraController::IsTrackingMouse() const {
+        return gameInput_.IsPressed(GameInput::Input::kMenuKey);
     }
 }

@@ -14,45 +14,62 @@ namespace Viewer
 {
     constexpr uint32 kSceneObjectsCountLimit = 100;
     constexpr uint32 kPassesCountLimit = 1;
-    constexpr uint32 kMaterialsCountLimit = 2;
+    constexpr uint32 kMaterialsCountLimit = 5;
     constexpr uint32 kFrameResourcesCount = 3;
 
     constexpr auto kNearClipPlane = .3f;
     constexpr auto kFarClipPlane = 200.f;
     const auto kVerticalFov = DirectX::XM_PIDIV4;
 
-    const string kColliderMaterialKey = "collider";
-    const string kRigidMaterialKey = "rigid";
+    static LibraryMaterial MaterialToLibraryMaterial(Viewport::Material m) {
+        switch (m) {
+        case Viewport::Material::kRed:      return LibraryMaterial::kRed;
+        case Viewport::Material::kGreen:    return LibraryMaterial::kGreen;
+        case Viewport::Material::kBlue:     return LibraryMaterial::kBlue;
+        case Viewport::Material::kTurquesa: return LibraryMaterial::kTurquesa;
+        case Viewport::Material::kEmerald:  return LibraryMaterial::kEmerald;
+        case Viewport::Material::kJade:     return LibraryMaterial::kJade;
+        case Viewport::Material::kObsidian: return LibraryMaterial::kObsidian;
+        case Viewport::Material::kSilver:   return LibraryMaterial::kSilver;
+        default:
+            throw "Unknown material";
+        }
+    }
 
     Viewport::Viewport(HWND hWnd) : hwnd_(hWnd), referenceFrame_(nullptr) {
         grInit(hwnd_, { kSceneObjectsCountLimit, kPassesCountLimit, kMaterialsCountLimit, kFrameResourcesCount });
 
         RECT rect;
         GetClientRect(hWnd, &rect);
-        float width = static_cast<float>(rect.right - rect.left);
-        float height = static_cast<float>(rect.bottom - rect.top);
+        width_ = rect.right - rect.left;
+        height_ = rect.bottom - rect.top;
 
-        grSetPerspective(width / height, kVerticalFov, kNearClipPlane, kFarClipPlane);
+        grSetPerspective(static_cast<float>(width_) / height_, kVerticalFov, kNearClipPlane, kFarClipPlane);
 
         PrepareGeometry();
-
-        materials_.insert(make_pair(kColliderMaterialKey, grCreateStandardMaterial(LibraryMaterial::kEmerald, kColliderMaterialKey)));
-        materials_.insert(make_pair(kRigidMaterialKey, grCreateStandardMaterial(LibraryMaterial::kTurquesa, kRigidMaterialKey)));
 
         grCreateDirectionalLight(XMFLOAT3(.5f, .5f, .45f), XMFLOAT3(1.f, 0.f, 0.f));
         grCreateDirectionalLight(XMFLOAT3(.9f, .9f, .8f), XMFLOAT3(0.f, 0.f, 1.f));
         grCreateDirectionalLight(XMFLOAT3(.3f, .3f, .37f), XMFLOAT3(0.f, 0.f, -1.f));
 
+        CreateMaterial(Viewport::Material::kRed, "red");
+        CreateMaterial(Viewport::Material::kGreen, "green");
+        CreateMaterial(Viewport::Material::kBlue, "blue");
+
         vector<Viewport::RenderItemTypeDesc> descs;
         auto type = PredefinedGeometryType::kCone;
-        descs.emplace_back("X", type, Pile::Identity4x4());
-        descs.emplace_back("Y", type, Pile::Identity4x4());
-        descs.emplace_back("Z", type, Pile::Identity4x4());
+        descs.emplace_back("X", type, Pile::Identity4x4(), "red");
+        descs.emplace_back("Y", type, Pile::Identity4x4(), "green");
+        descs.emplace_back("Z", type, Pile::Identity4x4(), "blue");
         referenceFrame_ = CreateRenderItemInternal(vector<Viewport::RenderItemVerticesDesc>(), descs);
     }
 
     Viewport::~Viewport() {
         grShutdown();
+    }
+
+    void Viewport::CreateMaterial(Material material, const string& name) {
+        materials_.insert(make_pair(name, grCreateStandardMaterial(MaterialToLibraryMaterial(material), name)));
     }
 
     uint_t Viewport::CreateRenderItem(const std::vector<RenderItemVerticesDesc>& viewportVerticesDescs, const std::vector<RenderItemTypeDesc>& viewportTypeDescs) {
@@ -77,7 +94,7 @@ namespace Viewer
 
         for (const auto& d : viewportTypeDescs) {
             uint_t geometryIndex = (uint_t)d.type;
-            const grRenderSubItemDesc descEngine(d.name, d.transform, materials_.find(kColliderMaterialKey)->second);
+            const grRenderSubItemDesc descEngine(d.name, d.transform, materials_.find(d.material)->second);
             descs.push_back(descEngine);
             const auto& currentGeometry = geometries_[geometryIndex];
             if (geometriesIndices[geometryIndex] == kNoIndex) {
@@ -89,7 +106,7 @@ namespace Viewer
         }
 
         for (const auto& d : viewportVerticesDescs) {
-            const grRenderSubItemDesc descEngine(d.name, d.transform, materials_.find(kRigidMaterialKey)->second);
+            const grRenderSubItemDesc descEngine(d.name, d.transform, materials_.find(d.material)->second);
             descs.push_back(descEngine);
             itemsToVertices.push_back((uint32)vertices.size());
             vertices.emplace_back((uint8*)(void*)d.vertices.data(), (uint32)d.vertices.size());
@@ -139,7 +156,15 @@ namespace Viewer
         XMStoreFloat4x4(&t, transform);
         grUpdateRenderSubItemTransform(referenceFrame_, "Z", t);
 
-        grDrawRenderItem(referenceFrame_);
+        XMMATRIX view = grGetViewTransform();
+        multimap<float, string> order;
+        order.insert(make_pair(XMVectorGetZ(XMVector3Transform(g_XMIdentityR0, view)), "X"));
+        order.insert(make_pair(XMVectorGetZ(XMVector3Transform(g_XMIdentityR1, view)), "Y"));
+        order.insert(make_pair(XMVectorGetZ(XMVector3Transform(g_XMIdentityR2, view)), "Z"));
+        
+        for (auto& p : order) {
+            grDrawRenderSubItem(referenceFrame_, p.second);
+        }
     }
 
     void Viewport::PrepareGeometry() {

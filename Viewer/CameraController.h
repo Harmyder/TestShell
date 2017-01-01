@@ -12,14 +12,17 @@ namespace Viewer
         CameraController(const GameInput& gameInput, UpVector upVector);
 
         void Update(float dT);
+        bool IsStartedTrackingMouse();
+        bool IsStopedTrackingMouse();
+        bool IsTrackingMouse() const;
 
     private:
         XMVECTOR worldUp_;
         XMVECTOR worldNorth_;
         XMVECTOR worldEast_;
         
-        const float kMouseSensitivityX = .0005f;
-        const float kMouseSensitivityY = .0005f;
+        const float kMouseSensitivityX = .003f;
+        const float kMouseSensitivityY = .003f;
         const float kKeyboardSensitivity = 3.f;
 
         const GameInput& gameInput_;

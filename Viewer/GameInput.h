@@ -51,6 +51,13 @@ namespace Viewer
 
         void KeyUpDown(int keyCode, bool value);
 
+        void OnMouseSet(int x, int y);
+
+        void ClearDeltas() {
+            mousePrevious_ = mouseCurrent_;
+            wheelDelta_ = 0;
+        }
+
     private:
         struct Point { int x, y; };
         Point mousePrevious_;

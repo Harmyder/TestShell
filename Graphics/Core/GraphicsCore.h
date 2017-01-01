@@ -24,7 +24,7 @@ namespace Graphics
     class FrameResources;
     class CommandContext;
     class RenderItem;
-    class RenderIndexedItem;
+    class RenderSubItem;
     class LightsHolder;
 
     // every free index stores next index of free index
@@ -87,6 +87,7 @@ namespace Graphics
         void BeginHud();
         void EndScene();
         void DrawRenderItem(RenderItem& ri);
+        void DrawRenderSubItem(RenderItem& ri, const std::string& name);
 
         CommandContext* GetCommandContext() { return commandContext_.get(); }
         Camera& GetCamera() { return camera_; }
@@ -113,6 +114,7 @@ namespace Graphics
         CD3DX12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView();
 
         void UpdatePassesCBs();
+        void DrawRenderSubItemInternal(const RenderItem& ri, RenderSubItem& rsi);
 
     private:
         HWND hwnd_;
@@ -154,5 +156,8 @@ namespace Graphics
         uint32 currentObject_;
 
         Camera camera_;
+
+        enum : uint8 { kNotUpdated, kUpdated };
+        std::vector<uint8> materialsUpdated_;
     };
 }

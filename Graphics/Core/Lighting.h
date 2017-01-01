@@ -139,6 +139,7 @@ namespace Graphics
         {}
 
         enum class Type {
+            kRed, kGreen, kBlue,
             kTurquesa,
             kEmerald,
             kJade,

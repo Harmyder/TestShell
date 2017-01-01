@@ -68,6 +68,7 @@ namespace Graphics
             ip.PassesCountLimit,
             ip.SceneObjectsCountLimit,
             ip.MaterialsCountLimit);
+        materialsUpdated_.resize(frameResources_->MatsCountLimit, kNotUpdated);
         lightsHolder_ = make_unique<LightsHolder>();
 
         CreateRootSignature();
@@ -427,52 +428,61 @@ namespace Graphics
 
         THROW_IF_FAILED(swapChain_->Present(0, 0));
         currentBackBuffer_ = (currentBackBuffer_ + 1) % SWAP_CHAIN_BUFFERS_COUNT;
+
+        fill(begin(materialsUpdated_), end(materialsUpdated_), kNotUpdated);
+    }
+
+    void GraphicsCore::DrawRenderSubItem(RenderItem& ri, const string& name) {
+        auto& rsi = ri.FindSubItem(name);
+        DrawRenderSubItemInternal(ri, rsi);
+    }
+
+    void GraphicsCore::DrawRenderSubItemInternal(const RenderItem& ri, RenderSubItem& rsi) {
+        auto cbObjIndex = rsi.CbIndex() + currFrameResource_ * frameResources_->ObjsCountLimit;
+        auto cbMatIndexBase = matCbvOffset_ + currFrameResource_ * frameResources_->MatsCountLimit;
+        auto cbMatIndex = rsi.GetMaterial().CbIndex() + cbMatIndexBase;
+
+        if (rsi.IsDirty()) {
+            auto currObjectCB = frameResources_->GetFrameResource(currFrameResource_).objCB.get();
+            PerObjConsts objConstants;
+            objConstants.World = rsi.GetTransform();
+            currObjectCB->CopyData(cbObjIndex, &objConstants);
+            rsi.DecreaseDirtyFramesCount();
+        }
+        if (rsi.GetMaterial().IsDirty() && materialsUpdated_[cbMatIndex - cbMatIndexBase] == kNotUpdated) {
+            materialsUpdated_[cbMatIndex - cbMatIndexBase] = kUpdated;
+            auto currMaterialCB = frameResources_->GetFrameResource(currFrameResource_).matCB.get();
+            PerMatConsts matConstants;
+            auto& mat = rsi.GetMaterial();
+            matConstants.Ambient = mat.GetAmbient();
+            matConstants.Diffuse = mat.GetDiffuse();
+            matConstants.Specular = mat.GetSpecular();
+            matConstants.FresnelR0 = mat.GetFresnelR0();
+            matConstants.Roughness = mat.GetRoughness();
+            currMaterialCB->CopyData(cbMatIndex - cbMatIndexBase, &matConstants);
+            mat.DecreaseDirtyFramesCount();
+        }
+
+        auto commandList = commandContext_->GetCommandList();
+
+        commandList->IASetVertexBuffers(0, 1, &ri.VertexBufferView());
+        commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+        auto cbvHandleObj = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
+        cbvHandleObj.Offset(cbObjIndex, cbvSrvUavDescriptorSize_);
+        commandList->SetGraphicsRootDescriptorTable(0, cbvHandleObj);
+
+        auto cbvHandleMat = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
+        cbvHandleMat.Offset(cbMatIndex, cbvSrvUavDescriptorSize_);
+        commandList->SetGraphicsRootDescriptorTable(1, cbvHandleMat);
+
+        commandList->DrawInstanced(rsi.VerticesCount(), 1, rsi.BaseVertexLocation(), 0);
     }
 
     void GraphicsCore::DrawRenderItem(RenderItem& ri) {
-        enum : uint8 { kNotUpdated, kUpdated };
-        vector<uint8> materialsUpdated(frameResources_->MatsCountLimit, kNotUpdated);
         for (auto it = ri.GetSubItemsBegin(); it != ri.GetSubItemsEnd(); ++it) {
             auto& rsi = (*it).second;
-            auto cbObjIndex = rsi.CbIndex() + currFrameResource_ * frameResources_->ObjsCountLimit;
-            auto cbMatIndexBase = matCbvOffset_ + currFrameResource_ * frameResources_->MatsCountLimit;
-            auto cbMatIndex = rsi.GetMaterial().CbIndex() + cbMatIndexBase;
-
-            if (rsi.IsDirty()) {
-                auto currObjectCB = frameResources_->GetFrameResource(currFrameResource_).objCB.get();
-                PerObjConsts objConstants;
-                objConstants.World = rsi.GetTransform();
-                currObjectCB->CopyData(cbObjIndex, &objConstants);
-                rsi.DecreaseDirtyFramesCount();
-            }
-            if (rsi.GetMaterial().IsDirty() && materialsUpdated[cbMatIndex - cbMatIndexBase] == kNotUpdated) {
-                materialsUpdated[cbMatIndex - cbMatIndexBase] = kUpdated;
-                auto currMaterialCB = frameResources_->GetFrameResource(currFrameResource_).matCB.get();
-                PerMatConsts matConstants;
-                auto& mat = rsi.GetMaterial();
-                matConstants.Ambient = mat.GetAmbient();
-                matConstants.Diffuse = mat.GetDiffuse();
-                matConstants.Specular = mat.GetSpecular();
-                matConstants.FresnelR0 = mat.GetFresnelR0();
-                matConstants.Roughness = mat.GetRoughness();
-                currMaterialCB->CopyData(cbMatIndex - cbMatIndexBase, &matConstants);
-                mat.DecreaseDirtyFramesCount();
-            }
-
-            auto commandList = commandContext_->GetCommandList();
-
-            commandList->IASetVertexBuffers(0, 1, &ri.VertexBufferView());
-            commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-            auto cbvHandleObj = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
-            cbvHandleObj.Offset(cbObjIndex, cbvSrvUavDescriptorSize_);
-            commandList->SetGraphicsRootDescriptorTable(0, cbvHandleObj);
-
-            auto cbvHandleMat = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
-            cbvHandleMat.Offset(cbMatIndex, cbvSrvUavDescriptorSize_);
-            commandList->SetGraphicsRootDescriptorTable(1, cbvHandleMat);
-
-            commandList->DrawInstanced(rsi.VerticesCount(), 1, rsi.BaseVertexLocation(), 0);
+            DrawRenderSubItemInternal(ri, rsi);
         }
     }
 }

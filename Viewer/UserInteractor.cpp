@@ -8,7 +8,6 @@
 #include "GameInput.h"
 #include "Viewport.h"
 #include "CameraController.h"
-
 using namespace std;
 using namespace Pile;
 
@@ -141,6 +140,29 @@ namespace Viewer
 
     void UserInteractor::OnMouseMove(int x, int y)
     {
+        POINT p = { x, y };
+        if (cameraCtrl_->IsTrackingMouse()) {
+            if (cameraCtrl_->IsStartedTrackingMouse()) SetCapture(viewport_->GetHwnd());
+            const int width = viewport_->GetWidth();
+            const int height = viewport_->GetHeight();
+
+            if (x < 0) x = width;
+            if (x > width) x = 0;
+
+            if (y < 0) y = height;
+            if (y > height) y = 0;
+
+            if (p.x != x || p.y != y)
+            {
+                gameInput_->OnMouseSet(x, y);
+                POINT screen = {x, y};
+                ClientToScreen(viewport_->GetHwnd(), &screen);
+                SetCursorPos(screen.x, screen.y);
+            }
+        }
+        else {
+            if (cameraCtrl_->IsStopedTrackingMouse()) ReleaseCapture();
+        }
         gameInput_->OnMouseMove(x, y);
     }
 
@@ -210,6 +232,7 @@ namespace Viewer
     void UserInteractor::AfterStep()
     {
         WaitForDeltaTime();
+        gameInput_->ClearDeltas();
         TreatMessages();
     }
 
