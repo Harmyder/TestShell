@@ -5,11 +5,26 @@
 
 #pragma once
 
+#pragma warning(disable:4238)
+
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 
 
 #include <DirectXMath.h>
+using DirectX::XMFLOAT3;
+using DirectX::XMFLOAT4;
+using DirectX::XMFLOAT3X3;
 using DirectX::XMVECTOR;
 using DirectX::FXMVECTOR;
 using DirectX::XMMATRIX;
 using DirectX::FXMMATRIX;
+
+#include "Pile\Types.h"
+
+#include <algorithm>
+#include <memory>
+#include <vector>
+#include <tuple>
+
+#include "SDK\GeometryTypes.h"
+

@@ -5,14 +5,12 @@
 
 #pragma once
 
+#include "CppUnitTest.h"
 
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
+#include "Harmyder\stdafx.h"
 
+#include <DirectXMath.h>
+using namespace DirectX;
 
-#include <Windows.h>
-
-#include <type_traits>
+#include <algorithm>
 #include <string>
-
-#include "Types.h"
-#include "Consts.h"

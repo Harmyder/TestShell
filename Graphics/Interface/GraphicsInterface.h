@@ -17,6 +17,7 @@ XMMATRIX grGetViewTransform();
 XMMATRIX grGetInvViewTransform();
 
 void grBeginScene();
+void grBeginBoundingVolumes();
 void grBeginHud();
 void grEndScene();
 void grDrawRenderItem(grRenderItem renderItem);

@@ -84,6 +84,7 @@ namespace Graphics
 
         void Update();
         void BeginScene();
+        void BeginBoundingVolumes();
         void BeginHud();
         void EndScene();
         void DrawRenderItem(RenderItem& ri);

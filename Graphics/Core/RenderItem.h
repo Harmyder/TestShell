@@ -86,7 +86,7 @@ namespace Graphics {
             for (uint_t i = 0; i < itemsDescs.size(); ++i) {
                 const auto& cur_id = itemsDescs[i];
                 const auto& cur_vd = verticesDescs[itemsToVertices[i]];
-                pri->subItems_.emplace(
+                const auto p = pri->subItems_.emplace(
                     std::piecewise_construct,
                     std::forward_as_tuple(cur_id.name),
                     std::forward_as_tuple(
@@ -97,6 +97,7 @@ namespace Graphics {
                         cur_id.material,
                         *pri)
                 );
+                if (!p.second) throw "At least two elements have the same name";
             }
 
             std::vector<uint8> vertices;
@@ -112,7 +113,6 @@ namespace Graphics {
         }
 
         ~RenderItem() {
-            OutputDebugString("RenderItemDestroyed");
         }
         D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const;
         uint32 VertexByteStride() const { return vertexByteStride_; }

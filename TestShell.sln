@@ -29,6 +29,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Viewer", "Viewer\Viewport.v
 		{02D77FF1-10B9-4892-BA57-608AEAB0768B} = {02D77FF1-10B9-4892-BA57-608AEAB0768B}
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{01B60D2D-3595-419B-B5C1-B537D34CEAE4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Harmyder.Test", "UnitTests\Harmyder.Test\Harmyder.Test.vcxproj", "{AE851286-DC78-4CE4-940A-BB379D26D049}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -59,8 +63,15 @@ Global
 		{B0FA436F-A6E0-496B-BEF8-A6CF096BE847}.Debug|x64.Build.0 = Debug|x64
 		{B0FA436F-A6E0-496B-BEF8-A6CF096BE847}.Release|x64.ActiveCfg = Release|x64
 		{B0FA436F-A6E0-496B-BEF8-A6CF096BE847}.Release|x64.Build.0 = Release|x64
+		{AE851286-DC78-4CE4-940A-BB379D26D049}.Debug|x64.ActiveCfg = Debug|x64
+		{AE851286-DC78-4CE4-940A-BB379D26D049}.Debug|x64.Build.0 = Debug|x64
+		{AE851286-DC78-4CE4-940A-BB379D26D049}.Release|x64.ActiveCfg = Release|x64
+		{AE851286-DC78-4CE4-940A-BB379D26D049}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AE851286-DC78-4CE4-940A-BB379D26D049} = {01B60D2D-3595-419B-B5C1-B537D34CEAE4}
 	EndGlobalSection
 EndGlobal

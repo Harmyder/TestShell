@@ -9,18 +9,18 @@ namespace Pipeline
     public:
         InputMesh(const std::string& name) : NamedByCopyObject(name) {}
 
-        void SetPositions(std::vector<XMFLOAT4> &positions);
-        void SetTrianglesPositions(std::vector<uint16> &triangles);
-        void SetNormals(std::vector<XMFLOAT4> &positions);
-        void SetTexCoords(std::vector<XMFLOAT2> &texCoords);
-        void SetTrianglesTexCoords(std::vector<uint16> &triangles);
+        void SetPositions(std::vector<XMFLOAT3> &positions) { positions_.swap(positions); }
+        void SetTrianglesPositions(std::vector<uint16> &triangles) { trianglesPositions_.swap(triangles); }
+        void SetNormals(std::vector<XMFLOAT3> &normals) { normals_.swap(normals); }
+        void SetTexCoords(std::vector<XMFLOAT2> &texCoords) { texCoords_.swap(texCoords); }
+        void SetTrianglesTexCoords(std::vector<uint16> &triangles) { trianglesTexCoords_.swap(triangles); }
 
-        uint_t GetVerticesCount() const;
-        const std::vector<XMFLOAT4>& GetPositions() const;
-        const std::vector<uint16>&   GetTrianglesPositions() const;
-        const std::vector<XMFLOAT4>& GetNormals() const;
-        const std::vector<XMFLOAT2>& GetTexCoords() const;
-        const std::vector<uint16>&   GetTrianglesTexCoords() const;
+        uint_t GetVerticesCount() const { return positions_.size(); }
+        const std::vector<XMFLOAT3>& GetPositions() const { return positions_; }
+        const std::vector<uint16>&   GetTrianglesPositions() const { return trianglesPositions_; }
+        const std::vector<XMFLOAT3>& GetNormals() const { return normals_; }
+        const std::vector<XMFLOAT2>& GetTexCoords() const { return texCoords_; }
+        const std::vector<uint16>&   GetTrianglesTexCoords() const { return trianglesTexCoords_; }
 
         void SetTransform(const XMFLOAT4X4& transform) { transform_ = transform; }
         const XMFLOAT4X4& GetTransform() const { return transform_; }
@@ -41,9 +41,9 @@ namespace Pipeline
         void ComputeVertices();
 
     private:
-        std::vector<XMFLOAT4> positions_;
+        std::vector<XMFLOAT3> positions_;
         std::vector<uint16>   trianglesPositions_;
-        std::vector<XMFLOAT4> normals_;
+        std::vector<XMFLOAT3> normals_;
         std::vector<XMFLOAT2> texCoords_;
         std::vector<uint16>   trianglesTexCoords_;
 

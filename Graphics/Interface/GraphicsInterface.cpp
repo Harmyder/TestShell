@@ -41,6 +41,10 @@ void grBeginScene() {
     GraphicsCore::GetInstance().BeginScene();
 }
 
+void grBeginBoundingVolumes() {
+    GraphicsCore::GetInstance().BeginBoundingVolumes();
+}
+
 void grBeginHud() {
     GraphicsCore::GetInstance().BeginHud();
 }

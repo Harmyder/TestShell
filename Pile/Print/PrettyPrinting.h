@@ -32,4 +32,5 @@ namespace Pile
         tuple_print<tuple_size<tuple<Args...> >::value>(ostr, t);
         return ostr;
     }
+
 }

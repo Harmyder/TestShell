@@ -16,61 +16,6 @@ namespace Pipeline
     }
 
     // **************************************************************************************
-    void InputMesh::SetPositions(std::vector<XMFLOAT4> &positions) {
-        positions_.swap(positions);
-    }
-
-    // **************************************************************************************
-    void InputMesh::SetTrianglesPositions(std::vector<uint16> &triangles) {
-        trianglesPositions_.swap(triangles);
-    }
-
-    // **************************************************************************************
-    void InputMesh::SetNormals(std::vector<XMFLOAT4> &normals) {
-        normals_.swap(normals);
-    }
-
-    // **************************************************************************************
-    void InputMesh::SetTexCoords(std::vector<XMFLOAT2> &texCoords) {
-        texCoords_.swap(texCoords);
-    }
-
-    // **************************************************************************************
-    void InputMesh::SetTrianglesTexCoords(std::vector<uint16> &triangles) {
-        trianglesTexCoords_.swap(triangles);
-    }
-
-    // **************************************************************************************
-    uint_t InputMesh::GetVerticesCount() const {
-        return positions_.size();
-    }
-
-    // **************************************************************************************
-    const std::vector<XMFLOAT4>& InputMesh::GetPositions() const {
-        return positions_;
-    }
-
-    // **************************************************************************************
-    const std::vector<uint16>& InputMesh::GetTrianglesPositions() const {
-        return trianglesPositions_;
-    }
-
-    // **************************************************************************************
-    const std::vector<XMFLOAT4>& InputMesh::GetNormals() const {
-        return normals_;
-    }
-
-    // **************************************************************************************
-    const std::vector<XMFLOAT2>& InputMesh::GetTexCoords() const {
-        return texCoords_;
-    }
-
-    // **************************************************************************************
-    const std::vector<uint16>& InputMesh::GetTrianglesTexCoords() const {
-        return trianglesTexCoords_;
-    }
-
-    // **************************************************************************************
     const std::vector<InputMesh::Vertex>& InputMesh::GetVertices() const {
         return uniqueVertices_;
     }

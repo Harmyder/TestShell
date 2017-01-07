@@ -243,6 +243,20 @@ namespace Graphics
         opaqueWireframePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
         THROW_IF_FAILED(g_device->CreateGraphicsPipelineState(&opaqueWireframePsoDesc, IID_PPV_ARGS(&psos_["opaque_wireframe"])));
 
+        // PSO for transparent objects.
+        D3D12_GRAPHICS_PIPELINE_STATE_DESC transparentPsoDesc = opaquePsoDesc;
+        transparentPsoDesc.BlendState.RenderTarget[0].BlendEnable = true;
+        transparentPsoDesc.BlendState.RenderTarget[0].LogicOpEnable = false;
+        transparentPsoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+        transparentPsoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+        transparentPsoDesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+        transparentPsoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+        transparentPsoDesc.BlendState.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+        transparentPsoDesc.BlendState.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+        transparentPsoDesc.BlendState.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+        transparentPsoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+        THROW_IF_FAILED(g_device->CreateGraphicsPipelineState(&transparentPsoDesc, IID_PPV_ARGS(&psos_["transparent"])));
+
         // PSO for opaque HUD objects.
         D3D12_GRAPHICS_PIPELINE_STATE_DESC opaqueHudPsoDesc = opaquePsoDesc;
         opaqueHudPsoDesc.DepthStencilState.DepthEnable = false;
@@ -411,6 +425,11 @@ namespace Graphics
         auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
         passCbvHandle.Offset(passCbvIndex, cbvSrvUavDescriptorSize_);
         commandList->SetGraphicsRootDescriptorTable(2, passCbvHandle);
+    }
+
+    void GraphicsCore::BeginBoundingVolumes() {
+        auto commandList = commandContext_->GetCommandList();
+        commandList->SetPipelineState(psos_[""].Get());
     }
 
     void GraphicsCore::BeginHud() {

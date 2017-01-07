@@ -4,6 +4,7 @@
 
 #include "Internal\SimulationFactory.h"
 
+#include "Simulations\SphereBvSimulation.h"
 #include "Simulations\FbxSimulation.h"
 
 SimulationManager::~SimulationManager()
@@ -24,6 +25,7 @@ void SimulationManager::Close()
 void SimulationManager::RegisterSimulations()
 {
     factories_ = new std::vector<BaseFactory*>;
+    RegisterFactory(new SimulationFactory<SphereBvSimulation>("Fbx objects"));
     RegisterFactory(new SimulationFactory<FbxSimulation>("Fbx objects"));
 }
 

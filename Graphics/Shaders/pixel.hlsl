@@ -1,6 +1,6 @@
 #include "cb.hlsli"
 
-float4 main(VertexOut vin) : SV_Target
+float4 main(VertexOut pin) : SV_Target
 {
     const float shininess = (1.0f - gRoughness) * 256.f;
     Material mat;
@@ -14,11 +14,11 @@ float4 main(VertexOut vin) : SV_Target
     float3 diffuse;
     float3 specular;
 
-    float3 toEye = normalize(gEyePosW - vin.PosW);
-    ComputeLights(mat, gDl, gPl, gSl, gDirLightsCount, gPntLightsCount, gSptLightsCount, vin.PosW, vin.NormalW, toEye, ambient, diffuse, specular);
+    float3 toEye = normalize(gEyePosW - pin.PosW);
+    ComputeLights(mat, gDl, gPl, gSl, gDirLightsCount, gPntLightsCount, gSptLightsCount, pin.PosW, pin.NormalW, toEye, ambient, diffuse, specular);
 
     float4 color;
     color.rgb = ambient + diffuse + specular;
-    color.a = 1.f;
+    color.a = mat.Diffuse.a;
     return color;
 }

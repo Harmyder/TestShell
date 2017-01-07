@@ -24,13 +24,12 @@ namespace Pipeline
         // Import positions
         {
             const uint32 verticesCount = fbxMesh->verticesCount;
-            std::vector<XMFLOAT4> vertices(verticesCount);
+            std::vector<XMFLOAT3> vertices(verticesCount);
             for (uint32 v = 0; v < verticesCount; v++)
             {
                 vertices[v].x = fbxMesh->vertices[v].p[0] * scaleFactor;
                 vertices[v].y = fbxMesh->vertices[v].p[1] * scaleFactor;
                 vertices[v].z = fbxMesh->vertices[v].p[2] * scaleFactor;
-                vertices[v].w = fbxMesh->vertices[v].p[3] * scaleFactor;
             }
             mesh->SetPositions(vertices);
         }
@@ -39,7 +38,7 @@ namespace Pipeline
         {
             // We support only one normal per vertex, thus we don't support smooth groups
             const uint32 normalsCount = fbxMesh->verticesCount;
-            std::vector<XMFLOAT4> normals(normalsCount);
+            std::vector<XMFLOAT3> normals(normalsCount);
             ZeroMemory(&normals[0], normals.size() * sizeof(normals[0]));
             const uint32 trianglesCount = fbxMesh->trianglesCount;
             for (uint32 t = 0; t < trianglesCount; t++)
@@ -51,16 +50,15 @@ namespace Pipeline
                     normals[trianglesPositionIndex].x += fbxMesh->normals[trianglesNormalIndex].p[0];
                     normals[trianglesPositionIndex].y += fbxMesh->normals[trianglesNormalIndex].p[1];
                     normals[trianglesPositionIndex].z += fbxMesh->normals[trianglesNormalIndex].p[2];
-                    normals[trianglesPositionIndex].w = 0;
                 }
             }
             for (uint32 n = 0; n < normalsCount; n++)
             {
-                XMVECTOR normalXM = XMLoadFloat4(&normals[n]);
+                XMVECTOR normalXM = XMLoadFloat3(&normals[n]);
                 const XMVECTOR length = XMVector3LengthEst(normalXM);
                 assert(XMVector4Greater(length, XMVectorSet(1e-6f, 1e-6f, 1e-6f, 1e-6f)) && "Too small normal");
                 normalXM = normalXM / length;
-                XMStoreFloat4(&normals[n], normalXM);
+                XMStoreFloat3(&normals[n], normalXM);
             }
             mesh->SetNormals(normals);
         }

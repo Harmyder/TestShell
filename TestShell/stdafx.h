@@ -12,3 +12,7 @@
 
 #include "Pile\Types.h"
 
+#ifdef _DEBUG
+#include "Pile\Print\DumpDirectX.h"
+#include "Pile\Print\DebugPrint.h"
+#endif

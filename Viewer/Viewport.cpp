@@ -14,7 +14,7 @@ namespace Viewer
 {
     constexpr uint32 kSceneObjectsCountLimit = 100;
     constexpr uint32 kPassesCountLimit = 1;
-    constexpr uint32 kMaterialsCountLimit = 5;
+    constexpr uint32 kMaterialsCountLimit = 10;
     constexpr uint32 kFrameResourcesCount = 3;
 
     constexpr auto kNearClipPlane = .3f;
@@ -169,7 +169,7 @@ namespace Viewer
 
     void Viewport::PrepareGeometry() {
         GeometryGenerator::CreateCube(geometries_[(size_t)PredefinedGeometryType::kBox]);
-        GeometryGenerator::CreateSphere(geometries_[(size_t)PredefinedGeometryType::kSphere], 2);
+        GeometryGenerator::CreateSphere(geometries_[(size_t)PredefinedGeometryType::kSphere], 6);
         GeometryGenerator::CreateCylinder(geometries_[(size_t)PredefinedGeometryType::kCylinder], 0.5f, 0.5f, 1.f, 8, 4);
         GeometryGenerator::CreateCone(geometries_[(size_t)PredefinedGeometryType::kCone], 0.5f, 1.f, 8, 4);
     }

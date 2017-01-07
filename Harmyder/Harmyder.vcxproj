@@ -95,7 +95,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
@@ -108,7 +108,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
@@ -150,9 +150,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="SDK\BoundingVolumes.h" />
+    <ClInclude Include="Core\Mesh.h" />
+    <ClInclude Include="Core\Flock.h" />
+    <ClInclude Include="Interface\HarmyderHandle.h" />
+    <ClInclude Include="Interface\HarmyderInterface.h" />
+    <ClInclude Include="Interface\HarmyderStructures.h" />
+    <ClInclude Include="HarmyderModule.h" />
+    <ClInclude Include="Interface\InternalHandle.h" />
+    <ClInclude Include="Core\RigidBody.h" />
+    <ClInclude Include="SDK\GeometryTypes.h" />
+    <ClInclude Include="SDK\Utility.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="SDK\BoundingVolumes.cpp" />
+    <ClCompile Include="Core\Mesh.cpp" />
+    <ClCompile Include="Core\Flock.cpp" />
+    <ClCompile Include="Interface\HarmyderInterface.cpp" />
+    <ClCompile Include="HarmyderModule.cpp" />
+    <ClCompile Include="Core\RigidBody.cpp" />
+    <ClCompile Include="SDK\Utility.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

@@ -99,7 +99,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;..;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;..\Harmyder;</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
@@ -114,7 +114,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;..;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;..\Harmyder;</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
@@ -132,7 +132,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;..;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;..\Harmyder;</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
@@ -151,7 +151,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;..;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;..\Harmyder;</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
@@ -171,6 +171,7 @@
     <ClInclude Include="Internal\SimulationManager.h" />
     <ClInclude Include="Menu\Command.h" />
     <ClInclude Include="Simulations\FBXSimulation.h" />
+    <ClInclude Include="Simulations\SphereBvSimulation.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
@@ -179,6 +180,7 @@
     <ClCompile Include="Internal\Launcher.cpp" />
     <ClCompile Include="Internal\SimulationManager.cpp" />
     <ClCompile Include="Simulations\FBXSimulation.cpp" />
+    <ClCompile Include="Simulations\SphereBvSimulation.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

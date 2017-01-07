@@ -1,7 +1,0 @@
--name Box001 -type Box -y 40.0 -x 40.0 -z 40.0
--name Sphere001 -type Sphere -radius 8.65965
--name Sphere002 -type Sphere -radius 4.16601
--name Sphere003 -type Sphere -radius 5.83579
--name Box002 -type Box -y 7.1902 -x 13.4731 -z 7.25238
--name Box003 -type Box -y 6.93993 -x 17.6845 -z 10.561
--name Box004 -type Box -y 132.666 -x 34.733 -z 9.43423

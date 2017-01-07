@@ -2,7 +2,6 @@
 #include <DirectXMath.h>
 #include <string>
 #include "Core\GraphicsCore.h"
-#include "Pile\Math\XmFloatHelper.h"
 #include "Shaders\consts.shared"
 
 namespace Graphics

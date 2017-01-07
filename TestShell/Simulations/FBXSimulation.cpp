@@ -4,6 +4,7 @@
 #include "Viewer\Viewport.h"
 
 using namespace Viewer;
+using namespace std;
 
 FbxSimulation::FbxSimulation() :
     BaseSimulation("FbxSimulation")
@@ -17,8 +18,9 @@ void FbxSimulation::Init(Viewport &viewport)
     viewport.CreateMaterial(Viewport::Material::kEmerald, "rigid");
     viewport.CreateMaterial(Viewport::Material::kSilver, "collider");
 
-//    ImportScene("C:\\Yola\\TestShell\\FBX\\", "Box");
-    ImportScene("C:\\Yola\\TestShell\\FBX\\", "teapot001");
+    const string path = "..\\..\\FBX\\";
+    const string filetitle = "Box";
+    ImportScene(path, filetitle);
 }
 
 void FbxSimulation::Step(float deltaTime)
