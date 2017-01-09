@@ -237,7 +237,7 @@ namespace Viewer
     }
 
     void UserInteractor::DrawHUD() {
-        viewport_->BeforeHud();
+        viewport_->BeforeTransparent(); // Transparent don't use depth buffer
         viewport_->DrawReferenceFrame();
     }
 
@@ -257,7 +257,14 @@ namespace Viewer
     }
 
     void UserInteractor::Render() {
-        viewport_->DrawRenderItems();
+        viewport_->BeforeLine();
+        viewport_->DrawGrid();
+        
+        viewport_->BeforeOpaque();
+        viewport_->DrawRenderItemsOpaque();
+
+        viewport_->BeforeTransparent();
+        viewport_->DrawRenderItemsTransparent();
     }
 
     void UserInteractor::AfterRender() {

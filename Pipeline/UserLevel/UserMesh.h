@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Pile/Attribute/NonCopyable.h"
+#include "Pile\Attribute\NonCopyable.h"
 #include "Pile\Attribute\NamedObject.h"
 
 #include "Viewer\Vertex.h"
@@ -11,7 +11,7 @@ namespace Pipeline
 
     struct MeshGeometry
     {
-        std::vector<Viewer::Vertex> Vertices;
+        std::vector<Viewer::VertexNormalTex> Vertices;
     };
 
     class UserMesh : public Pile::NamedByRefObject, public Pile::NonCopyable

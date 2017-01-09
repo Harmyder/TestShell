@@ -3,10 +3,11 @@
 #include "GeometryGenerator.h"
 
 using namespace DirectX;
+using namespace std;
 
 namespace Viewer
 {
-    void GeometryGenerator::CreateCube(Vertices &output)
+    void GeometryGenerator::CreateCube(VerticesTriangle &output)
     {
         const float side = 0.5f;
         XMFLOAT3 P0(-side, -side, -side);
@@ -74,11 +75,11 @@ namespace Viewer
         output.reserve(36);
         for (uint32 i = 0; i < 36; ++i)
         {
-            output.push_back(Vertex(trianglesVertices[i], normals[i / 6], uvs[i % 6]));
+            output.push_back(VertexNormalTex(trianglesVertices[i], normals[i / 6], uvs[i % 6]));
         }
     }
 
-    void GeometryGenerator::CreateSphere(Vertices &output, uint32 iterations)
+    void GeometryGenerator::CreateSphere(VerticesTriangle &output, uint32 iterations)
     {
         const float radius = 1.f;
 
@@ -213,7 +214,7 @@ namespace Viewer
     }
 
     // Create cylinder along Y-axis
-    void GeometryGenerator::CreateCylinder(Vertices &output, float bottomRadius, float topRadius, float height, uint32 slicesCount, uint32 stacksCount)
+    void GeometryGenerator::CreateCylinder(VerticesTriangle &output, float bottomRadius, float topRadius, float height, uint32 slicesCount, uint32 stacksCount)
     {
         const float minimumAllowedRadius = 0.01f;
         assert(slicesCount > 2 && stacksCount > 0 && bottomRadius >= minimumAllowedRadius);
@@ -241,8 +242,6 @@ namespace Viewer
                 float dTheta = 2.0f * XM_PI / slicesCount;
                 for (uint32 j = 0; j < slicesCount; ++j)
                 {
-                    Vertex vertex;
-
                     float c = cosf(j * dTheta);
                     float s = sinf(j * dTheta);
 
@@ -253,7 +252,6 @@ namespace Viewer
             {
                 for (uint32 j = 0; j < slicesCount; ++j)
                 {
-                    Vertex vertex;
                     baseVertices[vertexIndex++] = XMFLOAT3(0.f, y, 0.f);
                 }
             }
@@ -332,8 +330,8 @@ namespace Viewer
             {
                 //    C(enter)
                 //   / \
-                            //  /   \
-                            // B-----A
+                //  /   \
+                // B-----A
                 XMFLOAT3 posA = baseVertices[stacksCount * slicesCount + j];
                 XMFLOAT3 posB = baseVertices[stacksCount * slicesCount + (j + 1) % slicesCount];
 
@@ -346,8 +344,38 @@ namespace Viewer
         delete[] baseVertices;
     }
 
-    void GeometryGenerator::CreateCone(Vertices &vertices, float bottomRadius, float height, uint32 slicesCount, uint32 stacksCount)
+    void GeometryGenerator::CreateCone(VerticesTriangle &vertices, float bottomRadius, float height, uint32 slicesCount, uint32 stacksCount)
     {
         CreateCylinder(vertices, bottomRadius, 0.0f, height, slicesCount, stacksCount);
+    }
+
+    void GeometryGenerator::CreateGridXY(VerticesLine &output, uint32 xHalfCount, uint32 yHalfCount, float cellSizeX, float cellSizeY) {
+        const float baseX = -1.f * (xHalfCount + 1) * cellSizeX;
+        const float baseY = -1.f * (yHalfCount + 1) * cellSizeY;
+        const float lengthX = -baseX * 2.f;
+        const float lengthY = -baseY * 2.f;
+
+        XMFLOAT4 color(.5f, .5f, .5f, .5f);
+        const uint32 xCount = xHalfCount * 2 + 1;
+        for (uint32 i = 1; i <= xCount; ++i) {
+            if (i == xHalfCount + 1) continue;
+            VertexColor p;
+            p.Color = color;
+            p.Position = XMFLOAT3(baseX + i * cellSizeX, baseY, 0.f);
+            output.push_back(p);
+            p.Position.y += lengthY;
+            output.push_back(p);
+        }
+
+        const uint32 yCount = yHalfCount * 2 + 1;
+        for (uint32 j = 1; j <= yCount; ++j) {
+            if (j == yHalfCount + 1) continue;
+            VertexColor p;
+            p.Color = color;
+            p.Position = XMFLOAT3(baseX, baseY + j * cellSizeY, 0.f);
+            output.push_back(p);
+            p.Position.x += lengthX;
+            output.push_back(p);
+        }
     }
 }

@@ -1,4 +1,5 @@
 #include "cb.hlsli"
+#include "normalTex_InputLayout.hlsli"
 
 float4 main(VertexOut pin) : SV_Target
 {
@@ -18,7 +19,7 @@ float4 main(VertexOut pin) : SV_Target
     ComputeLights(mat, gDl, gPl, gSl, gDirLightsCount, gPntLightsCount, gSptLightsCount, pin.PosW, pin.NormalW, toEye, ambient, diffuse, specular);
 
     float4 color;
-    color.rgb = ambient + diffuse + specular;
+    color.rgb = mat.Diffuse.a * (ambient + diffuse) + specular;
     color.a = mat.Diffuse.a;
     return color;
 }

@@ -2,6 +2,8 @@
 #include "SDK\CommandContext.h"
 
 #include "SDK\CommandQueue.h"
+#include "SDK\RootSignature.h"
+#include "SDK\PipelineStateObject.h"
 
 namespace Graphics
 {
@@ -29,4 +31,13 @@ namespace Graphics
         currentAllocator_ = commandQueue_->AcquireAllocator();
         commandList_->Reset(currentAllocator_, nullptr);
     }
+
+    void CommandContext::SetRootSignature(RootSignature& rootSignature) {
+        commandList_->SetGraphicsRootSignature(rootSignature.GetRootSignature());
+    }
+
+    void CommandContext::SetPipelineStateObject(PipelineStateObject& pso) {
+        commandList_->SetPipelineState(pso.GetPipelineStateObject());
+    }
+
 }

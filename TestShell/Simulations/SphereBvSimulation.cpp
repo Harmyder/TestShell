@@ -17,9 +17,9 @@ void SphereBvSimulation::Init(Viewport &viewport)
 {
     BaseSimulation::Init(viewport);
 
-    viewport.CreateMaterial(Viewport::Material::kEmerald, "rigid");
-    viewport.CreateMaterial(Viewport::Material::kJade, "collider");
-    viewport.CreateMaterial(Viewport::Material::kSilver, "boundingVolume");
+    viewport.CreateMaterial(Material::kEmerald, "rigid");
+    viewport.CreateMaterial(Material::kJade, "collider");
+    viewport.CreateMaterial(Material::kSilver, "boundingVolume");
 
     const string path = "..\\..\\FBX\\";
     const string filetitle = "shark";
@@ -53,8 +53,8 @@ void SphereBvSimulation::Init(Viewport &viewport)
     XMMATRIX scale = XMMatrixScaling(sphere.radius, sphere.radius, sphere.radius);
     transform = XMMatrixMultiply(scale, transform);
     XMFLOAT4X4 t; XMStoreFloat4x4(&t, transform);
-    descs.emplace_back("", type, t, "boundingVolume");
-    viewport_->CreateRenderItem(std::vector<Viewer::Viewport::RenderItemVerticesDesc>(), descs);
+    descs.emplace_back("", type, t, "boundingVolume", PrimitiveTopology::kTriangleList());
+    viewport_->CreateRenderItemTransparent(descs);
 }
 
 void SphereBvSimulation::Step(float deltaTime)

@@ -7,29 +7,37 @@ namespace Graphics {
 
     class Material;
 
-    struct RenderVerticesDesc // keep in sync with grRenderVertices
+    struct RenderVerticesDesc // keep in sync with grtRenderVertices
     {
         uint8 *data;
         uint32 verticesCount;
     };
-    struct RenderItemDesc // keep in sync with grRenderSubItemDesc
+    struct RenderItemDesc // keep in sync with grtRenderSubItemDesc
     {
         std::string& name;
         XMFLOAT4X4& transform;
         Material *material;
+        D3D12_PRIMITIVE_TOPOLOGY primitiveTopology;
     };
 
     class RenderItem;
     
     class RenderSubItem {
     public:
-        RenderSubItem(uint32 baseVertexLocation, uint32 verticesCount, const XMFLOAT4X4& transform, uint32 objCbIndex, Material* material, const RenderItem& container) :
+        RenderSubItem(uint32 baseVertexLocation,
+            uint32 verticesCount,
+            const XMFLOAT4X4& transform,
+            uint32 objCbIndex,
+            Material* material,
+            D3D_PRIMITIVE_TOPOLOGY primitiveTopology,
+            const RenderItem& container) :
             baseVertexLocation_(baseVertexLocation),
             verticesCount_(verticesCount),
             objCbIndex_(objCbIndex),
             transform_(transform),
             dirtyFramesCount_((uint32)GraphicsCore::GetInstance().GetFrameResourcesCount()),
             material_(*material),
+            primitiveTopology_(primitiveTopology),
             container_(container)
         {}
 
@@ -49,6 +57,7 @@ namespace Graphics {
         }
 
         Material& GetMaterial() { return material_; }
+        D3D12_PRIMITIVE_TOPOLOGY GetPrimitiveTopology() { return primitiveTopology_; }
 
         const RenderItem& Container() const { return container_; }
 
@@ -59,6 +68,7 @@ namespace Graphics {
         uint32 objCbIndex_;
         XMFLOAT4X4 transform_;
         Material& material_;
+        D3D12_PRIMITIVE_TOPOLOGY primitiveTopology_;
 
         const RenderItem& container_;
     };
@@ -70,10 +80,10 @@ namespace Graphics {
             const std::vector<RenderItemDesc>& itemsDescs,
             const std::vector<RenderVerticesDesc>& verticesDescs,
             const std::vector<uint32> itemsToVertices,
-            uint32 vertexSize, CommandContext& commandContext_,
+            uint32 vertexSize,
+            CommandContext& commandContext_,
             RenderItem *&pri)
         {
-            pri = new RenderItem();
             auto& objCbIndices = GraphicsCore::GetInstance().GetFreePerObjCbIndices();
             std::vector<uint32> verticesOffsets;
             verticesOffsets.reserve(verticesDescs.size());
@@ -83,6 +93,7 @@ namespace Graphics {
                 totalVerticesCount += vd.verticesCount;
             }
 
+            pri = new RenderItem(vertexSize, totalVerticesCount);
             for (uint_t i = 0; i < itemsDescs.size(); ++i) {
                 const auto& cur_id = itemsDescs[i];
                 const auto& cur_vd = verticesDescs[itemsToVertices[i]];
@@ -95,27 +106,22 @@ namespace Graphics {
                         cur_id.transform,
                         objCbIndices.AcquireIndex(),
                         cur_id.material,
+                        cur_id.primitiveTopology,
                         *pri)
                 );
                 if (!p.second) throw "At least two elements have the same name";
             }
-
             std::vector<uint8> vertices;
             vertices.reserve(totalVerticesCount * vertexSize);
             for (auto& vd : verticesDescs) {
                 vertices.insert(vertices.end(), vd.data, vd.data + vd.verticesCount * vertexSize);
             }
 
-            pri->vertexByteStride_ = vertexSize;
-            pri->vbByteSize_ = (uint32)vertices.size();
-
             pri->vertexBuffer_.Create(L"ri_vertex", totalVerticesCount, vertexSize, vertices.data(), &commandContext_);
         }
 
-        ~RenderItem() {
-        }
         D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const;
-        uint32 VertexByteStride() const { return vertexByteStride_; }
+        uint32 VertexByteStride() const { return vertexSize_; }
         uint32 VertexBufferByteSize() const { return vbByteSize_; }
 
         using SubItems = std::unordered_map<std::string, RenderSubItem>;
@@ -124,10 +130,15 @@ namespace Graphics {
         RenderSubItem& FindSubItem(const std::string& name) { return subItems_.find(name)->second; }
 
     private:
+        RenderItem(uint32 vertexSize, uint32 verticesCount) :
+            vertexSize_(vertexSize),
+            vbByteSize_(vertexSize * verticesCount)
+        {}
+
+    private:
         SubItems subItems_;
         GpuBuffer vertexBuffer_;
-        uint32 vertexByteStride_;
-        uint32 vbByteSize_;
-
+        const uint32 vertexSize_;
+        const uint32 vbByteSize_;
     };
 }

@@ -73,7 +73,7 @@ void ComputeDirectionalLight(Material mat,
     float3 lightVec = -light.Direction;
 
     float lambert = max(dot(normal, lightVec), 0);
-    float lightStrength = lambert * light.Strength;    
+    float3 lightStrength = lambert * light.Strength;    
     BlinnPhong(lightStrength, lightVec, normal, toEye, mat, diffuse, spec);
 }
 
@@ -134,7 +134,7 @@ void ComputeSpotLight(Material mat,
     ambient = mat.Ambient * light.Strength;
 
     float lambert = max(dot(normal, lightVec), 0);
-    float lightStrength = lambert * light.Strength;
+    float3 lightStrength = lambert * light.Strength;
     BlinnPhong(lightStrength, lightVec, normal, toEye, mat, diffuse, spec);
 
     float spot = pow(max(dot(-lightVec, light.Direction), 0.0f), light.Spot);

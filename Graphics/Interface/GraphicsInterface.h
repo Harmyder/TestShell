@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Interface\GraphicsHandle.h"
+#include "GraphicsTypes.h"
 #include "Pile\DirectXInclude.h"
 
 struct grInitParams {
@@ -16,9 +17,8 @@ void grSetPerspective(float aspectRatioWidthOverHeight, float fov, float nearCli
 XMMATRIX grGetViewTransform();
 XMMATRIX grGetInvViewTransform();
 
+void grPreBeginScene();
 void grBeginScene();
-void grBeginBoundingVolumes();
-void grBeginHud();
 void grEndScene();
 void grDrawRenderItem(grRenderItem renderItem);
 void grDrawRenderSubItem(grRenderItem renderItem, const std::string& name);
@@ -26,6 +26,14 @@ void grDrawRenderSubItem(grRenderItem renderItem, const std::string& name);
 // As context contains CommandList may we need to be able to create several
 // of them even in single threaded application
 grCommandContext grGetGraphicsContext();
+
+grRootSignature grCreateRootSignature();
+void grSetRootSignature(grRootSignature rootSignature, grCommandContext commandContext);
+void grDestroyRootSignature(grRootSignature rootSignature);
+
+grPipelineStateObject grCreatePipelineStateObject(const grtPipelineStateDesc& desc, grRootSignature rootSignature);
+void grSetPipelineStateObject(grPipelineStateObject pipelineState, grCommandContext commandContext);
+void grDestroyPipelineStateObject(grPipelineStateObject pipelineState);
 
 grMaterial grCreateMaterial(
     const std::string& Name,
@@ -42,39 +50,11 @@ void grUpdateMaterial(
     float fresnelR0,
     float roughness);
 
-enum class LibraryMaterial {
-    kRed, kGreen, kBlue,
-    kTurquesa,
-    kEmerald,
-    kJade,
-    kObsidian,
-    kSilver,
-};
-grMaterial grCreateStandardMaterial(LibraryMaterial lm, const std::string& name);
+grMaterial grCreateStandardMaterial(greLibraryMaterial lm, const std::string& name);
 
-struct grRenderVertices {
-    grRenderVertices(const uint8* data, const uint32 verticesCount) :
-        data(data),
-        verticesCount(verticesCount) {}
-
-    const uint8* data;
-    const uint32 verticesCount;
-};
-struct grRenderSubItemDesc
-{
-    grRenderSubItemDesc(const std::string& name, const XMFLOAT4X4& transform, grMaterial material) :
-        name(name),
-        transform(transform),
-        material(material)
-    {}
-
-    const std::string& name;
-    const XMFLOAT4X4& transform;
-    grMaterial material;
-};
 grRenderItem grCreateRenderItem(
-    const std::vector<grRenderVertices>& vertices,
-    const std::vector<grRenderSubItemDesc>& renderItems,
+    const std::vector<grtRenderVertices>& vertices,
+    const std::vector<grtRenderSubItemDesc>& renderItems,
     const std::vector<uint32>& itemsToVertices,
     uint32 vertexSize,
     grCommandContext commandContext);

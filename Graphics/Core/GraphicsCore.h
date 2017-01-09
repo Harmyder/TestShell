@@ -83,9 +83,8 @@ namespace Graphics
         void Resize();
 
         void Update();
+        void PreBeginScene();
         void BeginScene();
-        void BeginBoundingVolumes();
-        void BeginHud();
         void EndScene();
         void DrawRenderItem(RenderItem& ri);
         void DrawRenderSubItem(RenderItem& ri, const std::string& name);
@@ -104,11 +103,8 @@ namespace Graphics
         void CreateRtvDsvHeaps();
         void CreateRenderTargetViews();
         void CreateDepthStencil(uint32 width, uint32 height);
-        void CreateRootSignature();
-        void CreateInputLayout();
         void CreateDescriptorHeaps();
         void CreateConstantBufferViews();
-        void CreatePSO();
 
         D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView();
         ID3D12Resource* CurrentBackBuffer();
@@ -137,15 +133,11 @@ namespace Graphics
         Microsoft::WRL::ComPtr<ID3D12Resource> depthStencilBuffer_;
         uint32 currentBackBuffer_ = 0;
 
-        Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> cbvHeap_;
-        std::map<std::string, Microsoft::WRL::ComPtr<ID3D12PipelineState>> psos_;
 
         std::unique_ptr<FreeIndices> freePerObjCbIndices_;
         std::unique_ptr<FreeIndices> freeMaterialCbIndices_;
         std::unique_ptr<LightsHolder> lightsHolder_;
-
-        std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayout_;
 
         std::unique_ptr<D3D12_VIEWPORT> screenViewport_;
         D3D12_RECT scissorRect_;

@@ -6,6 +6,9 @@
 #include "Core\GraphicsCore.h"
 #include "Core\RenderItem.h"
 #include "Core\Lighting.h"
+#include "SDK\PipelineStateObject.h"
+#include "SDK\RootSignature.h"
+#include "SDK\CommandContext.h"
 #include "Interface\InternalHandle.h"
 
 using namespace Graphics;
@@ -37,16 +40,12 @@ XMMATRIX grGetInvViewTransform() {
     return camera.GetInvViewMatrix();
 }
 
+void grPreBeginScene() {
+    GraphicsCore::GetInstance().PreBeginScene();
+}
+
 void grBeginScene() {
     GraphicsCore::GetInstance().BeginScene();
-}
-
-void grBeginBoundingVolumes() {
-    GraphicsCore::GetInstance().BeginBoundingVolumes();
-}
-
-void grBeginHud() {
-    GraphicsCore::GetInstance().BeginHud();
 }
 
 void grEndScene() {
@@ -69,33 +68,33 @@ grMaterial grCreateMaterial(
     return grMaterial(m);
 }
 
-grMaterial grCreateStandardMaterial(LibraryMaterial lm, const string& name) {
+grMaterial grCreateStandardMaterial(greLibraryMaterial lm, const string& name) {
     unique_ptr<Material> m;
     auto& freeMatCbIndices = GraphicsCore::GetInstance().GetFreeMaterialCbIndices();
     auto cbIndex = freeMatCbIndices.AcquireIndex();
     switch (lm) {
-    case LibraryMaterial::kRed:
+    case greLibraryMaterial::kRed:
         m = Material::Create(Material::Type::kRed, name, cbIndex);
         break;
-    case LibraryMaterial::kGreen:
+    case greLibraryMaterial::kGreen:
         m = Material::Create(Material::Type::kGreen, name, cbIndex);
         break;
-    case LibraryMaterial::kBlue:
+    case greLibraryMaterial::kBlue:
         m = Material::Create(Material::Type::kBlue, name, cbIndex);
         break;
-    case LibraryMaterial::kEmerald:
+    case greLibraryMaterial::kEmerald:
         m = Material::Create(Material::Type::kEmerald, name, cbIndex);
         break;
-    case LibraryMaterial::kJade:
+    case greLibraryMaterial::kJade:
         m = Material::Create(Material::Type::kJade, name, cbIndex);
         break;
-    case LibraryMaterial::kObsidian:
+    case greLibraryMaterial::kObsidian:
         m = Material::Create(Material::Type::kObsidian, name, cbIndex);
         break;
-    case LibraryMaterial::kSilver:
+    case greLibraryMaterial::kSilver:
         m = Material::Create(Material::Type::kSilver, name, cbIndex);
         break;
-    case LibraryMaterial::kTurquesa:
+    case greLibraryMaterial::kTurquesa:
         m = Material::Create(Material::Type::kTurquesa, name, cbIndex);
         break;
     }
@@ -117,13 +116,64 @@ grCommandContext grGetGraphicsContext() {
     return cc;
 }
 
+grRootSignature grCreateRootSignature() {
+    auto rs = make_unique<RootSignature>();
+    rs->Finalize();
+    return grRootSignature(rs.release());
+}
+
+void grSetRootSignature(grRootSignature rootSignature, grCommandContext commandContext) {
+    CommandContext* ccInternal = static_cast<CommandContextHandle*>(&commandContext)->GetValue();
+    RootSignature* rs = static_cast<RootSignatureHandle>(rootSignature).GetValue();
+    ccInternal->SetRootSignature(*rs);
+}
+
+void grDestroyRootSignature(grRootSignature rootSignature) {
+    RootSignature* rs = static_cast<RootSignatureHandle>(rootSignature).GetValue();
+    delete rs;
+}
+
+grPipelineStateObject grCreatePipelineStateObject(const grtPipelineStateDesc& desc, grRootSignature rootSignature) {
+    auto pso = make_unique<PipelineStateObject>();
+    pso->SetBlendEnable(desc.BlendEnable);
+    pso->SetDepthEnable(desc.DepthEnable);
+    pso->SetFillMode(*(D3D12_FILL_MODE*)&desc.FillMode);
+    pso->SetPrimitiveTopologyType(*(D3D12_PRIMITIVE_TOPOLOGY_TYPE*)&desc.PrimitiveTolopologyType);
+    switch (desc.VertexType) {
+    case greVertexType::kColor:
+        pso->SetVertexType(VertexType::kColor);
+        break;
+    case greVertexType::kNormalTex:
+        pso->SetVertexType(VertexType::kNormalTex);
+        break;
+    default:
+        throw "Unknow vertex type";
+    }
+    RootSignature* ri = static_cast<RootSignatureHandle*>(&rootSignature)->GetValue();
+    pso->SetRootSignature(*ri);
+    pso->Finalize();
+    return grPipelineStateObject(pso.release());
+}
+
+void grSetPipelineStateObject(grPipelineStateObject pipelineState, grCommandContext commandContext) {
+    CommandContext* ccInternal = static_cast<CommandContextHandle*>(&commandContext)->GetValue();
+    PipelineStateObject* pso = static_cast<PipelineStateHandle>(pipelineState).GetValue();
+    ccInternal->SetPipelineStateObject(*pso);
+}
+
+void grDestroyPipelineStateObject(grPipelineStateObject pipelineState) {
+    PipelineStateObject* pso = static_cast<PipelineStateHandle>(pipelineState).GetValue();
+    delete pso;
+}
+
 grRenderItem grCreateRenderItem(
-    const std::vector<grRenderVertices>& renderVertices,
-    const std::vector<grRenderSubItemDesc>& renderItems,
+    const std::vector<grtRenderVertices>& renderVertices,
+    const std::vector<grtRenderSubItemDesc>& renderItems,
     const std::vector<uint32>& itemsToVertices,
     uint32 vertexSize,
     grCommandContext commandContext)
 {
+    assert(renderVertices.size() && renderItems.size() && itemsToVertices.size());
     CommandContext* commandContextInternal = static_cast<CommandContextHandle*>(&commandContext)->GetValue();
     auto renderItemsInternal = (vector<RenderItemDesc>*)((void*)&renderItems);
     auto renderVerticesInternal = (vector<RenderVerticesDesc>*)((void*)&renderVertices);

@@ -12,13 +12,17 @@ namespace Viewer
     {
     public:
 
-        typedef std::vector<Vertex> Vertices;
+        typedef std::vector<VertexNormalTex> VerticesTriangle;
+        typedef std::vector<VertexColor> VerticesLine;
 
     public:
-        static void CreateCube(Vertices &output);
-        static void CreateSphere(Vertices &output, uint32 iterations);
+        static void CreateCube(VerticesTriangle &output);
+        static void CreateSphere(VerticesTriangle &output, uint32 iterations);
         // Cylinder is aligned along y-axis
-        static void CreateCylinder(Vertices &output, float bottomRadius, float topRadius, float height, uint32 slicesCount, uint32 stacksCount);
-        static void CreateCone(Vertices &output, float bottomRadius, float height, uint32 slicesCount, uint32 stacksCount);
+        static void CreateCylinder(VerticesTriangle &output, float bottomRadius, float topRadius, float height, uint32 slicesCount, uint32 stacksCount);
+        static void CreateCone(VerticesTriangle &output, float bottomRadius, float height, uint32 slicesCount, uint32 stacksCount);
+
+        // Returns line list topology
+        static void CreateGridXY(VerticesLine &output, uint32 xHalfCount, uint32 yHalfCount, float cellSizeX, float cellSizeY);
     };
 }

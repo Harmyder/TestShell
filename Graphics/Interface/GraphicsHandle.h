@@ -7,6 +7,10 @@ protected:
     void *handle_;
 };
 
+struct grRootSignature : grHandle { grRootSignature(void *rootSignature) : grHandle(rootSignature) {} };
+
+struct grPipelineStateObject : grHandle { grPipelineStateObject(void *pipelineState) : grHandle(pipelineState) {} };
+
 struct grCommandContext : grHandle { grCommandContext(void *commandContext) : grHandle(commandContext) {} }; 
 
 struct grRenderItem : grHandle { grRenderItem(void *renderItem) : grHandle(renderItem) {} };

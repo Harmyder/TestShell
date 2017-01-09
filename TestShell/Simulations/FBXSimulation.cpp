@@ -15,11 +15,11 @@ void FbxSimulation::Init(Viewport &viewport)
 {
     BaseSimulation::Init(viewport);
 
-    viewport.CreateMaterial(Viewport::Material::kEmerald, "rigid");
-    viewport.CreateMaterial(Viewport::Material::kSilver, "collider");
+    viewport.CreateMaterial(Material::kEmerald, "rigid");
+    viewport.CreateMaterial(Material::kSilver, "collider");
 
     const string path = "..\\..\\FBX\\";
-    const string filetitle = "Box";
+    const string filetitle = "teapot001";
     ImportScene(path, filetitle);
 }
 

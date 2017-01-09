@@ -70,7 +70,7 @@ namespace Graphics
             break;
         case Type::kSilver:
             ambient = XMFLOAT4(0.19225f, 0.19225f, 0.19225f, 1.f);
-            diffuse = XMFLOAT4(0.50754f, 0.50754f, 0.50754f, 1.f);
+            diffuse = XMFLOAT4(0.50754f, 0.50754f, 0.50754f, .3f);
             specular = XMFLOAT4(0.508273f, 0.508273f, 0.508273f, 1.f);
             fresnelR0 = CalcFresnelR0(1.35f);
             roughness = 0.65f;

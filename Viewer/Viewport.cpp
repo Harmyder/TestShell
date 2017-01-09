@@ -6,12 +6,20 @@
 #include "GeometryGenerator.h"
 #include "Pile\Math\XmFloatHelper.h"
 #include "Graphics\Interface\GraphicsInterface.h"
+#include "Graphics\Interface\GraphicsConsts.h"
 
 using namespace std;
 using namespace DirectX;
 
 namespace Viewer
 {
+    namespace PrimitiveTopology {
+        Type kInvalid() { return Type(*(uint32*)&grePrimitiveTopology::kInvalid); }
+        Type kTriangleList() { return Type(*(uint32*)&grePrimitiveTopology::kTriangleList); }
+        Type kLineList() { return Type(*(uint32*)&grePrimitiveTopology::kLineList); }
+        grePrimitiveTopology::Type ToGr(Type t) { return *(grePrimitiveTopology::Type*)&t; }
+    }
+
     constexpr uint32 kSceneObjectsCountLimit = 100;
     constexpr uint32 kPassesCountLimit = 1;
     constexpr uint32 kMaterialsCountLimit = 10;
@@ -21,23 +29,30 @@ namespace Viewer
     constexpr auto kFarClipPlane = 200.f;
     const auto kVerticalFov = DirectX::XM_PIDIV4;
 
-    static LibraryMaterial MaterialToLibraryMaterial(Viewport::Material m) {
+    static_assert((int)Material::kSize == (int)greLibraryMaterial::kSize, "Viewport::Material and greLibraryMaterial must be of the same size.");
+    static greLibraryMaterial MaterialToLibraryMaterial(Material m) {
         switch (m) {
-        case Viewport::Material::kRed:      return LibraryMaterial::kRed;
-        case Viewport::Material::kGreen:    return LibraryMaterial::kGreen;
-        case Viewport::Material::kBlue:     return LibraryMaterial::kBlue;
-        case Viewport::Material::kTurquesa: return LibraryMaterial::kTurquesa;
-        case Viewport::Material::kEmerald:  return LibraryMaterial::kEmerald;
-        case Viewport::Material::kJade:     return LibraryMaterial::kJade;
-        case Viewport::Material::kObsidian: return LibraryMaterial::kObsidian;
-        case Viewport::Material::kSilver:   return LibraryMaterial::kSilver;
+        case Material::kRed:      return greLibraryMaterial::kRed;
+        case Material::kGreen:    return greLibraryMaterial::kGreen;
+        case Material::kBlue:     return greLibraryMaterial::kBlue;
+        case Material::kTurquesa: return greLibraryMaterial::kTurquesa;
+        case Material::kEmerald:  return greLibraryMaterial::kEmerald;
+        case Material::kJade:     return greLibraryMaterial::kJade;
+        case Material::kObsidian: return greLibraryMaterial::kObsidian;
+        case Material::kSilver:   return greLibraryMaterial::kSilver;
         default:
             throw "Unknown material";
         }
     }
 
-    Viewport::Viewport(HWND hWnd) : hwnd_(hWnd), referenceFrame_(nullptr) {
+    Viewport::Viewport(HWND hWnd) : hwnd_(hWnd),
+        rootSignature_(nullptr),
+        referenceFrame_(nullptr),
+        grid_(nullptr)
+    {
         grInit(hwnd_, { kSceneObjectsCountLimit, kPassesCountLimit, kMaterialsCountLimit, kFrameResourcesCount });
+        rootSignature_ = grCreateRootSignature();
+        PreparePsos();
 
         RECT rect;
         GetClientRect(hWnd, &rect);
@@ -52,71 +67,59 @@ namespace Viewer
         grCreateDirectionalLight(XMFLOAT3(.9f, .9f, .8f), XMFLOAT3(0.f, 0.f, 1.f));
         grCreateDirectionalLight(XMFLOAT3(.3f, .3f, .37f), XMFLOAT3(0.f, 0.f, -1.f));
 
-        CreateMaterial(Viewport::Material::kRed, "red");
-        CreateMaterial(Viewport::Material::kGreen, "green");
-        CreateMaterial(Viewport::Material::kBlue, "blue");
+        CreateMaterial(Material::kRed, "red");
+        CreateMaterial(Material::kGreen, "green");
+        CreateMaterial(Material::kBlue, "blue");
 
         vector<Viewport::RenderItemTypeDesc> descs;
         auto type = PredefinedGeometryType::kCone;
-        descs.emplace_back("X", type, Pile::Identity4x4(), "red");
-        descs.emplace_back("Y", type, Pile::Identity4x4(), "green");
-        descs.emplace_back("Z", type, Pile::Identity4x4(), "blue");
-        referenceFrame_ = CreateRenderItemInternal(vector<Viewport::RenderItemVerticesDesc>(), descs);
+        descs.emplace_back("X", type, Pile::Identity4x4(), "red", PrimitiveTopology::kTriangleList());
+        descs.emplace_back("Y", type, Pile::Identity4x4(), "green", PrimitiveTopology::kTriangleList());
+        descs.emplace_back("Z", type, Pile::Identity4x4(), "blue", PrimitiveTopology::kTriangleList());
+        referenceFrame_ = CreateRenderItemInternal(descs);
+
+        vector<VertexColor> vertices;
+        GeometryGenerator::CreateGridXY(vertices, 10, 10, 1.f, 1.f);
+        DescsVertices descsGrid;
+        XMFLOAT4X4 t; XMStoreFloat4x4(&t, XMMatrixRotationX(XM_PIDIV2));
+        RenderItemVerticesDesc descGrid("Grid", (uint8*)vertices.data(), (uint32)vertices.size(), t, "red", PrimitiveTopology::kLineList());
+        descsGrid.push_back(descGrid);
+        grid_ = CreateRenderItemInternal(descsGrid, sizeof(VertexColor));
     }
 
     Viewport::~Viewport() {
         grShutdown();
     }
 
+    void Viewport::PreparePsos() {
+        grtPipelineStateDesc desc;
+        desc.BlendEnable = false;
+        desc.DepthEnable = true;
+        desc.FillMode = greFillMode::kSolid;
+        desc.PrimitiveTolopologyType = grePrimitiveTopologyType::kTriangle;
+        desc.VertexType = greVertexType::kNormalTex;
+        psos_.insert(make_pair(PsoType::kOpaque, grCreatePipelineStateObject(desc, rootSignature_)));
+
+        // Transparent objects
+        desc.PrimitiveTolopologyType = grePrimitiveTopologyType::kLine;
+        desc.VertexType = greVertexType::kColor;
+        psos_.insert(make_pair(PsoType::kLine, grCreatePipelineStateObject(desc, rootSignature_)));
+
+        // Transparent objects
+        desc.BlendEnable = true;
+        desc.DepthEnable = false;
+        desc.PrimitiveTolopologyType = grePrimitiveTopologyType::kTriangle;
+        desc.VertexType = greVertexType::kNormalTex;
+        psos_.insert(make_pair(PsoType::kTransparent, grCreatePipelineStateObject(desc, rootSignature_)));
+    }
+
     void Viewport::CreateMaterial(Material material, const string& name) {
         materials_.insert(make_pair(name, grCreateStandardMaterial(MaterialToLibraryMaterial(material), name)));
     }
 
-    uint_t Viewport::CreateRenderItem(const std::vector<RenderItemVerticesDesc>& viewportVerticesDescs, const std::vector<RenderItemTypeDesc>& viewportTypeDescs) {
-        grRenderItem ri = CreateRenderItemInternal(viewportVerticesDescs, viewportTypeDescs);
-        renderItems_.push_back(ri);
-        return renderItems_.size() - 1;
-    }
-
-    grRenderItem Viewport::CreateRenderItemInternal(const std::vector<RenderItemVerticesDesc>& viewportVerticesDescs, const std::vector<RenderItemTypeDesc>& viewportTypeDescs) {
-        vector<grRenderSubItemDesc> descs;
-        vector<grRenderVertices> vertices;
-        vector<uint32> itemsToVertices;
-
-        descs.reserve(viewportVerticesDescs.size() + viewportTypeDescs.size());
-        itemsToVertices.reserve(viewportVerticesDescs.size() + viewportTypeDescs.size());
-        vertices.reserve(viewportVerticesDescs.size());
-
-        uint32 currentItem = 0;
-        array<int, (size_t)PredefinedGeometryType::kSize> geometriesIndices;
-        enum { kNoIndex = -1 };
-        geometriesIndices.fill(kNoIndex);
-
-        for (const auto& d : viewportTypeDescs) {
-            uint_t geometryIndex = (uint_t)d.type;
-            const grRenderSubItemDesc descEngine(d.name, d.transform, materials_.find(d.material)->second);
-            descs.push_back(descEngine);
-            const auto& currentGeometry = geometries_[geometryIndex];
-            if (geometriesIndices[geometryIndex] == kNoIndex) {
-                geometriesIndices[geometryIndex] = (int)vertices.size();
-                vertices.emplace_back((uint8*)(void*)currentGeometry.data(), (uint32)currentGeometry.size());
-            }
-            itemsToVertices.push_back(geometriesIndices[geometryIndex]);
-            ++currentItem;
-        }
-
-        for (const auto& d : viewportVerticesDescs) {
-            const grRenderSubItemDesc descEngine(d.name, d.transform, materials_.find(d.material)->second);
-            descs.push_back(descEngine);
-            itemsToVertices.push_back((uint32)vertices.size());
-            vertices.emplace_back((uint8*)(void*)d.vertices.data(), (uint32)d.vertices.size());
-            ++currentItem;
-        }
-
-        return grCreateRenderItem(vertices, descs, itemsToVertices, sizeof(Vertex), grGetGraphicsContext());
-    }
-
     void Viewport::BeforeDraw() {
+        grPreBeginScene();
+        grSetRootSignature(rootSignature_, grGetGraphicsContext());
         grBeginScene();
     }
 
@@ -124,12 +127,25 @@ namespace Viewer
         grEndScene();
     }
 
-    void Viewport::BeforeHud() {
-        grBeginHud();
+    void Viewport::BeforeOpaque() { SetPso(PsoType::kOpaque); }
+    void Viewport::BeforeLine() { SetPso(PsoType::kLine); }
+    void Viewport::BeforeTransparent() { SetPso(PsoType::kTransparent); }
+
+    void Viewport::SetPso(PsoType type) {
+        if (currentPsoType_ != type) {
+            currentPsoType_ = type;
+            grSetPipelineStateObject(psos_.at(currentPsoType_), grGetGraphicsContext());
+        }
     }
 
-    void Viewport::DrawRenderItems() {
-        for (const auto& ri : renderItems_) {
+    void Viewport::DrawRenderItemsOpaque() {
+        for (const auto& ri : renderItemsOpaque_) {
+            grDrawRenderItem(ri);
+        }
+    }
+
+    void Viewport::DrawRenderItemsTransparent() {
+        for (const auto& ri : renderItemsTransparent_) {
             grDrawRenderItem(ri);
         }
     }
@@ -167,9 +183,13 @@ namespace Viewer
         }
     }
 
+    void Viewport::DrawGrid() {
+        grDrawRenderItem(grid_);
+    }
+
     void Viewport::PrepareGeometry() {
         GeometryGenerator::CreateCube(geometries_[(size_t)PredefinedGeometryType::kBox]);
-        GeometryGenerator::CreateSphere(geometries_[(size_t)PredefinedGeometryType::kSphere], 6);
+        GeometryGenerator::CreateSphere(geometries_[(size_t)PredefinedGeometryType::kSphere], 4);
         GeometryGenerator::CreateCylinder(geometries_[(size_t)PredefinedGeometryType::kCylinder], 0.5f, 0.5f, 1.f, 8, 4);
         GeometryGenerator::CreateCone(geometries_[(size_t)PredefinedGeometryType::kCone], 0.5f, 1.f, 8, 4);
     }
@@ -193,5 +213,79 @@ namespace Viewer
         XMMATRIX invViewTransform = grGetInvViewTransform();
         XMVECTOR result = XMVector3Transform(pointInViewSpace, invViewTransform);
         return result;
+    }
+
+    uint_t Viewport::CreateRenderItemOpaque(const Viewport::DescsVertices& viewportVerticesDescs, uint32 vertexSize) {
+        grRenderItem ri = CreateRenderItemInternal(viewportVerticesDescs, vertexSize);
+        renderItemsOpaque_.push_back(ri);
+        return renderItemsOpaque_.size() - 1;
+    }
+
+    uint_t Viewport::CreateRenderItemOpaque(const Viewport::DescsTypes& viewportTypeDescs) {
+        grRenderItem ri = CreateRenderItemInternal(viewportTypeDescs);
+        renderItemsOpaque_.push_back(ri);
+        return renderItemsOpaque_.size() - 1;
+    }
+
+    uint_t Viewport::CreateRenderItemTransparent(const Viewport::DescsVertices& viewportVerticesDescs, uint32 vertexSize) {
+        grRenderItem ri = CreateRenderItemInternal(viewportVerticesDescs, vertexSize);
+        renderItemsTransparent_.push_back(ri);
+        return renderItemsTransparent_.size() - 1;
+    }
+
+    uint_t Viewport::CreateRenderItemTransparent(const Viewport::DescsTypes& viewportTypeDescs) {
+        grRenderItem ri = CreateRenderItemInternal(viewportTypeDescs);
+        renderItemsTransparent_.push_back(ri);
+        return renderItemsTransparent_.size() - 1;
+    }
+
+    grRenderItem Viewport::CreateRenderItemInternal(const DescsVertices& viewportVerticesDescs, uint32 vertexSize) {
+        vector<grtRenderSubItemDesc> descs;
+        vector<grtRenderVertices> vertices;
+        vector<uint32> itemsToVertices;
+
+        descs.reserve(viewportVerticesDescs.size());
+        itemsToVertices.reserve(viewportVerticesDescs.size());
+        vertices.reserve(viewportVerticesDescs.size());
+
+        uint32 currentItem = 0;
+        for (const auto& d : viewportVerticesDescs) {
+            const grtRenderSubItemDesc descEngine(d.name, d.transform, materials_.find(d.material)->second, PrimitiveTopology::ToGr(d.primitiveTopology));
+            descs.push_back(descEngine);
+            itemsToVertices.push_back((uint32)vertices.size());
+            vertices.emplace_back(d.vertices, (uint32)d.verticesCount);
+            ++currentItem;
+        }
+
+        return grCreateRenderItem(vertices, descs, itemsToVertices, vertexSize, grGetGraphicsContext());
+    }
+
+    grRenderItem Viewport::CreateRenderItemInternal(const DescsTypes& viewportTypeDescs) {
+        vector<grtRenderSubItemDesc> descs;
+        vector<grtRenderVertices> vertices;
+        vector<uint32> itemsToVertices;
+
+        descs.reserve(viewportTypeDescs.size());
+        itemsToVertices.reserve(viewportTypeDescs.size());
+
+        uint32 currentItem = 0;
+        array<int, (size_t)PredefinedGeometryType::kSize> geometriesIndices;
+        enum { kNoIndex = -1 };
+        geometriesIndices.fill(kNoIndex);
+
+        for (const auto& d : viewportTypeDescs) {
+            uint_t geometryIndex = (uint_t)d.type;
+            const grtRenderSubItemDesc descEngine(d.name, d.transform, materials_.find(d.material)->second, PrimitiveTopology::ToGr(d.primitiveTopology));
+            descs.push_back(descEngine);
+            const auto& currentGeometry = geometries_[geometryIndex];
+            if (geometriesIndices[geometryIndex] == kNoIndex) {
+                geometriesIndices[geometryIndex] = (int)vertices.size();
+                vertices.emplace_back((uint8*)(void*)currentGeometry.data(), (uint32)currentGeometry.size());
+            }
+            itemsToVertices.push_back(geometriesIndices[geometryIndex]);
+            ++currentItem;
+        }
+
+        return grCreateRenderItem(vertices, descs, itemsToVertices, sizeof(VertexNormalTex), grGetGraphicsContext());
     }
 }

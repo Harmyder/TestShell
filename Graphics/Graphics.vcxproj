@@ -155,6 +155,10 @@
   <ItemGroup>
     <ClInclude Include="Core\Camera.h" />
     <ClInclude Include="Core\Lighting.h" />
+    <ClInclude Include="Interface\GraphicsConsts.h" />
+    <ClInclude Include="Interface\GraphicsTypes.h" />
+    <ClInclude Include="SDK\PipelineStateObject.h" />
+    <ClInclude Include="SDK\RootSignature.h" />
     <ClInclude Include="SDK\CommandAllocatorPool.h" />
     <ClInclude Include="SDK\CommandContext.h" />
     <ClInclude Include="SDK\CommandQueue.h" />
@@ -173,6 +177,9 @@
   <ItemGroup>
     <ClCompile Include="Core\Camera.cpp" />
     <ClCompile Include="Core\Lighting.cpp" />
+    <ClCompile Include="Interface\GraphicsConsts.cpp" />
+    <ClCompile Include="SDK\PipelineStateObject.cpp" />
+    <ClCompile Include="SDK\RootSignature.cpp" />
     <ClCompile Include="SDK\CommandAllocatorPool.cpp" />
     <ClCompile Include="SDK\CommandContext.cpp" />
     <ClCompile Include="SDK\CommandQueue.cpp" />
@@ -194,7 +201,23 @@
     <ClInclude Include="Shaders\Lighting.hlsli">
       <FileType>Document</FileType>
     </ClInclude>
-    <FxCompile Include="Shaders\pixel.hlsl">
+    <FxCompile Include="Shaders\color_Pixel.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">g_sh%(Filename)</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Shaders\Compiled\%(Filename).h</HeaderFileOutput>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">g_sh%(Filename)</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Shaders\Compiled\%(Filename).h</HeaderFileOutput>
+    </FxCompile>
+    <FxCompile Include="Shaders\color_Vertex.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">g_sh%(Filename)</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Shaders\Compiled\%(Filename).h</HeaderFileOutput>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">g_sh%(Filename)</VariableName>
+      <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Shaders\Compiled\%(Filename).h</HeaderFileOutput>
+    </FxCompile>
+    <FxCompile Include="Shaders\normalTex_Pixel.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -216,7 +239,7 @@
       <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DisableOptimizations>
       <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</EnableDebuggingInformation>
     </FxCompile>
-    <FxCompile Include="Shaders\vertex.hlsl">
+    <FxCompile Include="Shaders\normalTex_Vertex.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
@@ -240,7 +263,9 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\color_InputLayout.hlsli" />
     <None Include="Shaders\consts.shared" />
+    <None Include="Shaders\normalTex_InputLayout.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

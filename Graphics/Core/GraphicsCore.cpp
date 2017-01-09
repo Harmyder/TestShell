@@ -10,9 +10,6 @@
 #include "Core\RenderItem.h"
 #include "Core\Lighting.h"
 
-#include "Shaders\Compiled\pixel.h"
-#include "Shaders\Compiled\vertex.h"
-
 using namespace std;
 using namespace DirectX;
 
@@ -21,11 +18,8 @@ namespace Graphics
     DEFINE_SINGLETON(GraphicsCore);
 
     ComPtr<ID3D12Device> g_device;
-
-    const uint32 kGpuAllocatorPageSize = 0x10000;	// 64K. Resource heap must be a multiple of 64K
-
-    static DXGI_FORMAT BACK_BUFFER_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
-    static DXGI_FORMAT DEPTH_STENCIL_FORMAT = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    DXGI_FORMAT BACK_BUFFER_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
+    DXGI_FORMAT DEPTH_STENCIL_FORMAT = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
     GraphicsCore::~GraphicsCore() {}
 
@@ -71,11 +65,8 @@ namespace Graphics
         materialsUpdated_.resize(frameResources_->MatsCountLimit, kNotUpdated);
         lightsHolder_ = make_unique<LightsHolder>();
 
-        CreateRootSignature();
-        CreateInputLayout();
         CreateDescriptorHeaps();
         CreateConstantBufferViews();
-        CreatePSO();
 
         commandContext_->Flush(true);
     }
@@ -175,92 +166,6 @@ namespace Graphics
             rtvHeap_->GetCPUDescriptorHandleForHeapStart(),
             currentBackBuffer_,
             rtvDescriptorSize_);
-    }
-
-    void GraphicsCore::CreateRootSignature() {
-        CD3DX12_DESCRIPTOR_RANGE cbvTable0;
-        CD3DX12_DESCRIPTOR_RANGE cbvTable1;
-        CD3DX12_DESCRIPTOR_RANGE cbvTable2;
-        cbvTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
-        cbvTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
-        cbvTable2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 2);
-
-        CD3DX12_ROOT_PARAMETER slotRootParameter[3];
-        slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable0, D3D12_SHADER_VISIBILITY_ALL);
-        slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable1, D3D12_SHADER_VISIBILITY_ALL);
-        slotRootParameter[2].InitAsDescriptorTable(1, &cbvTable2, D3D12_SHADER_VISIBILITY_ALL);
-
-        CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(3, slotRootParameter, 0, nullptr,
-            D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-        ComPtr<ID3DBlob> serializedRootSig = nullptr;
-        ComPtr<ID3DBlob> errorBlob = nullptr;
-        HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-            serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
-
-        if (errorBlob != nullptr) OutputDebugString((char*)errorBlob->GetBufferPointer());
-        THROW_IF_FAILED(hr);
-
-        THROW_IF_FAILED(g_device->CreateRootSignature(
-            0,
-            serializedRootSig->GetBufferPointer(),
-            serializedRootSig->GetBufferSize(),
-            IID_PPV_ARGS(&rootSignature_)));
-    }
-
-    void GraphicsCore::CreateInputLayout() {
-        inputLayout_ =
-        {
-            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-            { "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
-        };
-    }
-
-    void GraphicsCore::CreatePSO() {
-        D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc;
-
-        // PSO for opaque objects.
-        ZeroMemory(&opaquePsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-        opaquePsoDesc.InputLayout = { inputLayout_.data(), (UINT)inputLayout_.size() };
-        opaquePsoDesc.pRootSignature = rootSignature_.Get();
-        opaquePsoDesc.VS = { g_shvertex, sizeof(g_shvertex) };
-        opaquePsoDesc.PS = { g_shpixel, sizeof(g_shpixel) };
-        opaquePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-        opaquePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-        opaquePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-        opaquePsoDesc.SampleMask = UINT_MAX;
-        opaquePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-        opaquePsoDesc.NumRenderTargets = 1;
-        opaquePsoDesc.RTVFormats[0] = BACK_BUFFER_FORMAT;
-        opaquePsoDesc.SampleDesc.Count = 1;
-        opaquePsoDesc.SampleDesc.Quality = 0;
-        opaquePsoDesc.DSVFormat = DEPTH_STENCIL_FORMAT;
-        THROW_IF_FAILED(g_device->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&psos_["opaque"])));
-
-        // PSO for opaque wireframe objects.
-        D3D12_GRAPHICS_PIPELINE_STATE_DESC opaqueWireframePsoDesc = opaquePsoDesc;
-        opaqueWireframePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
-        THROW_IF_FAILED(g_device->CreateGraphicsPipelineState(&opaqueWireframePsoDesc, IID_PPV_ARGS(&psos_["opaque_wireframe"])));
-
-        // PSO for transparent objects.
-        D3D12_GRAPHICS_PIPELINE_STATE_DESC transparentPsoDesc = opaquePsoDesc;
-        transparentPsoDesc.BlendState.RenderTarget[0].BlendEnable = true;
-        transparentPsoDesc.BlendState.RenderTarget[0].LogicOpEnable = false;
-        transparentPsoDesc.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-        transparentPsoDesc.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-        transparentPsoDesc.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-        transparentPsoDesc.BlendState.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-        transparentPsoDesc.BlendState.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
-        transparentPsoDesc.BlendState.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-        transparentPsoDesc.BlendState.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
-        transparentPsoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-        THROW_IF_FAILED(g_device->CreateGraphicsPipelineState(&transparentPsoDesc, IID_PPV_ARGS(&psos_["transparent"])));
-
-        // PSO for opaque HUD objects.
-        D3D12_GRAPHICS_PIPELINE_STATE_DESC opaqueHudPsoDesc = opaquePsoDesc;
-        opaqueHudPsoDesc.DepthStencilState.DepthEnable = false;
-        THROW_IF_FAILED(g_device->CreateGraphicsPipelineState(&opaqueHudPsoDesc, IID_PPV_ARGS(&psos_["opaque_HUD"])));
     }
 
     void GraphicsCore::CreateDescriptorHeaps() {
@@ -400,10 +305,12 @@ namespace Graphics
         currPassCB->CopyData(0, &pass);
     }
 
-    void GraphicsCore::BeginScene() {
+    void GraphicsCore::PreBeginScene() {
         commandContext_->Reset();
+    }
+
+    void GraphicsCore::BeginScene() {
         auto commandList = commandContext_->GetCommandList();
-        commandList->SetPipelineState(psos_["opaque"].Get());
 
         commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
             D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
@@ -416,7 +323,6 @@ namespace Graphics
         ID3D12DescriptorHeap* descriptorHeaps[] = { cbvHeap_.Get() };
         commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
-        commandList->SetGraphicsRootSignature(rootSignature_.Get());
         commandList->RSSetViewports(1, screenViewport_.get());
         commandList->RSSetScissorRects(1, &scissorRect_);
 
@@ -425,16 +331,6 @@ namespace Graphics
         auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
         passCbvHandle.Offset(passCbvIndex, cbvSrvUavDescriptorSize_);
         commandList->SetGraphicsRootDescriptorTable(2, passCbvHandle);
-    }
-
-    void GraphicsCore::BeginBoundingVolumes() {
-        auto commandList = commandContext_->GetCommandList();
-        commandList->SetPipelineState(psos_[""].Get());
-    }
-
-    void GraphicsCore::BeginHud() {
-        auto commandList = commandContext_->GetCommandList();
-        commandList->SetPipelineState(psos_["opaque_HUD"].Get());
     }
 
     void GraphicsCore::EndScene() {
@@ -485,7 +381,7 @@ namespace Graphics
         auto commandList = commandContext_->GetCommandList();
 
         commandList->IASetVertexBuffers(0, 1, &ri.VertexBufferView());
-        commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        commandList->IASetPrimitiveTopology(rsi.GetPrimitiveTopology());
 
         auto cbvHandleObj = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
         cbvHandleObj.Offset(cbObjIndex, cbvSrvUavDescriptorSize_);
