@@ -3,12 +3,14 @@
 
 float4 main(VertexOut pin) : SV_Target
 {
-    const float shininess = (1.0f - gRoughness) * 256.f;
+    MaterialData matData = gMaterialsData[gMaterialIndex];
+
+    const float shininess = (1.0f - matData.Roughness) * 256.f;
     Material mat;
-    mat.Ambient = gAmbient;
-    mat.Diffuse = gDiffuse;
-    mat.Specular = gSpecular;
-    mat.FresnelR0 = float3(gFresnelR0, gFresnelR0, gFresnelR0);
+    mat.Ambient = matData.Ambient;
+    mat.Diffuse = matData.Diffuse;
+    mat.Specular = matData.Specular;
+    mat.FresnelR0 = float3(matData.FresnelR0, matData.FresnelR0, matData.FresnelR0);
     mat.Shininess = shininess;
 
     float3 ambient;

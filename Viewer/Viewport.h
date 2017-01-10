@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Pile\DefineEnumType.h"
+#include "Pile\DefineNamespaceEnumType.h"
 #include "Pile\Attribute\NonCopyable.h"
 #include "Graphics\Interface\GraphicsHandle.h"
 #include "Vertex.h"
@@ -13,7 +13,7 @@ namespace Viewer
     class GameInput;
 
     namespace PrimitiveTopology {
-        DEFINE_ENUM_TYPE((uint32)-1);
+        DEFINE_NAMESPACE_ENUM_TYPE(int, -1);
         Type kInvalid();
         Type kTriangleList();
         Type kLineList();
@@ -27,15 +27,18 @@ namespace Viewer
         kSize
     };
 
-    enum class Material {
-        kRed, kGreen, kBlue,
-        kTurquesa,
-        kEmerald,
-        kJade,
-        kObsidian,
-        kSilver,
-        kSize,
-    };
+    namespace Material {
+        DEFINE_NAMESPACE_ENUM_TYPE(int, -1);
+        Type kInvalid();
+        Type kRed();
+        Type kGreen();
+        Type kBlue();
+        Type kTurquesa();
+        Type kEmerald();
+        Type kJade();
+        Type kObsidian();
+        Type kSilver();
+    }
 
     class Viewport : Pile::NonCopyable
     {
@@ -73,7 +76,7 @@ namespace Viewer
 
             const PredefinedGeometryType type;
         };
-        void CreateMaterial(Material material, const std::string& name);
+        void CreateMaterial(Material::Type material, const std::string& name);
         using DescsVertices = std::vector<RenderItemVerticesDesc>;
         using DescsTypes = std::vector<RenderItemTypeDesc>;
         uint_t CreateRenderItemOpaque(const DescsVertices& viewportVerticesDescs, uint32 vertexSize);

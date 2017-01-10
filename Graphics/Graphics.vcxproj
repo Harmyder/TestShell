@@ -155,6 +155,7 @@
   <ItemGroup>
     <ClInclude Include="Core\Camera.h" />
     <ClInclude Include="Core\Lighting.h" />
+    <ClInclude Include="Utility\FreeIndices.h" />
     <ClInclude Include="Interface\GraphicsConsts.h" />
     <ClInclude Include="Interface\GraphicsTypes.h" />
     <ClInclude Include="SDK\PipelineStateObject.h" />
@@ -177,6 +178,7 @@
   <ItemGroup>
     <ClCompile Include="Core\Camera.cpp" />
     <ClCompile Include="Core\Lighting.cpp" />
+    <ClCompile Include="Utility\FreeIndices.cpp" />
     <ClCompile Include="Interface\GraphicsConsts.cpp" />
     <ClCompile Include="SDK\PipelineStateObject.cpp" />
     <ClCompile Include="SDK\RootSignature.cpp" />

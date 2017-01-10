@@ -60,45 +60,33 @@ grMaterial grCreateMaterial(
     float fresnelR0,
     float roughness)
 {
-    auto& freeMatCbIndices = GraphicsCore::GetInstance().GetFreeMaterialCbIndices();
-    auto cbIndex = freeMatCbIndices.AcquireIndex();
-    Material *m = new Material(name, cbIndex);
-    m->Update(ambient, diffuse, specular, fresnelR0, roughness);
-
+    auto& mb = GraphicsCore::GetInstance().GetMaterialsBuffer();
+    auto m = mb.Create(name, ambient, diffuse, specular, fresnelR0, roughness);
     return grMaterial(m);
 }
 
-grMaterial grCreateStandardMaterial(greLibraryMaterial lm, const string& name) {
-    unique_ptr<Material> m;
-    auto& freeMatCbIndices = GraphicsCore::GetInstance().GetFreeMaterialCbIndices();
-    auto cbIndex = freeMatCbIndices.AcquireIndex();
-    switch (lm) {
-    case greLibraryMaterial::kRed:
-        m = Material::Create(Material::Type::kRed, name, cbIndex);
-        break;
-    case greLibraryMaterial::kGreen:
-        m = Material::Create(Material::Type::kGreen, name, cbIndex);
-        break;
-    case greLibraryMaterial::kBlue:
-        m = Material::Create(Material::Type::kBlue, name, cbIndex);
-        break;
-    case greLibraryMaterial::kEmerald:
-        m = Material::Create(Material::Type::kEmerald, name, cbIndex);
-        break;
-    case greLibraryMaterial::kJade:
-        m = Material::Create(Material::Type::kJade, name, cbIndex);
-        break;
-    case greLibraryMaterial::kObsidian:
-        m = Material::Create(Material::Type::kObsidian, name, cbIndex);
-        break;
-    case greLibraryMaterial::kSilver:
-        m = Material::Create(Material::Type::kSilver, name, cbIndex);
-        break;
-    case greLibraryMaterial::kTurquesa:
-        m = Material::Create(Material::Type::kTurquesa, name, cbIndex);
-        break;
-    }
-    return grMaterial(m.release());
+grMaterial grCreatePredefinedMaterial(greLibraryMaterial::Type lm, const string& name) {
+    auto& mb = GraphicsCore::GetInstance().GetMaterialsBuffer();
+    auto m = mb.CreatePredefined(name, (Material::Type)(underlying_type_t<Material::Type>)lm);
+    return grMaterial(m);
+}
+
+void grUpdateMaterial(
+    grMaterial material,
+    const DirectX::XMFLOAT4& ambient,
+    const DirectX::XMFLOAT4& diffuse,
+    const DirectX::XMFLOAT4& specular,
+    float fresnelR0,
+    float roughness)
+{
+    Material* m = static_cast<MaterialHandle>(material).GetValue();
+    m->Update(ambient, diffuse, specular, fresnelR0, roughness);
+}
+
+void grDestroyMaterial(grMaterial material) {
+    Material* m = static_cast<MaterialHandle>(material).GetValue();
+    auto& mb = GraphicsCore::GetInstance().GetMaterialsBuffer();
+    mb.Destroy(m);
 }
 
 void grDrawRenderItem(grRenderItem renderItem) {
@@ -187,18 +175,6 @@ void grUpdateRenderSubItemTransform(grRenderItem renderItem, const std::string& 
     auto ri = rih.GetValue();
     auto& subItem = ri->FindSubItem(name);
     subItem.SetTransform(transform);
-}
-
-void grUpdateMaterial(
-    grMaterial material, 
-    const DirectX::XMFLOAT4& ambient,
-    const DirectX::XMFLOAT4& diffuse,
-    const DirectX::XMFLOAT4& specular,
-    float fresnelR0,
-    float roughness) 
-{
-    Material* m = static_cast<MaterialHandle>(material).GetValue();
-    m->Update(ambient, diffuse, specular, fresnelR0, roughness);
 }
 
 void grDestroyRenderItem(grRenderItem renderItem) {

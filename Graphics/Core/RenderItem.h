@@ -27,26 +27,17 @@ namespace Graphics {
         RenderSubItem(uint32 baseVertexLocation,
             uint32 verticesCount,
             const XMFLOAT4X4& transform,
-            uint32 objCbIndex,
+            uint32 objBufferIndex,
             Material* material,
             D3D_PRIMITIVE_TOPOLOGY primitiveTopology,
-            const RenderItem& container) :
-            baseVertexLocation_(baseVertexLocation),
-            verticesCount_(verticesCount),
-            objCbIndex_(objCbIndex),
-            transform_(transform),
-            dirtyFramesCount_((uint32)GraphicsCore::GetInstance().GetFrameResourcesCount()),
-            material_(*material),
-            primitiveTopology_(primitiveTopology),
-            container_(container)
-        {}
+            const RenderItem& container);
 
         RenderSubItem(const RenderSubItem& other) = delete;
 
         uint32 BaseVertexLocation() const { return baseVertexLocation_; }
         uint32 VerticesCount() const { return verticesCount_; }
         
-        uint32 CbIndex() const { return objCbIndex_; }
+        uint32 BufferIndex() const { return objBufferIndex_; }
         const bool IsDirty() const { return dirtyFramesCount_ != 0; }
         const void DecreaseDirtyFramesCount() { --dirtyFramesCount_; }
 
@@ -56,8 +47,8 @@ namespace Graphics {
             dirtyFramesCount_ = (uint32)GraphicsCore::GetInstance().GetFrameResourcesCount();
         }
 
-        Material& GetMaterial() { return material_; }
-        D3D12_PRIMITIVE_TOPOLOGY GetPrimitiveTopology() { return primitiveTopology_; }
+        uint32 GetMaterialIndex() const { return materialIndex_; }
+        D3D12_PRIMITIVE_TOPOLOGY GetPrimitiveTopology() const { return primitiveTopology_; }
 
         const RenderItem& Container() const { return container_; }
 
@@ -65,9 +56,9 @@ namespace Graphics {
         uint32 baseVertexLocation_;
         uint32 verticesCount_;
         uint32 dirtyFramesCount_;
-        uint32 objCbIndex_;
+        uint32 objBufferIndex_;
         XMFLOAT4X4 transform_;
-        Material& material_;
+        uint32 materialIndex_;
         D3D12_PRIMITIVE_TOPOLOGY primitiveTopology_;
 
         const RenderItem& container_;
@@ -82,43 +73,7 @@ namespace Graphics {
             const std::vector<uint32> itemsToVertices,
             uint32 vertexSize,
             CommandContext& commandContext_,
-            RenderItem *&pri)
-        {
-            auto& objCbIndices = GraphicsCore::GetInstance().GetFreePerObjCbIndices();
-            std::vector<uint32> verticesOffsets;
-            verticesOffsets.reserve(verticesDescs.size());
-            uint32 totalVerticesCount = 0;
-            for (const auto& vd : verticesDescs) {
-                verticesOffsets.push_back(totalVerticesCount);
-                totalVerticesCount += vd.verticesCount;
-            }
-
-            pri = new RenderItem(vertexSize, totalVerticesCount);
-            for (uint_t i = 0; i < itemsDescs.size(); ++i) {
-                const auto& cur_id = itemsDescs[i];
-                const auto& cur_vd = verticesDescs[itemsToVertices[i]];
-                const auto p = pri->subItems_.emplace(
-                    std::piecewise_construct,
-                    std::forward_as_tuple(cur_id.name),
-                    std::forward_as_tuple(
-                        verticesOffsets[itemsToVertices[i]],
-                        cur_vd.verticesCount,
-                        cur_id.transform,
-                        objCbIndices.AcquireIndex(),
-                        cur_id.material,
-                        cur_id.primitiveTopology,
-                        *pri)
-                );
-                if (!p.second) throw "At least two elements have the same name";
-            }
-            std::vector<uint8> vertices;
-            vertices.reserve(totalVerticesCount * vertexSize);
-            for (auto& vd : verticesDescs) {
-                vertices.insert(vertices.end(), vd.data, vd.data + vd.verticesCount * vertexSize);
-            }
-
-            pri->vertexBuffer_.Create(L"ri_vertex", totalVerticesCount, vertexSize, vertices.data(), &commandContext_);
-        }
+            RenderItem *&pri);
 
         D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const;
         uint32 VertexByteStride() const { return vertexSize_; }

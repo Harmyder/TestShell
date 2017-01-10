@@ -1,37 +1,38 @@
 #pragma once
 #include <DirectXMath.h>
 #include <string>
-#include "Core\GraphicsCore.h"
 #include "Shaders\consts.shared"
 
 namespace Graphics
 {
-    class CbDirty {
+    class LightsHolder;
+
+    class BufferDirty {
     public:
-        CbDirty(uint32 cbIndex) :
-            cbIndex_(cbIndex),
+        BufferDirty(uint32 bufferIndex) :
+            bufferIndex_(bufferIndex),
             dirtyFramesCount_(0)
         {}
             
-        uint32 CbIndex() const { return cbIndex_; }
+        uint32 BufferIndex() const { return bufferIndex_; }
         bool IsDirty() const { return dirtyFramesCount_ != 0; }
         void DecreaseDirtyFramesCount() { --dirtyFramesCount_; }
 
     protected:
-        void SetAllFramesDirty() { dirtyFramesCount_ = (uint32)GraphicsCore::GetInstance().GetFrameResourcesCount(); }
+        void SetAllFramesDirty();
 
     private:
         friend LightsHolder;
 
-        uint32 cbIndex_;
+        uint32 bufferIndex_;
         uint32 dirtyFramesCount_;
     };
 
-    class DirectionalLight : public CbDirty
+    class DirectionalLight : public BufferDirty
     {
     public:
-        DirectionalLight(uint32 cbIndex) :
-            CbDirty(cbIndex)
+        DirectionalLight(uint32 bufferIndex) :
+            BufferDirty(bufferIndex)
         {}
 
         void Update(
@@ -53,11 +54,11 @@ namespace Graphics
         float pad2;
     };
 
-    class PointLight : public CbDirty
+    class PointLight : public BufferDirty
     {
     public:
-        PointLight(uint32 cbIndex) :
-            CbDirty(cbIndex)
+        PointLight(uint32 bufferIndex) :
+            BufferDirty(bufferIndex)
         {}
 
         void Update(
@@ -87,11 +88,11 @@ namespace Graphics
         float pad2;
     };
 
-    class SpotLight : public CbDirty
+    class SpotLight : public BufferDirty
     {
     public:
-        SpotLight(uint32 cbIndex) :
-            CbDirty(cbIndex)
+        SpotLight(uint32 bufferIndex) :
+            BufferDirty(bufferIndex)
         {}
 
         void Update(
@@ -129,11 +130,13 @@ namespace Graphics
         float pad2;
     };
 
-    class Material : public CbDirty
+    class MaterialsBuffer;
+    class Material : public BufferDirty
     {
+        friend MaterialsBuffer;
     public:
-        Material(const std::string& name, uint32 cbIndex) :
-            CbDirty(cbIndex),
+        Material(const std::string& name, uint32 bufferIndex) :
+            BufferDirty(bufferIndex),
             name_(name)
         {}
 
@@ -145,7 +148,7 @@ namespace Graphics
             kObsidian,
             kSilver,
         };
-        static std::unique_ptr<Material> Create(Type type, const std::string& name, uint32 cbIndex);
+        static std::unique_ptr<Material> CreatePredefined(Type type, const std::string& name, uint32 bufferIndex);
 
         void Update(
             const DirectX::XMFLOAT4& ambient,
@@ -200,12 +203,13 @@ namespace Graphics
     private:
         template <class L, uint_t N>
         static void DestroyLight(std::array<std::unique_ptr<L>, N>& lights, L* light, uint8 lightsCount) {
-            auto index = light->CbIndex();
+            auto index = light->BufferIndex();
             lights[index].reset();
+            // Move the last one into the empty slot
             if (lightsCount - 1 > (uint8)index) {
                 lights[index] = move(lights[lightsCount - 1]);
+                lights[index]->bufferIndex_ = index;
             }
-            lights[index]->cbIndex_ = index;
         }
 
         std::array<std::unique_ptr<DirectionalLight>, MAX_DIR_LIGHTS_COUNT> dirLights_;
@@ -215,5 +219,57 @@ namespace Graphics
         uint8 dirLightsCount_ = 0;
         uint8 pntLightsCount_ = 0;
         uint8 sptLightsCount_ = 0;
+    };
+
+    class MaterialsBufferIterator : public std::iterator<std::forward_iterator_tag, Material>
+    {
+    private:
+        using Me = MaterialsBufferIterator;
+        using Container = MaterialsBuffer;
+
+        Container& container_;
+        uint32 index_;
+
+    public:
+        explicit MaterialsBufferIterator(Container& c);
+        MaterialsBufferIterator(Container& c, uint32 i) : container_(c), index_(i) {}
+
+        bool operator==(const Me& other) { AssertCompatibility(other); return &container_ == &other.container_ && index_ == other.index_; }
+        bool operator!=(const Me& other) { AssertCompatibility(other); return !(*this == other); }
+        bool operator<(const Me& other) { AssertCompatibility(other); return index_ < other.index_; }
+        bool operator>(const Me& other) { AssertCompatibility(other); return index_ > other.index_; }
+
+        value_type& operator* ();
+
+        Me& operator++();
+        Me operator++(int);
+
+    private:
+        void AssertCompatibility(const Me& other) { if (&container_ != &other.container_) throw "Iterators are not compatible."; }
+    };
+
+    namespace Utility { class FreeIndices; }
+
+    class MaterialsBuffer
+    {
+        friend MaterialsBufferIterator;
+    public:
+        MaterialsBuffer(uint32 materialsCountLimit);
+
+        Material* Create(const std::string& name,
+            const DirectX::XMFLOAT4& ambient,
+            const DirectX::XMFLOAT4& diffuse,
+            const DirectX::XMFLOAT4& specular,
+            float fresnelR0,
+            float roughness);
+        Material* CreatePredefined(const std::string& name, Material::Type type);
+        void Destroy(Material* material);
+
+        MaterialsBufferIterator begin() { return MaterialsBufferIterator(*this); }
+        MaterialsBufferIterator end()   { return MaterialsBufferIterator(*this, (uint32)materials_.size()); }
+
+    private:
+        std::unique_ptr<Utility::FreeIndices> freeIndices_;
+        std::vector<std::unique_ptr<Material>> materials_;
     };
 }

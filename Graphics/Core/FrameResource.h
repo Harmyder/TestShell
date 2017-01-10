@@ -7,11 +7,14 @@
 
 namespace Graphics {
     class ConstantBuffer;
+    class UploadBuffer;
     class CommandQueue;
 
     struct PerObjConsts
     {
         DirectX::XMFLOAT4X4 World = Pile::Identity4x4();
+        uint32 MaterialIndex;
+        uint32 pad1, pad2, pad3;
     };
 
     struct DirectionalLightConsts
@@ -69,6 +72,8 @@ namespace Graphics {
         DirectX::XMFLOAT4 Specular;
         float FresnelR0;
         float Roughness;
+        float pad0;
+        float pad1;
     };
 
     class FrameResource
@@ -78,8 +83,8 @@ namespace Graphics {
         FrameResource(uint32 passesCount, uint_t passCbSize, uint32 objsCount, uint_t objCbSize, uint32 matsCount, uint_t matCbSize);
         ~FrameResource();
 
-        uint64 Fence;
-        std::unique_ptr<ConstantBuffer> matCB;
+        uint64 Fence = 0;
+        std::unique_ptr<UploadBuffer> matBuffer;
         std::unique_ptr<ConstantBuffer> passCB;
         std::unique_ptr<ConstantBuffer> objCB;
     };
@@ -94,7 +99,7 @@ namespace Graphics {
 
         uint_t CalcPassCbSize() const { return Utility::CalcConstBufSize(sizeof(PerPassConsts)); }
         uint_t CalcObjCbSize() const { return Utility::CalcConstBufSize(sizeof(PerObjConsts)); }
-        uint_t CalcMatCbSize() const { return Utility::CalcConstBufSize(sizeof(PerMatConsts)); }
+        uint_t CalcMatBufferSize() const { return sizeof(PerMatConsts); }
 
         const uint32 PassesCountLimit;
         const uint32 ObjsCountLimit;

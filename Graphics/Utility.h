@@ -1,6 +1,8 @@
 #pragma once
 #include "stdafx.h"
 
+namespace Graphics
+{
 namespace Utility
 {
     std::string inline basename(std::string const& pathname) {
@@ -31,3 +33,4 @@ namespace Utility
         Pile::DebugPrintf("Error in %s@%d: %s\n", Utility::basename(__FILE__).c_str(), __LINE__, err.ErrorMessage()); \
         DebugBreak(); \
     }
+}

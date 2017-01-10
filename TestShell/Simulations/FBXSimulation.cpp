@@ -15,8 +15,8 @@ void FbxSimulation::Init(Viewport &viewport)
 {
     BaseSimulation::Init(viewport);
 
-    viewport.CreateMaterial(Material::kEmerald, "rigid");
-    viewport.CreateMaterial(Material::kSilver, "collider");
+    viewport.CreateMaterial(Material::kEmerald(), "rigid");
+    viewport.CreateMaterial(Material::kSilver(), "collider");
 
     const string path = "..\\..\\FBX\\";
     const string filetitle = "teapot001";

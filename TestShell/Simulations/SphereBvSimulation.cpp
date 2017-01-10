@@ -17,9 +17,9 @@ void SphereBvSimulation::Init(Viewport &viewport)
 {
     BaseSimulation::Init(viewport);
 
-    viewport.CreateMaterial(Material::kEmerald, "rigid");
-    viewport.CreateMaterial(Material::kJade, "collider");
-    viewport.CreateMaterial(Material::kSilver, "boundingVolume");
+    viewport.CreateMaterial(Material::kEmerald(), "rigid");
+    viewport.CreateMaterial(Material::kJade(), "collider");
+    viewport.CreateMaterial(Material::kSilver(), "boundingVolume");
 
     const string path = "..\\..\\FBX\\";
     const string filetitle = "shark";

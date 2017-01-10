@@ -1,16 +1,6 @@
 #pragma once
 #include "Interface\GraphicsConsts.h"
 
-enum class greLibraryMaterial {
-    kRed, kGreen, kBlue,
-    kTurquesa,
-    kEmerald,
-    kJade,
-    kObsidian,
-    kSilver,
-    kSize,
-};
-
 enum class greVertexType {
     kNormalTex,
     kColor,

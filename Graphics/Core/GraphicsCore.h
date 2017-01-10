@@ -20,41 +20,17 @@ typedef RECT D3D12_RECT;
 
 namespace Graphics
 {
+    namespace Utility
+    {
+        class FreeIndices;
+    }
     class CommandQueue;
     class FrameResources;
     class CommandContext;
     class RenderItem;
     class RenderSubItem;
     class LightsHolder;
-
-    // every free index stores next index of free index
-    // every taken index stores previous free index
-    class FreeIndices {
-    public:
-        FreeIndices(uint32 sceneObjectsCountLimit) :
-            // One more because first index servers to point to first free real index
-            indices_(sceneObjectsCountLimit + 1)
-        {
-            std::iota(std::begin(indices_), std::end(indices_), 1);
-        }
-
-        uint32 AcquireIndex() {
-            const uint32 res = indices_[0];
-            indices_[0] = indices_[res];
-            indices_[res] = 0;
-            return res - 1;
-        }
-
-        void ReleaseIndex(uint32 index) {
-            auto internalIndex = index + 1;
-            const uint32 prevFree = indices_[internalIndex];
-            indices_[internalIndex] = indices_[prevFree];
-            indices_[prevFree] = internalIndex;
-        }
-
-    private:
-        std::vector<uint32> indices_;
-    };
+    class MaterialsBuffer;
 
     struct InitParams {
         InitParams(uint32 sceneObjsCountLimit, uint32 passesCountLimit, uint32 matsCountLimit, uint32 frameResourcesCount) :
@@ -92,9 +68,9 @@ namespace Graphics
         CommandContext* GetCommandContext() { return commandContext_.get(); }
         Camera& GetCamera() { return camera_; }
 
-        FreeIndices& GetFreePerObjCbIndices() { return *freePerObjCbIndices_; }
-        FreeIndices& GetFreeMaterialCbIndices() { return *freeMaterialCbIndices_; }
+        Utility::FreeIndices& GetFreePerObjBufferIndices() { return *freePerObjBufferIndices_; }
         LightsHolder& GetLightsHolder() { return *lightsHolder_; }
+        MaterialsBuffer& GetMaterialsBuffer() { return *materialsBuffer_; }
 
         uint_t GetFrameResourcesCount() const;
 
@@ -111,6 +87,7 @@ namespace Graphics
         CD3DX12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView();
 
         void UpdatePassesCBs();
+        void UpdateMaterials();
         void DrawRenderSubItemInternal(const RenderItem& ri, RenderSubItem& rsi);
 
     private:
@@ -135,9 +112,9 @@ namespace Graphics
 
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> cbvHeap_;
 
-        std::unique_ptr<FreeIndices> freePerObjCbIndices_;
-        std::unique_ptr<FreeIndices> freeMaterialCbIndices_;
+        std::unique_ptr<Utility::FreeIndices> freePerObjBufferIndices_;
         std::unique_ptr<LightsHolder> lightsHolder_;
+        std::unique_ptr<MaterialsBuffer> materialsBuffer_;
 
         std::unique_ptr<D3D12_VIEWPORT> screenViewport_;
         D3D12_RECT scissorRect_;
@@ -145,12 +122,8 @@ namespace Graphics
         std::unique_ptr<FrameResources> frameResources_;
         uint32 currFrameResource_ = 0;
         uint32 passCbvOffset_;
-        uint32 matCbvOffset_;
         uint32 currentObject_;
 
         Camera camera_;
-
-        enum : uint8 { kNotUpdated, kUpdated };
-        std::vector<uint8> materialsUpdated_;
     };
 }

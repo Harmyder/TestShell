@@ -14,10 +14,11 @@ using namespace DirectX;
 namespace Viewer
 {
     namespace PrimitiveTopology {
-        Type kInvalid() { return Type(*(uint32*)&grePrimitiveTopology::kInvalid); }
-        Type kTriangleList() { return Type(*(uint32*)&grePrimitiveTopology::kTriangleList); }
-        Type kLineList() { return Type(*(uint32*)&grePrimitiveTopology::kLineList); }
-        grePrimitiveTopology::Type ToGr(Type t) { return *(grePrimitiveTopology::Type*)&t; }
+        CHECK_NAMESPACE_ENUM_TYPE(grePrimitiveTopology);
+        DEFINE_NAMESPACE_ENUM_MEMBER(grePrimitiveTopology, kInvalid);
+        DEFINE_NAMESPACE_ENUM_MEMBER(grePrimitiveTopology, kTriangleList);
+        DEFINE_NAMESPACE_ENUM_MEMBER(grePrimitiveTopology, kLineList);
+        DEFINE_NAMESPACE_ENUM_TOSRC(grePrimitiveTopology);
     }
 
     constexpr uint32 kSceneObjectsCountLimit = 100;
@@ -29,20 +30,18 @@ namespace Viewer
     constexpr auto kFarClipPlane = 200.f;
     const auto kVerticalFov = DirectX::XM_PIDIV4;
 
-    static_assert((int)Material::kSize == (int)greLibraryMaterial::kSize, "Viewport::Material and greLibraryMaterial must be of the same size.");
-    static greLibraryMaterial MaterialToLibraryMaterial(Material m) {
-        switch (m) {
-        case Material::kRed:      return greLibraryMaterial::kRed;
-        case Material::kGreen:    return greLibraryMaterial::kGreen;
-        case Material::kBlue:     return greLibraryMaterial::kBlue;
-        case Material::kTurquesa: return greLibraryMaterial::kTurquesa;
-        case Material::kEmerald:  return greLibraryMaterial::kEmerald;
-        case Material::kJade:     return greLibraryMaterial::kJade;
-        case Material::kObsidian: return greLibraryMaterial::kObsidian;
-        case Material::kSilver:   return greLibraryMaterial::kSilver;
-        default:
-            throw "Unknown material";
-        }
+    namespace Material {
+        CHECK_NAMESPACE_ENUM_TYPE(greLibraryMaterial);
+        DEFINE_NAMESPACE_ENUM_MEMBER(greLibraryMaterial, kInvalid);
+        DEFINE_NAMESPACE_ENUM_MEMBER(greLibraryMaterial, kRed);
+        DEFINE_NAMESPACE_ENUM_MEMBER(greLibraryMaterial, kGreen);
+        DEFINE_NAMESPACE_ENUM_MEMBER(greLibraryMaterial, kBlue);
+        DEFINE_NAMESPACE_ENUM_MEMBER(greLibraryMaterial, kTurquesa);
+        DEFINE_NAMESPACE_ENUM_MEMBER(greLibraryMaterial, kEmerald);
+        DEFINE_NAMESPACE_ENUM_MEMBER(greLibraryMaterial, kJade);
+        DEFINE_NAMESPACE_ENUM_MEMBER(greLibraryMaterial, kObsidian);
+        DEFINE_NAMESPACE_ENUM_MEMBER(greLibraryMaterial, kSilver);
+        DEFINE_NAMESPACE_ENUM_TOSRC(greLibraryMaterial);
     }
 
     Viewport::Viewport(HWND hWnd) : hwnd_(hWnd),
@@ -67,9 +66,9 @@ namespace Viewer
         grCreateDirectionalLight(XMFLOAT3(.9f, .9f, .8f), XMFLOAT3(0.f, 0.f, 1.f));
         grCreateDirectionalLight(XMFLOAT3(.3f, .3f, .37f), XMFLOAT3(0.f, 0.f, -1.f));
 
-        CreateMaterial(Material::kRed, "red");
-        CreateMaterial(Material::kGreen, "green");
-        CreateMaterial(Material::kBlue, "blue");
+        CreateMaterial(Material::kRed(), "red");
+        CreateMaterial(Material::kGreen(), "green");
+        CreateMaterial(Material::kBlue(), "blue");
 
         vector<Viewport::RenderItemTypeDesc> descs;
         auto type = PredefinedGeometryType::kCone;
@@ -113,8 +112,8 @@ namespace Viewer
         psos_.insert(make_pair(PsoType::kTransparent, grCreatePipelineStateObject(desc, rootSignature_)));
     }
 
-    void Viewport::CreateMaterial(Material material, const string& name) {
-        materials_.insert(make_pair(name, grCreateStandardMaterial(MaterialToLibraryMaterial(material), name)));
+    void Viewport::CreateMaterial(Material::Type material, const string& name) {
+        materials_.insert(make_pair(name, grCreatePredefinedMaterial(Material::ToSrc(material), name)));
     }
 
     void Viewport::BeforeDraw() {
@@ -250,7 +249,7 @@ namespace Viewer
 
         uint32 currentItem = 0;
         for (const auto& d : viewportVerticesDescs) {
-            const grtRenderSubItemDesc descEngine(d.name, d.transform, materials_.find(d.material)->second, PrimitiveTopology::ToGr(d.primitiveTopology));
+            const grtRenderSubItemDesc descEngine(d.name, d.transform, materials_.find(d.material)->second, PrimitiveTopology::ToSrc(d.primitiveTopology));
             descs.push_back(descEngine);
             itemsToVertices.push_back((uint32)vertices.size());
             vertices.emplace_back(d.vertices, (uint32)d.verticesCount);
@@ -275,7 +274,7 @@ namespace Viewer
 
         for (const auto& d : viewportTypeDescs) {
             uint_t geometryIndex = (uint_t)d.type;
-            const grtRenderSubItemDesc descEngine(d.name, d.transform, materials_.find(d.material)->second, PrimitiveTopology::ToGr(d.primitiveTopology));
+            const grtRenderSubItemDesc descEngine(d.name, d.transform, materials_.find(d.material)->second, PrimitiveTopology::ToSrc(d.primitiveTopology));
             descs.push_back(descEngine);
             const auto& currentGeometry = geometries_[geometryIndex];
             if (geometriesIndices[geometryIndex] == kNoIndex) {

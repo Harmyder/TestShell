@@ -171,15 +171,15 @@ void ComputeLights(Material mat,
         specular += S;
     }
 
-    for (int i = 0; i < pntLightsCount; ++i) {
-        ComputePointLight(mat, pl[i], pos, normal, toEye, A, D, S);
+    for (int j = 0; j < pntLightsCount; ++j) {
+        ComputePointLight(mat, pl[j], pos, normal, toEye, A, D, S);
         ambient += A;
         diffuse += D;
         specular += S;
     }
 
-    for (int i = 0; i < sptLightsCount; ++i) {
-        ComputeSpotLight(mat, sl[i], pos, normal, toEye, A, D, S);
+    for (int k = 0; k < sptLightsCount; ++k) {
+        ComputeSpotLight(mat, sl[k], pos, normal, toEye, A, D, S);
         ambient += A;
         diffuse += D;
         specular += S;

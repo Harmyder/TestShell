@@ -1,18 +1,24 @@
 #include "stdafx.h"
-
 #include "Core\Lighting.h"
+
+#include "Core\GraphicsCore.h"
+#include "Utility\FreeIndices.h"
 
 using namespace std;
 
 namespace Graphics
 {
+    void BufferDirty::SetAllFramesDirty() {
+        dirtyFramesCount_ = (uint32)GraphicsCore::GetInstance().GetFrameResourcesCount();
+    }
+
     static constexpr float CalcFresnelR0(float ior) {
         return (ior - 1) / (ior + 1) * (ior - 1) / (ior + 1);
     }
 
     // Roughness - guessed values
-    unique_ptr<Material> Material::Create(Type type, const string& name, uint32 cbIndex) {
-        auto ret = make_unique<Material>(name, cbIndex);
+    unique_ptr<Material> Material::CreatePredefined(Type type, const string& name, uint32 bufferIndex) {
+        auto ret = make_unique<Material>(name, bufferIndex);
         XMFLOAT4 ambient;
         XMFLOAT4 diffuse;
         XMFLOAT4 specular;
@@ -97,4 +103,53 @@ namespace Graphics
         sptLights_[sptLightsCount_] = make_unique<SpotLight>(sptLightsCount_);
         return sptLights_[sptLightsCount_++].get();
     }
+
+    MaterialsBufferIterator::MaterialsBufferIterator(Container& c) : container_(c) {
+        index_ = container_.freeIndices_->FirstTakenIndex();
+    }
+
+    MaterialsBufferIterator::value_type& MaterialsBufferIterator::operator* () { return *container_.materials_[index_]; }
+
+    MaterialsBufferIterator& MaterialsBufferIterator::operator++() {
+        index_ = container_.freeIndices_->NextTakenIndex(index_);
+        return *this;
+    }
+
+    MaterialsBufferIterator MaterialsBufferIterator::operator++(int) {
+        auto clone(*this);
+        index_ = container_.freeIndices_->NextTakenIndex(index_);
+        return clone;
+    }
+
+    MaterialsBuffer::MaterialsBuffer(uint32 materialsCountLimit) {
+        freeIndices_ = make_unique<Utility::FreeIndices>(materialsCountLimit);
+        materials_.resize(materialsCountLimit);
+    }
+
+    Material* MaterialsBuffer::Create(
+        const string& name,
+        const XMFLOAT4& ambient,
+        const XMFLOAT4& diffuse,
+        const XMFLOAT4& specular,
+        float fresnelR0,
+        float roughness)
+    {
+        auto bufferIndex = freeIndices_->AcquireIndex();
+        materials_[bufferIndex] = make_unique<Material>(name, bufferIndex);
+        materials_[bufferIndex]->Update(ambient, diffuse, specular, fresnelR0, roughness);
+        return materials_[bufferIndex].get();
+    }
+
+    Material* MaterialsBuffer::CreatePredefined(const std::string& name, Material::Type type) {
+        auto bufferIndex = freeIndices_->AcquireIndex();
+        materials_[bufferIndex] = Material::CreatePredefined(type, name, bufferIndex);
+        return materials_[bufferIndex].get();
+    }
+
+    void MaterialsBuffer::Destroy(Material* material) {
+        auto index = material->BufferIndex();
+        materials_[index].reset();
+        freeIndices_->ReleaseIndex(index);
+    }
+
 }

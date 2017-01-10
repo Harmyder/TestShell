@@ -35,32 +35,13 @@ grPipelineStateObject grCreatePipelineStateObject(const grtPipelineStateDesc& de
 void grSetPipelineStateObject(grPipelineStateObject pipelineState, grCommandContext commandContext);
 void grDestroyPipelineStateObject(grPipelineStateObject pipelineState);
 
-grMaterial grCreateMaterial(
-    const std::string& Name,
-    const DirectX::XMFLOAT4& Ambient,
-    const DirectX::XMFLOAT4& Diffuse,
-    const DirectX::XMFLOAT4& Specular,
-    float FresnelR0,
-    float Roughness);
-void grUpdateMaterial(
-    grMaterial material,
-    const DirectX::XMFLOAT4& ambient,
-    const DirectX::XMFLOAT4& diffuse,
-    const DirectX::XMFLOAT4& specular,
-    float fresnelR0,
-    float roughness);
+grMaterial grCreateMaterial(const std::string& Name, const DirectX::XMFLOAT4& Ambient, const DirectX::XMFLOAT4& Diffuse, const DirectX::XMFLOAT4& Specular, float FresnelR0, float Roughness);
+grMaterial grCreatePredefinedMaterial(greLibraryMaterial::Type lm, const std::string& name);
+void grUpdateMaterial(grMaterial material, const DirectX::XMFLOAT4& ambient, const DirectX::XMFLOAT4& diffuse, const DirectX::XMFLOAT4& specular, float fresnelR0, float roughness);
+void grDestroyMaterial(grMaterial material);
 
-grMaterial grCreateStandardMaterial(greLibraryMaterial lm, const std::string& name);
-
-grRenderItem grCreateRenderItem(
-    const std::vector<grtRenderVertices>& vertices,
-    const std::vector<grtRenderSubItemDesc>& renderItems,
-    const std::vector<uint32>& itemsToVertices,
-    uint32 vertexSize,
-    grCommandContext commandContext);
-
+grRenderItem grCreateRenderItem(const std::vector<grtRenderVertices>& vertices, const std::vector<grtRenderSubItemDesc>& renderItems, const std::vector<uint32>& itemsToVertices, uint32 vertexSize, grCommandContext commandContext);
 void grUpdateRenderSubItemTransform(grRenderItem renderItem, const std::string& name, const XMFLOAT4X4& transform);
-
 void grDestroyRenderItem(grRenderItem renderItem);
 
 void __vectorcall grSetCameraAffineTransform(FXMMATRIX affine, XMVECTOR translation);

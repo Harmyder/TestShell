@@ -36,7 +36,7 @@ namespace Graphics
     FrameResource::FrameResource(uint32 passesCount, uint_t passCbSize, uint32 objsCount, uint_t objCbSize, uint32 matsCount, uint_t matCbSize) {
         passCB = make_unique<ConstantBuffer>(L"fr passes", passesCount, passCbSize);
         objCB  = make_unique<ConstantBuffer>(L"fr objs", objsCount, objCbSize);
-        matCB  = make_unique<ConstantBuffer>(L"fr mats", matsCount, matCbSize);
+        matBuffer  = make_unique<UploadBuffer>(L"fr mats", matsCount, matCbSize, false);
     }
 
     FrameResource::~FrameResource() {}
