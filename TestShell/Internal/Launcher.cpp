@@ -17,13 +17,11 @@ void Launcher::Init(UserInteractor *userInteractor, BaseSimulation *simulation) 
     userInteractor_ = userInteractor;
     simulation_ = simulation;
     isMustStop_ = false;
-
-    simulation_->Init(userInteractor_->GetViewport());
 }
 
 void Launcher::Loop() {
     const float dT = userInteractor_->GetDeltaTime();
-    for (int i = 0 ; !IsMustStop(); ++i)
+    while(!IsMustStop() && simulation_->IsOngoing())
     {
         simulation_->BeforeStep();
         userInteractor_->BeforeStep();

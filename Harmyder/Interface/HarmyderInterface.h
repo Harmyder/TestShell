@@ -18,7 +18,6 @@ void hfSetTransform(hhRigidBody rigidBody, const htTransform& transform);
 const htTransform& hfGetTransform(hhRigidBody rigidBody);
 void hfDestroyRigidBody(hhRigidBody rigidBody);
 
-hhFlock hfCreateFlock(const char* name);
-void hfPopulateFlock(htFlockEntity *types, uint32 typesCount, float density);
+hhFlock hfCreateFlock(const char* name, const htFlockEntity &type);
 void hfDestroyFlock(hhFlock flock);
 

@@ -33,10 +33,10 @@ namespace Graphics
         }
     }
 
-    FrameResource::FrameResource(uint32 passesCount, uint_t passCbSize, uint32 objsCount, uint_t objCbSize, uint32 matsCount, uint_t matCbSize) {
-        passCB = make_unique<ConstantBuffer>(L"fr passes", passesCount, passCbSize);
-        objCB  = make_unique<ConstantBuffer>(L"fr objs", objsCount, objCbSize);
-        matBuffer  = make_unique<UploadBuffer>(L"fr mats", matsCount, matCbSize, false);
+    FrameResource::FrameResource(uint32 passesCount, uint32 objsCount, uint32 matsCount) {
+        passCB = make_unique<ConstantBuffer<PerPassConsts>>(L"fr passes", passesCount);
+        objCB  = make_unique<ConstantBuffer<PerObjConsts>>(L"fr objs", objsCount);
+        matBuffer  = make_unique<UploadBuffer<PerMatConsts>>(L"fr mats", matsCount, false);
     }
 
     FrameResource::~FrameResource() {}
@@ -47,7 +47,7 @@ namespace Graphics
         MatsCountLimit(matsCount)
     {
         for (uint_t i = 0; i < count; ++i) {
-            resources_.push_back(make_unique<FrameResource>(passesCount, sizeof(PerPassConsts), objsCount, sizeof(PerObjConsts), matsCount, sizeof(PerMatConsts)));
+            resources_.push_back(make_unique<FrameResource>(passesCount, objsCount, matsCount));
         }
     }
 

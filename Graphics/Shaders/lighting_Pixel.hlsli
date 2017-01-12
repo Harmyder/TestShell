@@ -1,9 +1,10 @@
-#include "cb.hlsli"
-#include "normalTex_InputLayout.hlsli"
-
 float4 main(VertexOut pin) : SV_Target
 {
+#ifdef SETTINGS_LIGHTING_INSTANCED
+    MaterialData matData = gMaterialsData[pin.MatIndex];
+#else
     MaterialData matData = gMaterialsData[gMaterialIndex];
+#endif
 
     const float shininess = (1.0f - matData.Roughness) * 256.f;
     Material mat;

@@ -67,11 +67,10 @@ void hfDestroyRigidBody(hhRigidBody rigidBody) {
     delete ri;
 }
 
-hhFlock hfCreateFlock(const char*) {
-    return hhFlock(nullptr);
-}
-
-void hfPopulateFlock(htFlockEntity *, uint32, float) {
+hhFlock hfCreateFlock(const char* name, const htFlockEntity &type) {
+    unique_ptr<Flock> flock;
+    Flock::Create(name, *(FlockEntity*)&type, flock);
+    return hhFlock(flock.release());
 }
 
 void hfDestroyFlock(hhFlock flock) {

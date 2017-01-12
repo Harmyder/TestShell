@@ -8,25 +8,29 @@ namespace Pipeline {
 
 namespace Viewer {
     class Viewport;
+    class GameInput;
 }
 
 class BaseSimulation : Pile::NamedByCopyObject
 {
 public:
-    BaseSimulation(const char* name);
+    BaseSimulation(const char* name, Viewer::Viewport& viewport, const Viewer::GameInput& gameInput);
     ~BaseSimulation();
 
 public:
-    virtual void Init(Viewer::Viewport& viewport);
+    virtual void Init() {}
     void ImportScene(const std::string& path, const std::string& filetitle);
 
-    virtual void BeforeStep() ;
+    virtual void BeforeStep();
     virtual void Step      (float deltaTime) = 0;
-    virtual void AfterStep ();
+    virtual void AfterStep();
 
+    bool IsOngoing() { return isOngoing_; }
     virtual void Quit() = 0;
 
 protected:
     std::unique_ptr<Pipeline::UserScene> scene_;
-    Viewer::Viewport *viewport_;
+    Viewer::Viewport& viewport_;
+    const Viewer::GameInput& gameInput_;
+    bool isOngoing_ = true;
 };

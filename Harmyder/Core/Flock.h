@@ -3,30 +3,34 @@
 
 namespace Harmyder
 {
-    template <class BV>
-    class RigidBodyBV;
-    class Mesh;
+    class PointCloudRigid;
 
     struct FlockEntity {
-        const std::shared_ptr<Mesh> mesh;
-        uint32 count;
-        float meanX;
-        float stdDevX;
+        const PointCloudRigid* pointCloud;
+        const Sphere* sphereBV;
+        uint8 count[3];
+        float mean;
+        // float stdDevX; -- not implemented, for now all of the same size
     };
 
     class Flock
     {
     public:
-        Flock();
-
-        static void Create(FlockEntity *types, uint32 typesCount, Flock *&flock);
+        static void Create(const std::string& name, FlockEntity& type, std::unique_ptr<Flock>& flock);
 
     private:
+        Flock(const std::string& name, const float scale) : name_(name), scale_(scale) {}
+
+    private:
+        const std::string name_;
+        const PointCloudRigid* pointCloud_;
+        const Sphere* sphereBV_;
+
+        const float scale_; // global scale for now
         struct Piece {
-            RigidBodyBV<Sphere> rb;
-            const XMFLOAT3 scale;
+            XMFLOAT4X3 transform;
+            //float scale; -- not implemented, all of the same size for now, use scale_ instead
         };
         std::vector<Piece> pieces_;
-
     };
 }

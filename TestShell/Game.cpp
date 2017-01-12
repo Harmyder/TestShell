@@ -9,10 +9,6 @@
 #include "Pipeline/Importer/FBXImporter.h"
 #include "Pipeline/SceneManager/SceneManager.h"
 
-#include "Viewer/Menu/Menu.h"
-#include "Viewer/Menu/MenuWalker.h"
-#include "GameCommand.h"
-
 using namespace std;
 using namespace Pipeline;
 using namespace Viewer;
@@ -33,19 +29,13 @@ int Game::Run(HINSTANCE hInstance)
         SimulationManager simulationManager;
         simulationManager.Init();
 
-        Menu menu;
-        FillSimulationsMenu(menu, simulationManager);
-        MenuWalker menuWalker(&menu);
-        userInteractor_->SetMenuWalker(&menuWalker);
-
         launcher_ = make_unique<Launcher>();
-        nextSimulation_ = 0; // Start with first simulation
-        while (nextSimulation_ != NO_SIMULATION)
+        int nextSimulation_ = -1; // Start with first simulation
+        while (++nextSimulation_ < simulationManager.GetFactoriesCount())
         {
             BaseFactory *factory = simulationManager.GetFactory(nextSimulation_);
-            auto simulation = factory->Create();
-
-            nextSimulation_ = NO_SIMULATION;
+            auto simulation = factory->Create(userInteractor_->GetViewport(), userInteractor_->GetGameInput());
+            simulation->Init();
 
             launcher_->Init(userInteractor_.get(), simulation.get());
             launcher_->Loop();
@@ -58,29 +48,6 @@ int Game::Run(HINSTANCE hInstance)
     FbxImporter::GetInstance().Close();
 
     return 0;
-}
-
-void Game::SetNextSimulation(const uint_t nextSimulation)
-{
-    nextSimulation_ = nextSimulation;
-    launcher_->SetMustStop();
-}
-
-void Game::FillSimulationsMenu(Menu &menu, const SimulationManager &simulationManager)
-{
-    const uint_t factoriesCount = simulationManager.GetFactoriesCount();
-    if (factoriesCount > 0)
-    {
-        const uint_t simsNodeId = menu.AddNode(Menu::ROOT_ID, "Simulations");
-        for (uint_t i = 0; i < factoriesCount; i++)
-        {
-            GameCommandSetNextSimulation *command = new GameCommandSetNextSimulation((uint32)i);
-            command->SetReceiver(this);
-
-            const char *title = simulationManager.GetFactory(i)->GetName().c_str();
-            menu.AddLeaf(simsNodeId, command, title);
-        }
-    }
 }
 
 void Game::Step(float dT)

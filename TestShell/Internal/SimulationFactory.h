@@ -3,6 +3,12 @@
 
 #include "Pile/Attribute/NamedObject.h"
 
+namespace Viewer
+{
+    class Viewport;
+    class GameInput;
+}
+
 class BaseSimulation;
 
 class BaseFactory : public Pile::NamedByCopyObject
@@ -10,7 +16,7 @@ class BaseFactory : public Pile::NamedByCopyObject
 public:
     BaseFactory(const char *name) : NamedByCopyObject(name) {}
 
-    virtual std::unique_ptr<BaseSimulation> Create() = 0;
+    virtual std::unique_ptr<BaseSimulation> Create(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) = 0;
     virtual ~BaseFactory() {}
 };
 
@@ -20,8 +26,8 @@ class SimulationFactory : public BaseFactory
 public:
     SimulationFactory(const char *name) : BaseFactory(name) {}
 
-    virtual std::unique_ptr<BaseSimulation> Create() {
-        return std::make_unique<T>();
+    virtual std::unique_ptr<BaseSimulation> Create(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) {
+        return std::make_unique<T>(viewport, gameInput);
     }
 };
 

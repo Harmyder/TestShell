@@ -4,7 +4,6 @@
 #include <WindowsX.h>
 
 #include "Pile\Timer\Timer.h"
-#include "Menu\MenuWalker.h"
 #include "GameInput.h"
 #include "Viewport.h"
 #include "CameraController.h"
@@ -18,8 +17,7 @@ namespace Viewer
 {
     UserInteractor* UserInteractor::s_Instance = NULL;
 
-    UserInteractor& UserInteractor::GetInstance()
-    {
+    UserInteractor& UserInteractor::GetInstance() {
         return *s_Instance;
     }
 
@@ -35,8 +33,7 @@ namespace Viewer
 
     UserInteractor::~UserInteractor() {}
 
-    HWND UserInteractor::CreateDemoWindow(HINSTANCE instance, uint32 width, uint32 height)
-    {
+    HWND UserInteractor::CreateDemoWindow(HINSTANCE instance, uint32 width, uint32 height) {
         RECT rc = { 0, 0, (LONG)width, (LONG)height };
         char *szWindowClass = "Window class";
 
@@ -65,8 +62,7 @@ namespace Viewer
         return wnd;
     }
 
-    LRESULT CALLBACK UserInteractor::WndProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam)
-    {
+    LRESULT CALLBACK UserInteractor::WndProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         UserInteractor &userInteractor = UserInteractor::GetInstance();
         switch (msg)
         {
@@ -126,20 +122,17 @@ namespace Viewer
     void UserInteractor::OnGotFocus() {
     }
 
-    void UserInteractor::OnMouseLDown(int x, int y)
-    {
+    void UserInteractor::OnMouseLDown(int x, int y) {
         SetCapture(viewport_->GetHwnd());
         gameInput_->OnMouseLDown(x, y);
     }
 
-    void UserInteractor::OnMouseRDown(int x, int y)
-    {
+    void UserInteractor::OnMouseRDown(int x, int y) {
         SetCapture(viewport_->GetHwnd());
         gameInput_->OnMouseRDown(x, y);
     }
 
-    void UserInteractor::OnMouseMove(int x, int y)
-    {
+    void UserInteractor::OnMouseMove(int x, int y) {
         POINT p = { x, y };
         if (cameraCtrl_->IsTrackingMouse()) {
             if (cameraCtrl_->IsStartedTrackingMouse()) SetCapture(viewport_->GetHwnd());
@@ -166,51 +159,29 @@ namespace Viewer
         gameInput_->OnMouseMove(x, y);
     }
 
-    void UserInteractor::OnMouseLUp(int x, int y)
-    {
+    void UserInteractor::OnMouseLUp(int x, int y) {
         ReleaseCapture();
         gameInput_->OnMouseLUp(x, y);
     }
 
-    void UserInteractor::OnMouseRUp(int x, int y)
-    {
+    void UserInteractor::OnMouseRUp(int x, int y) {
         ReleaseCapture();
         gameInput_->OnMouseRUp(x, y);
     }
 
-    void UserInteractor::OnKeyDown(int keyCode)
-    {
-        switch (keyCode)
-        {
-        case VK_LEFT:
-            menuWalker_->GoParent();
-            break;
-        case VK_RIGHT:
-            menuWalker_->GoChild();
-            break;
-        case VK_UP:
-            menuWalker_->GoPrevious();
-            break;
-        case VK_DOWN:
-            menuWalker_->GoNextHandle();
-            break;
-        default:
-            gameInput_->OnKeyDown(keyCode);
-        }
+    void UserInteractor::OnKeyDown(int keyCode) {
+        gameInput_->OnKeyDown(keyCode);
     }
 
-    void UserInteractor::OnKeyUp(int keyCode)
-    {
+    void UserInteractor::OnKeyUp(int keyCode) {
         gameInput_->OnKeyUp(keyCode);
     }
 
-    void UserInteractor::OnWheelRotate(int delta)
-    {
+    void UserInteractor::OnWheelRotate(int delta) {
         gameInput_->OnWheelRotate(delta);
     }
 
-    void UserInteractor::TreatMessages()
-    {
+    void UserInteractor::TreatMessages() {
         MSG  msg;
 
         while (::PeekMessage(&msg, NULL, NULL, NULL, PM_REMOVE))
@@ -220,17 +191,16 @@ namespace Viewer
         }
     }
 
-    void UserInteractor::BeforeStep()
-    {
+    void UserInteractor::BeforeStep() {
         uint64 newStartTicks = timer_->GetCounts();
         const float frameTime = static_cast<float>((newStartTicks - startTicks_) * timer_->GetInvFrequency());
         startTicks_ = newStartTicks;
 
         cameraCtrl_->Update(frameTime);
+        gameInput_->PreUpdate();
     }
 
-    void UserInteractor::AfterStep()
-    {
+    void UserInteractor::AfterStep() {
         WaitForDeltaTime();
         gameInput_->ClearDeltas();
         TreatMessages();
@@ -241,8 +211,7 @@ namespace Viewer
         viewport_->DrawReferenceFrame();
     }
 
-    void UserInteractor::WaitForDeltaTime()
-    {
+    void UserInteractor::WaitForDeltaTime() {
         uint64 dtInTicks = static_cast<uint64>(dT_ *timer_->GetFrequency());
         uint64 currentDtInTicks = 0;
         do

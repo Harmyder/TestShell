@@ -22,6 +22,7 @@ namespace Viewer
     }
 
     constexpr uint32 kSceneObjectsCountLimit = 100;
+    constexpr uint32 kInstancesCountLimit = 1000;
     constexpr uint32 kPassesCountLimit = 1;
     constexpr uint32 kMaterialsCountLimit = 10;
     constexpr uint32 kFrameResourcesCount = 3;
@@ -49,7 +50,7 @@ namespace Viewer
         referenceFrame_(nullptr),
         grid_(nullptr)
     {
-        grInit(hwnd_, { kSceneObjectsCountLimit, kPassesCountLimit, kMaterialsCountLimit, kFrameResourcesCount });
+        grInit(hwnd_, { kSceneObjectsCountLimit, kInstancesCountLimit, kPassesCountLimit, kMaterialsCountLimit, kFrameResourcesCount });
         rootSignature_ = grCreateRootSignature();
         PreparePsos();
 
@@ -70,7 +71,7 @@ namespace Viewer
         CreateMaterial(Material::kGreen(), "green");
         CreateMaterial(Material::kBlue(), "blue");
 
-        vector<Viewport::RenderItemTypeDesc> descs;
+        vector<RenderItemTypeDesc> descs;
         auto type = PredefinedGeometryType::kCone;
         descs.emplace_back("X", type, Pile::Identity4x4(), "red", PrimitiveTopology::kTriangleList());
         descs.emplace_back("Y", type, Pile::Identity4x4(), "green", PrimitiveTopology::kTriangleList());
@@ -214,28 +215,38 @@ namespace Viewer
         return result;
     }
 
-    uint_t Viewport::CreateRenderItemOpaque(const Viewport::DescsVertices& viewportVerticesDescs, uint32 vertexSize) {
+    RenderItemId Viewport::CreateRenderItemOpaque(const DescsVertices& viewportVerticesDescs, uint32 vertexSize) {
         grRenderItem ri = CreateRenderItemInternal(viewportVerticesDescs, vertexSize);
         renderItemsOpaque_.push_back(ri);
-        return renderItemsOpaque_.size() - 1;
+        return --renderItemsOpaque_.end();
     }
 
-    uint_t Viewport::CreateRenderItemOpaque(const Viewport::DescsTypes& viewportTypeDescs) {
+    RenderItemId Viewport::CreateRenderItemOpaque(const DescsTypes& viewportTypeDescs) {
         grRenderItem ri = CreateRenderItemInternal(viewportTypeDescs);
         renderItemsOpaque_.push_back(ri);
-        return renderItemsOpaque_.size() - 1;
+        return --renderItemsOpaque_.end();
     }
 
-    uint_t Viewport::CreateRenderItemTransparent(const Viewport::DescsVertices& viewportVerticesDescs, uint32 vertexSize) {
+    RenderItemId Viewport::CreateRenderItemTransparent(const DescsVertices& viewportVerticesDescs, uint32 vertexSize) {
         grRenderItem ri = CreateRenderItemInternal(viewportVerticesDescs, vertexSize);
         renderItemsTransparent_.push_back(ri);
-        return renderItemsTransparent_.size() - 1;
+        return --renderItemsTransparent_.end();
     }
 
-    uint_t Viewport::CreateRenderItemTransparent(const Viewport::DescsTypes& viewportTypeDescs) {
+    RenderItemId Viewport::CreateRenderItemTransparent(const DescsTypes& viewportTypeDescs) {
         grRenderItem ri = CreateRenderItemInternal(viewportTypeDescs);
         renderItemsTransparent_.push_back(ri);
-        return renderItemsTransparent_.size() - 1;
+        return --renderItemsTransparent_.end();
+    }
+
+    void Viewport::DestroyRenderItemOpaque(const StructRenderItemId& id) {
+        grDestroyRenderItem(*id.Value);
+        renderItemsOpaque_.erase(id.Value);
+    }
+
+    void Viewport::DestroyRenderItemTransparent(const StructRenderItemId& id) {
+        grDestroyRenderItem(*id.Value);
+        renderItemsTransparent_.erase(id.Value);
     }
 
     grRenderItem Viewport::CreateRenderItemInternal(const DescsVertices& viewportVerticesDescs, uint32 vertexSize) {

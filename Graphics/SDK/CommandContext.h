@@ -18,6 +18,7 @@ namespace Graphics
         void Initialize();
 
         void Reset();
+        void Close();
         void Flush(bool wait);
 
         void SetRootSignature(RootSignature& rootSignature);

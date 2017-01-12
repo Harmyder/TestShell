@@ -10,6 +10,7 @@ namespace Viewer
         struct InputEnum {
             enum Input {
                 kMenuKey,
+                kSpaceKey,
                 kEscapeKey,
 
                 kKeyA,
@@ -28,9 +29,9 @@ namespace Viewer
         };
         using Input = InputEnum::Input;
 
-        bool IsPressed(Input i) const { return buttons_[0][i]; }
-        bool IsFirstPressed(Input i) const { return buttons_[0][i] && !buttons_[1][i]; }
-        bool IsFirstReleased(Input i) const { return buttons_[1][i] && !buttons_[0][i]; }
+        bool IsPressed(Input i) const { return buttons_[FIRST][i]; }
+        bool IsFirstPressed(Input i) const { return buttons_[FIRST][i] && !buttons_[FOLLOWED][i]; }
+        bool IsFirstReleased(Input i) const { return buttons_[FOLLOWED][i] && !buttons_[FIRST][i]; }
 
         float GetDurationPressed(Input i) { return holdDuration_[(uint32)i]; }
 
@@ -62,6 +63,8 @@ namespace Viewer
         struct Point { int x, y; };
         Point mousePrevious_;
         Point mouseCurrent_;
+
+        enum { FIRST = 0, FOLLOWED = 1 };
 
         int wheelDelta_;
 

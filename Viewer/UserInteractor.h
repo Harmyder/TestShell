@@ -23,13 +23,12 @@ namespace Viewer
         ~UserInteractor();
 
         Viewport& GetViewport() { return *viewport_; }
+        GameInput& GetGameInput() { return *gameInput_; }
 
     private:
         static UserInteractor *s_Instance;
 
     public:
-        void SetMenuWalker(MenuWalker *menuWalker) { menuWalker_ = menuWalker; }
-
         void SetDeltaTime(float dT) { dT_ = dT; }
         float GetDeltaTime() const { return dT_; }
 
@@ -60,8 +59,6 @@ namespace Viewer
         void OnWheelRotate(int delta);
 
     private:
-        MenuWalker *menuWalker_;
-
         std::unique_ptr<GameInput> gameInput_;
         std::unique_ptr<Viewport> viewport_;
         std::unique_ptr<CameraController> cameraCtrl_;

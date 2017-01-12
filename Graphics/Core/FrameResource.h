@@ -6,11 +6,18 @@
 #include "Core\Lighting.h"
 
 namespace Graphics {
-    class ConstantBuffer;
-    class UploadBuffer;
+    template<class E> class ConstantBuffer;
+    template<class E> class UploadBuffer;
     class CommandQueue;
 
     struct PerObjConsts
+    {
+        DirectX::XMFLOAT4X4 World = Pile::Identity4x4();
+        uint32 MaterialIndex;
+        uint32 pad1, pad2, pad3;
+    };
+
+    struct InstanceData
     {
         DirectX::XMFLOAT4X4 World = Pile::Identity4x4();
         uint32 MaterialIndex;
@@ -80,13 +87,14 @@ namespace Graphics {
     {
         friend class Graphics;
     public:
-        FrameResource(uint32 passesCount, uint_t passCbSize, uint32 objsCount, uint_t objCbSize, uint32 matsCount, uint_t matCbSize);
+        FrameResource(uint32 passesCount, uint32 objsCount, uint32 matsCount);
         ~FrameResource();
 
         uint64 Fence = 0;
-        std::unique_ptr<UploadBuffer> matBuffer;
-        std::unique_ptr<ConstantBuffer> passCB;
-        std::unique_ptr<ConstantBuffer> objCB;
+        std::unique_ptr<UploadBuffer<PerMatConsts>> matBuffer;
+        std::unique_ptr<ConstantBuffer<PerPassConsts>> passCB;
+        std::unique_ptr<ConstantBuffer<PerObjConsts>> objCB;
+        std::unique_ptr<UploadBuffer<InstanceData>> instanceBuffer;
     };
 
     class FrameResources {

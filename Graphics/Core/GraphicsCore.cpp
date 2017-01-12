@@ -34,7 +34,6 @@ namespace Graphics
 #if _DEBUG
         Microsoft::WRL::ComPtr<ID3D12Debug> debugInterface;
         if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface)))) {
-            //Direct3D will enable extra debugging and send debug messages to the VC++ output window
             debugInterface->EnableDebugLayer();
         }
         else {

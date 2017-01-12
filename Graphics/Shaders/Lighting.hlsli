@@ -1,4 +1,5 @@
-#include "consts.shared"
+#ifndef __LIGHTING__
+#define __LIGHTING__
 
 struct Material
 {
@@ -185,3 +186,5 @@ void ComputeLights(Material mat,
         specular += S;
     }
 }
+
+#endif

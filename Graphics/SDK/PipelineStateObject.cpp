@@ -3,8 +3,8 @@
 
 #include "SDK\RootSignature.h"
 
-#include "Shaders\Compiled\normalTex_Pixel.h"
-#include "Shaders\Compiled\normalTex_Vertex.h"
+#include "Shaders\Compiled\lighting_Pixel.h"
+#include "Shaders\Compiled\lighting_Vertex.h"
 #include "Shaders\Compiled\color_Pixel.h"
 #include "Shaders\Compiled\color_Vertex.h"
 
@@ -70,12 +70,12 @@ namespace Graphics
         psoDesc.InputLayout = { inputLayout_.data(), (UINT)inputLayout_.size() };
         psoDesc.pRootSignature = rootSignature_->GetRootSignature();
         if (vertexType_ == VertexType::kNormalTex) {
-            psoDesc.VS = { g_shnormalTex_Vertex, sizeof(g_shnormalTex_Vertex) };
-            psoDesc.PS = { g_shnormalTex_Pixel, sizeof(g_shnormalTex_Pixel) };
+            psoDesc.VS = { gsh_lighting_Vertex, sizeof(gsh_lighting_Vertex) };
+            psoDesc.PS = { gsh_lighting_Pixel, sizeof(gsh_lighting_Pixel) };
         }
         else if (vertexType_ == VertexType::kColor) {
-            psoDesc.VS = { g_shcolor_Vertex, sizeof(g_shcolor_Vertex) };
-            psoDesc.PS = { g_shcolor_Pixel, sizeof(g_shcolor_Pixel) };
+            psoDesc.VS = { gsh_color_Vertex, sizeof(gsh_color_Vertex) };
+            psoDesc.PS = { gsh_color_Pixel, sizeof(gsh_color_Pixel) };
         }
         else throw "Unknown vertex type";
         psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);

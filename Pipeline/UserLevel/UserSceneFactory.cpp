@@ -23,7 +23,7 @@ using namespace Viewer;
 
 namespace Pipeline
 {
-    static Viewport::DescsVertices BuildMeshes(UserScene &userScene, const InputScene &inputScene) {
+    static DescsVertices BuildMeshes(UserScene &userScene, const InputScene &inputScene) {
         const uint_t meshesCount = inputScene.GetMeshesCount();
         for (uint_t i = 0; i < meshesCount; ++i) {
             const InputMesh &inputMesh = inputScene.GetMesh(i);
@@ -33,19 +33,19 @@ namespace Pipeline
             userScene.AddMesh(mesh);
         }
 
-        Viewport::DescsVertices descs;
+        DescsVertices descs;
         descs.reserve(meshesCount);
         for (uint_t i = 0; i < meshesCount; ++i) {
             const auto& mesh = userScene.GetMesh(i);
             const auto& mg = mesh.GetGeometry();
 
-            Viewport::RenderItemVerticesDesc desc(mesh.GetName(), (uint8*)mg.Vertices.data(), (uint32)mg.Vertices.size(), mesh.GetTransform(), "rigid", PrimitiveTopology::kTriangleList());
+            RenderItemVerticesDesc desc(mesh.GetName(), (uint8*)mg.Vertices.data(), (uint32)mg.Vertices.size(), mesh.GetTransform(), "rigid", PrimitiveTopology::kTriangleList());
             descs.push_back(desc);
         }
         return descs;
     }
 
-    static Viewport::DescsTypes BuildColliders(UserScene &userScene, const InputScene &inputScene) {
+    static DescsTypes BuildColliders(UserScene &userScene, const InputScene &inputScene) {
         const uint_t collidersCount = inputScene.GetCollidersCount();
         for (uint_t i = 0; i < collidersCount; ++i) {
             const InputCollider &inputCollider = inputScene.GetCollider(i);
@@ -72,7 +72,7 @@ namespace Pipeline
             userScene.AddCollider(collider);
         }
 
-        Viewport::DescsTypes descs;
+        DescsTypes descs;
         descs.reserve(collidersCount);
         for (uint_t i = 0; i < collidersCount; ++i) {
             const auto& collider = userScene.GetCollider(i);
@@ -91,19 +91,15 @@ namespace Pipeline
             XMMATRIX transform = XMLoadFloat4x4(&collider.GetTransform( ));
             transform = XMLoadFloat4x4(&collider.GetScalingTransform()) * transform;
             XMFLOAT4X4 t; XMStoreFloat4x4(&t, transform);
-            Viewport::RenderItemTypeDesc d(collider.GetName(), type, t, "collider", PrimitiveTopology::kTriangleList());
+            RenderItemTypeDesc d(collider.GetName(), type, t, "collider", PrimitiveTopology::kTriangleList());
             descs.push_back(d);
         }
 
         return descs;
     }
 
-    void UserSceneFactory::Build(UserScene &userScene, const InputScene &inputScene)
+    RenderItemsDescriptions UserSceneFactory::Build(UserScene &userScene, const InputScene &inputScene)
     {
-        const auto vd = BuildMeshes(userScene, inputScene);
-        const auto td = BuildColliders(userScene, inputScene);
-
-        if (vd.size() > 0) userScene.GetViewport().CreateRenderItemOpaque(vd, sizeof(VertexNormalTex));
-        if (td.size() > 0) userScene.GetViewport().CreateRenderItemOpaque(td);
+        return { move(BuildMeshes(userScene, inputScene)), move(BuildColliders(userScene, inputScene)) };
     }
 }

@@ -2,6 +2,11 @@
 
 #include "Pile/Attribute/NonCopyable.h"
 
+namespace Viewer
+{
+    struct RenderItemsDescriptions;
+}
+
 namespace Pipeline
 {
     class InputScene;
@@ -10,6 +15,6 @@ namespace Pipeline
     class UserSceneFactory : public Pile::NonCopyable
     {
     public:
-        void Build(UserScene &userScene, const InputScene &inputScene);
+        Viewer::RenderItemsDescriptions Build(UserScene &userScene, const InputScene &inputScene);
     };
 }

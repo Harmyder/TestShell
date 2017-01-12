@@ -1,5 +1,4 @@
-#include "cb.hlsli"
-#include "color_InputLayout.hlsli"
+#include "InputLayouts\color.hlsli"
 
 float4 main(VertexOut pin) : SV_Target
 {

@@ -20,10 +20,10 @@ struct htTransform {
     float r3[4];
 };
 
-struct hhRigidBody;
+struct hhPointCloudRigid;
 struct htFlockEntity {
-    hhRigidBody body;
-    uint32 count;
+    hhPointCloudRigid pointCloud;
+    uint8 count[3];
     float meanX;
-    float stdDevX;
+    // float stdDevX; -- not implemented, all of the same size for now
 };

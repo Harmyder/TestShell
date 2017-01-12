@@ -33,14 +33,16 @@ namespace Graphics
     class MaterialsBuffer;
 
     struct InitParams {
-        InitParams(uint32 sceneObjsCountLimit, uint32 passesCountLimit, uint32 matsCountLimit, uint32 frameResourcesCount) :
+        InitParams(uint32 sceneObjsCountLimit, uint32 instancesCountLimit, uint32 passesCountLimit, uint32 matsCountLimit, uint32 frameResourcesCount) :
             SceneObjectsCountLimit(sceneObjsCountLimit),
+            InstancesCountLimit(instancesCountLimit),
             PassesCountLimit(passesCountLimit),
             MaterialsCountLimit(matsCountLimit),
             FrameResourcesCount(frameResourcesCount)
         {}
 
         uint32 SceneObjectsCountLimit;
+        uint32 InstancesCountLimit;
         uint32 PassesCountLimit;
         uint32 MaterialsCountLimit;
         uint32 FrameResourcesCount;
@@ -65,6 +67,7 @@ namespace Graphics
         void DrawRenderItem(RenderItem& ri);
         void DrawRenderSubItem(RenderItem& ri, const std::string& name);
 
+        CommandQueue* GetCommandQueue() { return commandQueue_.get(); }
         CommandContext* GetCommandContext() { return commandContext_.get(); }
         Camera& GetCamera() { return camera_; }
 

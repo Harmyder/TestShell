@@ -6,6 +6,7 @@
 
 struct grInitParams {
     uint32 SceneObjectsCountLimit;
+    uint32 InstancesCountLimit;
     uint32 PassesCountLimit;
     uint32 MaterialsCountLimit;
     uint32 FrameResourcesCount;

@@ -40,6 +40,43 @@ namespace Viewer
         Type kSilver();
     }
 
+    using RenderItemId = std::list<grRenderItem>::const_iterator;
+    struct StructRenderItemId { StructRenderItemId(RenderItemId id) : Value(id) {} RenderItemId Value; };
+
+    struct RenderItemDesc {
+        RenderItemDesc(const std::string& name, const XMFLOAT4X4& transform, const std::string& material, PrimitiveTopology::Type primitiveTopology) :
+            name(name), transform(transform), material(material), primitiveTopology(primitiveTopology) {}
+
+        const std::string name;
+        const XMFLOAT4X4 transform;
+        const std::string material;
+        const PrimitiveTopology::Type primitiveTopology;
+    };
+    struct RenderItemVerticesDesc : RenderItemDesc {
+        RenderItemVerticesDesc(const std::string& name, const uint8* vertices, uint32 verticesCount, const XMFLOAT4X4& transform, const std::string& material, PrimitiveTopology::Type primitiveTopology) :
+            RenderItemDesc(name, transform, material, primitiveTopology),
+            vertices(vertices),
+            verticesCount(verticesCount)
+        {}
+
+        const uint8* vertices;
+        const uint32 verticesCount;
+    };
+    struct RenderItemTypeDesc : RenderItemDesc {
+        RenderItemTypeDesc(const std::string& name, const PredefinedGeometryType type, const XMFLOAT4X4& transform, const std::string& material, PrimitiveTopology::Type primitiveTopology) :
+            RenderItemDesc(name, transform, material, primitiveTopology),
+            type(type) {}
+
+        const PredefinedGeometryType type;
+    };
+    using DescsVertices = std::vector<RenderItemVerticesDesc>;
+    using DescsTypes = std::vector<RenderItemTypeDesc>;
+    struct RenderItemsDescriptions
+    {
+        DescsVertices Vertices;
+        DescsTypes Types;
+    };
+
     class Viewport : Pile::NonCopyable
     {
     public:
@@ -50,39 +87,13 @@ namespace Viewer
         uint32 GetWidth() const { return width_; }
         uint32 GetHeight() const { return height_; }
 
-        struct RenderItemDesc {
-            RenderItemDesc(const std::string& name, const XMFLOAT4X4& transform, const std::string& material, PrimitiveTopology::Type primitiveTopology) :
-                name(name), transform(transform), material(material), primitiveTopology(primitiveTopology) {}
-
-            const std::string name;
-            const XMFLOAT4X4 transform;
-            const std::string material;
-            const PrimitiveTopology::Type primitiveTopology;
-        };
-        struct RenderItemVerticesDesc : RenderItemDesc {
-            RenderItemVerticesDesc(const std::string& name, const uint8* vertices, uint32 verticesCount, const XMFLOAT4X4& transform, const std::string& material, PrimitiveTopology::Type primitiveTopology) :
-                RenderItemDesc(name, transform, material, primitiveTopology),
-                vertices(vertices),
-                verticesCount(verticesCount)
-            {}
-
-            const uint8* vertices;
-            const uint32 verticesCount;
-        };
-        struct RenderItemTypeDesc : RenderItemDesc {
-            RenderItemTypeDesc(const std::string& name, const PredefinedGeometryType type, const XMFLOAT4X4& transform, const std::string& material, PrimitiveTopology::Type primitiveTopology) :
-                RenderItemDesc(name, transform, material, primitiveTopology),
-                type(type) {}
-
-            const PredefinedGeometryType type;
-        };
         void CreateMaterial(Material::Type material, const std::string& name);
-        using DescsVertices = std::vector<RenderItemVerticesDesc>;
-        using DescsTypes = std::vector<RenderItemTypeDesc>;
-        uint_t CreateRenderItemOpaque(const DescsVertices& viewportVerticesDescs, uint32 vertexSize);
-        uint_t CreateRenderItemOpaque(const DescsTypes& viewportTypeDescs);
-        uint_t CreateRenderItemTransparent(const DescsVertices& viewportVerticesDescs, uint32 vertexSize);
-        uint_t CreateRenderItemTransparent(const DescsTypes& viewportTypeDescs);
+        RenderItemId CreateRenderItemOpaque(const DescsVertices& viewportVerticesDescs, uint32 vertexSize);
+        RenderItemId CreateRenderItemOpaque(const DescsTypes& viewportTypeDescs);
+        RenderItemId CreateRenderItemTransparent(const DescsVertices& viewportVerticesDescs, uint32 vertexSize);
+        RenderItemId CreateRenderItemTransparent(const DescsTypes& viewportTypeDescs);
+        void DestroyRenderItemOpaque(const StructRenderItemId& id);
+        void DestroyRenderItemTransparent(const StructRenderItemId& id);
 
         void BeforeDraw();
         void AfterDraw();
@@ -116,8 +127,8 @@ namespace Viewer
         uint32 width_;
         uint32 height_;
 
-        std::vector<grRenderItem> renderItemsOpaque_;
-        std::vector<grRenderItem> renderItemsTransparent_;
+        std::list<grRenderItem> renderItemsOpaque_;
+        std::list<grRenderItem> renderItemsTransparent_;
         std::array<std::vector<VertexNormalTex>, (size_t)PredefinedGeometryType::kSize> geometries_;
         std::unordered_map<std::string, grMaterial> materials_;
 

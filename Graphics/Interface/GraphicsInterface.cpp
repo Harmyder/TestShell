@@ -9,6 +9,7 @@
 #include "SDK\PipelineStateObject.h"
 #include "SDK\RootSignature.h"
 #include "SDK\CommandContext.h"
+#include "SDK\CommandQueue.h"
 #include "Interface\InternalHandle.h"
 
 using namespace Graphics;
@@ -17,6 +18,7 @@ using namespace std;
 void grInit(HWND hWnd, grInitParams params) {
     Graphics::InitParams ip(
         params.SceneObjectsCountLimit,
+        params.InstancesCountLimit,
         params.PassesCountLimit,
         params.MaterialsCountLimit,
         params.FrameResourcesCount);
@@ -178,6 +180,7 @@ void grUpdateRenderSubItemTransform(grRenderItem renderItem, const std::string& 
 }
 
 void grDestroyRenderItem(grRenderItem renderItem) {
+    GraphicsCore::GetInstance().GetCommandQueue()->WaitAllDone();
     RenderItem* ri = static_cast<RenderItemHandle>(renderItem).GetValue();
     delete ri;
 }

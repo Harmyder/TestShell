@@ -1,5 +1,9 @@
-#include "cb.hlsli"
-#include "color_InputLayout.hlsli"
+#define REGISTER_CB_PER_OBJECT b0
+#define REGISTER_CB_PER_PASS   b1
+
+#include "InputLayouts\color.hlsli"
+#include "ConstantBuffers\PerObject.hlsli"
+#include "ConstantBuffers\PerPass.hlsli"
 
 VertexOut main(VertexIn vin) {
     VertexOut vout;
