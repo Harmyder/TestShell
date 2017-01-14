@@ -5,6 +5,7 @@
 
 #include "Core\GraphicsCore.h"
 #include "Core\RenderItem.h"
+#include "Core\RenderItemWithInstances.h"
 #include "Core\Lighting.h"
 #include "SDK\PipelineStateObject.h"
 #include "SDK\RootSignature.h"
@@ -14,6 +15,11 @@
 
 using namespace Graphics;
 using namespace std;
+
+static_assert(sizeof(RenderVerticesDesc) == sizeof(grtRenderVertices), "Keep RenderVerticesDesc and grtRenderVertices in sync");
+static_assert(sizeof(RenderItemDesc) == sizeof(grtRenderSubItemDesc), "Keep RenderVerticesDesc and grtRenderVertices in sync");
+static_assert(sizeof(RenderItemInstanceDesc) == sizeof(grtRenderSubItemInstanceDesc), "Keep RenderItemInstanceDesc and grtRenderSubItemInstanceDesc in sync");
+static_assert(sizeof(RenderItemWithInstancesDesc) == sizeof(grtRenderSubItemWithInstancesDesc), "Keep RenderItemWithInstancesDesc and grtRenderSubItemWithInstancesDesc in sync");
 
 void grInit(HWND hWnd, grInitParams params) {
     Graphics::InitParams ip(
@@ -40,10 +46,6 @@ XMMATRIX grGetViewTransform() {
 XMMATRIX grGetInvViewTransform() {
     auto& camera = GraphicsCore::GetInstance().GetCamera();
     return camera.GetInvViewMatrix();
-}
-
-void grPreBeginScene() {
-    GraphicsCore::GetInstance().PreBeginScene();
 }
 
 void grBeginScene() {
@@ -89,16 +91,23 @@ void grDestroyMaterial(grMaterial material) {
     Material* m = static_cast<MaterialHandle>(material).GetValue();
     auto& mb = GraphicsCore::GetInstance().GetMaterialsBuffer();
     mb.Destroy(m);
+    GraphicsCore::GetInstance().GetCommandQueue()->WaitAllDone();
 }
 
-void grDrawRenderItem(grRenderItem renderItem) {
-    RenderItem* ri = static_cast<RenderItemHandle*>(&renderItem)->GetValue();
-    GraphicsCore::GetInstance().DrawRenderItem(*ri);
+void grDrawRenderItem(grRenderItem ri) {
+    auto v = static_cast<RenderItemHandle*>(&ri)->GetValue();
+    GraphicsCore::GetInstance().DrawRenderItem(*v);
 }
 
-void grDrawRenderSubItem(grRenderItem renderItem, const string& name) {
-    RenderItem* ri = static_cast<RenderItemHandle*>(&renderItem)->GetValue();
-    GraphicsCore::GetInstance().DrawRenderSubItem(*ri, name);
+void grDrawRenderItem(grRenderItemWithInstances riwi) {
+    auto v = static_cast<RenderItemWithInstancesHandle*>(&riwi)->GetValue();
+    GraphicsCore::GetInstance().DrawRenderItemWithInstances(*v);
+}
+
+
+void grDrawRenderSubItem(grRenderItem ri, const string& name) {
+    auto v = static_cast<RenderItemHandle*>(&ri)->GetValue();
+    GraphicsCore::GetInstance().DrawRenderSubItem(*v, name);
 }
 
 grCommandContext grGetGraphicsContext() {
@@ -106,16 +115,18 @@ grCommandContext grGetGraphicsContext() {
     return cc;
 }
 
-grRootSignature grCreateRootSignature() {
+grRootSignature grCreateRootSignature(greRootSignature::Type type) {
     auto rs = make_unique<RootSignature>();
+    rs->SetType(*(RootSignatureType*)&type);
     rs->Finalize();
     return grRootSignature(rs.release());
 }
 
-void grSetRootSignature(grRootSignature rootSignature, grCommandContext commandContext) {
-    CommandContext* ccInternal = static_cast<CommandContextHandle*>(&commandContext)->GetValue();
+void grSetRootSignature(grRootSignature rootSignature, grCommandContext cc) {
+    CommandContext* ccInternal = static_cast<CommandContextHandle*>(&cc)->GetValue();
     RootSignature* rs = static_cast<RootSignatureHandle>(rootSignature).GetValue();
     ccInternal->SetRootSignature(*rs);
+    GraphicsCore::GetInstance().SetGraphicsRoot(rs->GetType());
 }
 
 void grDestroyRootSignature(grRootSignature rootSignature) {
@@ -129,24 +140,16 @@ grPipelineStateObject grCreatePipelineStateObject(const grtPipelineStateDesc& de
     pso->SetDepthEnable(desc.DepthEnable);
     pso->SetFillMode(*(D3D12_FILL_MODE*)&desc.FillMode);
     pso->SetPrimitiveTopologyType(*(D3D12_PRIMITIVE_TOPOLOGY_TYPE*)&desc.PrimitiveTolopologyType);
-    switch (desc.VertexType) {
-    case greVertexType::kColor:
-        pso->SetVertexType(VertexType::kColor);
-        break;
-    case greVertexType::kNormalTex:
-        pso->SetVertexType(VertexType::kNormalTex);
-        break;
-    default:
-        throw "Unknow vertex type";
-    }
+    pso->SetVertexType(*(VertexType*)&desc.VertexType);
+    pso->SetShaderType(*(ShaderType*)&desc.ShaderType);
     RootSignature* ri = static_cast<RootSignatureHandle*>(&rootSignature)->GetValue();
     pso->SetRootSignature(*ri);
     pso->Finalize();
     return grPipelineStateObject(pso.release());
 }
 
-void grSetPipelineStateObject(grPipelineStateObject pipelineState, grCommandContext commandContext) {
-    CommandContext* ccInternal = static_cast<CommandContextHandle*>(&commandContext)->GetValue();
+void grSetPipelineStateObject(grPipelineStateObject pipelineState, grCommandContext cc) {
+    CommandContext* ccInternal = static_cast<CommandContextHandle*>(&cc)->GetValue();
     PipelineStateObject* pso = static_cast<PipelineStateHandle>(pipelineState).GetValue();
     ccInternal->SetPipelineStateObject(*pso);
 }
@@ -156,20 +159,27 @@ void grDestroyPipelineStateObject(grPipelineStateObject pipelineState) {
     delete pso;
 }
 
-grRenderItem grCreateRenderItem(
-    const std::vector<grtRenderVertices>& renderVertices,
-    const std::vector<grtRenderSubItemDesc>& renderItems,
-    const std::vector<uint32>& itemsToVertices,
-    uint32 vertexSize,
-    grCommandContext commandContext)
-{
-    assert(renderVertices.size() && renderItems.size() && itemsToVertices.size());
-    CommandContext* commandContextInternal = static_cast<CommandContextHandle*>(&commandContext)->GetValue();
-    auto renderItemsInternal = (vector<RenderItemDesc>*)((void*)&renderItems);
-    auto renderVerticesInternal = (vector<RenderVerticesDesc>*)((void*)&renderVertices);
-    RenderItem *renderItem;
-    RenderItem::Create(*renderItemsInternal, *renderVerticesInternal, itemsToVertices, vertexSize, *commandContextInternal, renderItem);
-    return grRenderItem(renderItem);
+grRenderItem grCreateRenderItem(const grtRenderItemDesc& renderItemDesc, uint32 vertexSize, grCommandContext cc) {
+    assert(renderItemDesc.renderVerticesCount && renderItemDesc.renderSubItemsCount);
+    CommandContext* ccInternal = static_cast<CommandContextHandle*>(&cc)->GetValue();
+    auto renderSubItemsInternal = (RenderItemDesc*)renderItemDesc.renderSubItems;
+    auto renderVerticesInternal = (RenderVerticesDesc*)renderItemDesc.renderVertices;
+    unique_ptr<RenderItem> ri;
+    RenderItem::Create(
+        renderSubItemsInternal, renderItemDesc.renderSubItemsCount,
+        renderVerticesInternal, renderItemDesc.renderVerticesCount,
+        renderItemDesc.itemsToVertices,
+        vertexSize, *ccInternal, ri);
+    return grRenderItem(ri.release());
+}
+
+grRenderItemWithInstances grCreateRenderItemWithInstances(const grtRenderSubItemWithInstancesDesc& desc, const grtRenderVertices& vertices, uint32 vertexSize, grCommandContext cc) {
+    assert(desc.instancesCount > 0);
+    CommandContext* ccInternal = static_cast<CommandContextHandle*>(&cc)->GetValue();
+
+    unique_ptr<RenderItemWithInstances> riwi;
+    RenderItemWithInstances::Create(*(RenderItemWithInstancesDesc*)&desc, *(RenderVerticesDesc*)&vertices, vertexSize, *ccInternal, riwi);
+    return grRenderItemWithInstances(riwi.release());
 }
 
 void grUpdateRenderSubItemTransform(grRenderItem renderItem, const std::string& name, const XMFLOAT4X4& transform) {
@@ -182,6 +192,12 @@ void grUpdateRenderSubItemTransform(grRenderItem renderItem, const std::string& 
 void grDestroyRenderItem(grRenderItem renderItem) {
     GraphicsCore::GetInstance().GetCommandQueue()->WaitAllDone();
     RenderItem* ri = static_cast<RenderItemHandle>(renderItem).GetValue();
+    delete ri;
+}
+
+void grDestroyRenderItem(grRenderItemWithInstances renderItem) {
+    GraphicsCore::GetInstance().GetCommandQueue()->WaitAllDone();
+    auto ri = static_cast<RenderItemWithInstancesHandle>(renderItem).GetValue();
     delete ri;
 }
 

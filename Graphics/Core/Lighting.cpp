@@ -2,16 +2,12 @@
 #include "Core\Lighting.h"
 
 #include "Core\GraphicsCore.h"
-#include "Utility\FreeIndices.h"
+#include "Utility\BufferStuff.h"
 
 using namespace std;
 
 namespace Graphics
 {
-    void BufferDirty::SetAllFramesDirty() {
-        dirtyFramesCount_ = (uint32)GraphicsCore::GetInstance().GetFrameResourcesCount();
-    }
-
     static constexpr float CalcFresnelR0(float ior) {
         return (ior - 1) / (ior + 1) * (ior - 1) / (ior + 1);
     }

@@ -2,8 +2,7 @@
 #define __INSTANCE_DATA__
 
 struct InstanceData {
-    float4x4 World;
-    float4x4 TexTransform;
+    float4x3 World;
     uint     MaterialIndex;
     uint   __InstanceDataPad1;
     uint   __InstanceDataPad2;

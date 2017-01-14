@@ -1,14 +1,9 @@
 #pragma once
 #include "Interface\GraphicsConsts.h"
 
-enum class greVertexType {
-    kNormalTex,
-    kColor,
-    kSize,
-};
-
 struct grtPipelineStateDesc {
-    greVertexType VertexType;
+    greVertexType::Type VertexType;
+    greShaderType::Type ShaderType;
     bool BlendEnable;
     bool DepthEnable;
     grePrimitiveTopologyType::Type PrimitiveTolopologyType;
@@ -32,17 +27,51 @@ struct grtRenderVertices {
     const uint8* data;
     const uint32 verticesCount;
 };
-struct grtRenderSubItemDesc
+struct grtRenderSubItemDescBase
 {
-    grtRenderSubItemDesc(const std::string& name, const XMFLOAT4X4& transform, grMaterial material, grePrimitiveTopology::Type primitiveTopology) :
+    grtRenderSubItemDescBase(const std::string& name, const XMFLOAT4X4& transform, grePrimitiveTopology::Type primitiveTopology) :
         name(name),
         transform(transform),
-        material(material),
         primitiveTopology(primitiveTopology)
     {}
 
     const std::string& name;
     const XMFLOAT4X4& transform;
-    grMaterial material;
     grePrimitiveTopology::Type primitiveTopology;
+};
+struct grtRenderSubItemInstanceDesc
+{
+    grtRenderSubItemInstanceDesc(const XMFLOAT4X3& transform, grMaterial material) : transform(transform), material(material) {}
+
+    const XMFLOAT4X3& transform;
+    grMaterial material;
+};
+struct grtRenderSubItemWithInstancesDesc : grtRenderSubItemDescBase
+{
+    grtRenderSubItemWithInstancesDesc(
+        const std::string& name, const XMFLOAT4X4& transform, grePrimitiveTopology::Type primitiveTopology,
+        const grtRenderSubItemInstanceDesc* instancesDescs, uint32 instancesCount) :
+        grtRenderSubItemDescBase(name, transform, primitiveTopology),
+        instancesDescs(instancesDescs),
+        instancesCount(instancesCount)
+    {}
+
+    const grtRenderSubItemInstanceDesc* instancesDescs;
+    uint32 instancesCount;
+};
+struct grtRenderSubItemDesc : grtRenderSubItemDescBase
+{
+    grtRenderSubItemDesc(const std::string& name, const XMFLOAT4X4& transform, grMaterial material, grePrimitiveTopology::Type primitiveTopology) :
+        grtRenderSubItemDescBase(name, transform, primitiveTopology),
+        material(material)
+    {}
+
+    grMaterial material;
+};
+struct grtRenderItemDesc {
+    const grtRenderVertices* renderVertices;
+    uint32 renderVerticesCount;
+    const grtRenderSubItemDesc* renderSubItems;
+    uint32 renderSubItemsCount;
+    const uint32* itemsToVertices;
 };

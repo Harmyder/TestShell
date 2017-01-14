@@ -19,7 +19,7 @@ namespace Graphics {
 
     struct InstanceData
     {
-        DirectX::XMFLOAT4X4 World = Pile::Identity4x4();
+        DirectX::XMFLOAT4X3 World;
         uint32 MaterialIndex;
         uint32 pad1, pad2, pad3;
     };
@@ -85,35 +85,42 @@ namespace Graphics {
 
     class FrameResource
     {
-        friend class Graphics;
     public:
-        FrameResource(uint32 passesCount, uint32 objsCount, uint32 matsCount);
+        FrameResource(uint32 passesCount, uint32 objsCount, uint32 matsCount, uint32 instsCount);
         ~FrameResource();
 
         uint64 Fence = 0;
-        std::unique_ptr<UploadBuffer<PerMatConsts>> matBuffer;
         std::unique_ptr<ConstantBuffer<PerPassConsts>> passCB;
         std::unique_ptr<ConstantBuffer<PerObjConsts>> objCB;
-        std::unique_ptr<UploadBuffer<InstanceData>> instanceBuffer;
+        std::unique_ptr<UploadBuffer<PerMatConsts>> matBuffer;
+        std::unique_ptr<UploadBuffer<InstanceData>> instBuffer;
     };
 
     class FrameResources {
     public:
-        FrameResources(uint32 count, uint32 passesCount, uint32 objsCount, uint32 matsCount);
+        FrameResources(uint32 count, uint32 passesCount, uint32 objsCount, uint32 matsCount, uint32 instsCount);
         ~FrameResources();
 
         FrameResource& GetFrameResource(uint_t i) { return *resources_[i]; }
-        uint_t Count() { return resources_.size(); }
+        uint_t Count() const { return resources_.size(); }
 
         uint_t CalcPassCbSize() const { return Utility::CalcConstBufSize(sizeof(PerPassConsts)); }
         uint_t CalcObjCbSize() const { return Utility::CalcConstBufSize(sizeof(PerObjConsts)); }
-        uint_t CalcMatBufferSize() const { return sizeof(PerMatConsts); }
 
         const uint32 PassesCountLimit;
         const uint32 ObjsCountLimit;
         const uint32 MatsCountLimit;
+        const uint32 InstancesCountLimit;
+
+        uint32 AcquireInstsRange(uint32 count) {
+            assert(nextFreeInst + count < InstancesCountLimit);
+            const uint32 res = nextFreeInst;
+            nextFreeInst += count;
+            return res;
+        }
 
     private:
         std::vector<std::unique_ptr<FrameResource>> resources_;
+        uint32 nextFreeInst = 0;
     };
 }

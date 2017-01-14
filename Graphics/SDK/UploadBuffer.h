@@ -52,7 +52,6 @@ namespace Graphics
     template<class E>
     void UploadBuffer<E>::CopyData(int elementIndex, const void* data) {
         const uint_t bufferByteSize = isConstantBuffer_ ? Utility::CalcConstBufSize(sizeof(E)) : sizeof(E);
-
         memcpy(&mappedData_[elementIndex * bufferByteSize], data, sizeof(E));
     }
 }

@@ -6,7 +6,12 @@ namespace Graphics
     enum class VertexType {
         kNormalTex,
         kColor,
-        kSize,
+    };
+
+    enum class ShaderType {
+        kLighting,
+        kLightingWithInstances,
+        kColor
     };
 
     class RootSignature;
@@ -20,6 +25,7 @@ namespace Graphics
         void SetBlendEnable(bool enable) { blendEnable_ = enable; }
         void SetDepthEnable(bool enable) { depthEnable_ = enable; }
         void SetVertexType(VertexType vertexType) { vertexType_ = vertexType; }
+        void SetShaderType(ShaderType shaderType) { shaderType_ = shaderType; }
 
         void Finalize();
 
@@ -29,6 +35,7 @@ namespace Graphics
     private:
         RootSignature *rootSignature_;
         VertexType vertexType_;
+        ShaderType shaderType_;
         bool blendEnable_;
         bool depthEnable_;
         D3D12_PRIMITIVE_TOPOLOGY_TYPE primitiveTopologyType_;

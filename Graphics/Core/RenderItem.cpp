@@ -1,7 +1,9 @@
 #include "stdafx.h"
+#include "Core\GraphicsCore.h"
 #include "RenderItem.h"
-#include "Utility\FreeIndices.h"
+#include "Utility\BufferStuff.h"
 #include "Core\Lighting.h"
+#include "Core\FrameResource.h"
 
 using namespace std;
 
@@ -14,15 +16,21 @@ namespace Graphics
         Material* material,
         D3D_PRIMITIVE_TOPOLOGY primitiveTopology,
         const RenderItem& container) :
+        BufferEntryDirty(objBufferIndex),
         baseVertexLocation_(baseVertexLocation),
         verticesCount_(verticesCount),
-        objBufferIndex_(objBufferIndex),
         transform_(transform),
-        dirtyFramesCount_((uint32)GraphicsCore::GetInstance().GetFrameResourcesCount()),
         materialIndex_(material->BufferIndex()),
         primitiveTopology_(primitiveTopology),
         container_(container)
-    {}
+    {
+        SetAllFramesDirty();
+    }
+
+    void RenderSubItem::SetTransform(const XMFLOAT4X4& transform) {
+        transform_ = transform;
+        SetAllFramesDirty();
+    }
 
     D3D12_VERTEX_BUFFER_VIEW RenderItem::VertexBufferView() const {
         D3D12_VERTEX_BUFFER_VIEW vbv;
@@ -33,27 +41,28 @@ namespace Graphics
     }
 
     void RenderItem::Create(
-        const std::vector<RenderItemDesc>& itemsDescs,
-        const std::vector<RenderVerticesDesc>& verticesDescs,
-        const std::vector<uint32> itemsToVertices,
+        const RenderItemDesc* itemsDescs, uint32 itemsDescsCount,
+        const RenderVerticesDesc* verticesDescs, uint32 verticesDescsCount,
+        const uint32* itemsToVertices,
         uint32 vertexSize,
-        CommandContext& commandContext_,
-        RenderItem *&pri)
+        CommandContext& commandContext,
+        unique_ptr<RenderItem>& ri)
     {
         auto& objBufferIndices = GraphicsCore::GetInstance().GetFreePerObjBufferIndices();
         std::vector<uint32> verticesOffsets;
-        verticesOffsets.reserve(verticesDescs.size());
+        verticesOffsets.reserve(verticesDescsCount);
         uint32 totalVerticesCount = 0;
-        for (const auto& vd : verticesDescs) {
+        for (uint_t i = 0; i < verticesDescsCount; ++i) {
             verticesOffsets.push_back(totalVerticesCount);
-            totalVerticesCount += vd.verticesCount;
+            totalVerticesCount += verticesDescs[i].verticesCount;
         }
 
-        pri = new RenderItem(vertexSize, totalVerticesCount);
-        for (uint_t i = 0; i < itemsDescs.size(); ++i) {
+        struct RenderItemUniquePtrEnabler : public RenderItem { RenderItemUniquePtrEnabler(uint32 vs, uint32 vc) : RenderItem(vs, vc) {} };
+        ri = make_unique<RenderItemUniquePtrEnabler>(vertexSize, totalVerticesCount);
+        for (uint_t i = 0; i < itemsDescsCount; ++i) {
             const auto& cur_id = itemsDescs[i];
             const auto& cur_vd = verticesDescs[itemsToVertices[i]];
-            const auto p = pri->subItems_.emplace(
+            const auto p = ri->subItems_.emplace(
                 std::piecewise_construct,
                 std::forward_as_tuple(cur_id.name),
                 std::forward_as_tuple(
@@ -63,16 +72,17 @@ namespace Graphics
                     objBufferIndices.AcquireIndex(),
                     cur_id.material,
                     cur_id.primitiveTopology,
-                    *pri)
+                    *ri)
             );
             if (!p.second) throw "At least two elements have the same name";
         }
         std::vector<uint8> vertices;
         vertices.reserve(totalVerticesCount * vertexSize);
-        for (auto& vd : verticesDescs) {
+        for (uint_t i = 0; i < verticesDescsCount; ++i) {
+            auto& vd = verticesDescs[i];
             vertices.insert(vertices.end(), vd.data, vd.data + vd.verticesCount * vertexSize);
         }
 
-        pri->vertexBuffer_.Create(L"ri_vertex", totalVerticesCount, vertexSize, vertices.data(), &commandContext_);
+        ri->vertexBuffer_.Create(L"ri_vertex", totalVerticesCount, vertexSize, vertices.data(), &commandContext);
     }
 }

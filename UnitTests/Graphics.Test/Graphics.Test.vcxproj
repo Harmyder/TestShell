@@ -11,24 +11,26 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{95C83309-A4C8-4A72-A73F-219B2FEA4334}</ProjectGuid>
+    <ProjectGuid>{E0364F74-C2D7-4087-B0CE-7DF97E63EA92}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>TestShell</RootNamespace>
+    <RootNamespace>GraphicsTest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>NotSet</CharacterSet>
+    <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>NotSet</CharacterSet>
+    <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -44,92 +46,61 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\Bin\$(ProjectName)\</OutDir>
-    <IntDir>..\Temp\$(ProjectName)\$(platform)-$(Configuration)\</IntDir>
-    <TargetName>$(ProjectName)_$(platform)-$(Configuration)</TargetName>
+    <OutDir>..\..\Temp\UnitTests\$(ProjectName)\$(platform)-$(Configuration)\</OutDir>
+    <IntDir>..\..\Temp\UnitTests\$(ProjectName)\$(platform)-$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\Bin\$(ProjectName)\</OutDir>
-    <IntDir>..\Temp\$(ProjectName)\$(platform)-$(Configuration)\</IntDir>
-    <TargetName>$(ProjectName)_$(platform)-$(Configuration)</TargetName>
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\..\Temp\UnitTests\$(ProjectName)\$(platform)-$(Configuration)\</OutDir>
+    <IntDir>..\..\Temp\UnitTests\$(ProjectName)\$(platform)-$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;..;..\Harmyder;</AdditionalIncludeDirectories>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalIncludeDirectories>.;..\..\;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <UseFullPaths>true</UseFullPaths>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\Libs;</AdditionalLibraryDirectories>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d12.lib;dxgi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;..;..\Harmyder;</AdditionalIncludeDirectories>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalIncludeDirectories>.;..\..\;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <UseFullPaths>true</UseFullPaths>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\Libs;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d12.lib;dxgi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Simulations\FlockSimulation.h" />
-    <ClInclude Include="Game.h" />
-    <ClInclude Include="Internal\BaseSimulation.h" />
-    <ClInclude Include="Internal\Launcher.h" />
-    <ClInclude Include="Internal\SimulationFactory.h" />
-    <ClInclude Include="Internal\SimulationManager.h" />
-    <ClInclude Include="Menu\Command.h" />
-    <ClInclude Include="Simulations\FBXSimulation.h" />
-    <ClInclude Include="Simulations\SphereBvSimulation.h" />
-    <ClInclude Include="Simulations\Utility.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Simulations\FlockSimulation.cpp" />
-    <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Internal\BaseSimulation.cpp" />
-    <ClCompile Include="Internal\Launcher.cpp" />
-    <ClCompile Include="Internal\SimulationManager.cpp" />
-    <ClCompile Include="Simulations\FBXSimulation.cpp" />
-    <ClCompile Include="Simulations\SphereBvSimulation.cpp" />
-    <ClCompile Include="Simulations\Utility.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="TestShell.cpp" />
+    <ClCompile Include="Utility\BufferStuff.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Harmyder\Harmyder.vcxproj">
-      <Project>{13e30793-5687-4af1-8b13-5c727c224337}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\Pile\Pile.vcxproj">
-      <Project>{2f76dd6a-5f4a-48c0-b377-2cca96985032}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\Pipeline\Pipeline.vcxproj">
-      <Project>{594aa245-f13b-4e5c-8503-9afdbc9fd282}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\Viewer\Viewport.vcxproj">
-      <Project>{b0fa436f-a6e0-496b-bef8-a6cf096be847}</Project>
+    <ProjectReference Include="..\..\Graphics\Graphics.vcxproj">
+      <Project>{02d77ff1-10b9-4892-ba57-608aeab0768b}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

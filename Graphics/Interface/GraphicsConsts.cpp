@@ -1,15 +1,43 @@
 #include "stdafx.h"
 #include "Core\Lighting.h"
+#include "SDK\PipelineStateObject.h"
+#include "SDK\RootSignature.h"
 #include "Interface\GraphicsConsts.h"
 
 using namespace Graphics;
+
+namespace greVertexType {
+    static_assert(std::is_same<Type::UnderlyingType, std::underlying_type_t<VertexType>>::value,
+        "Underlying type of Graphics::VertexType is different from greVertexType::UnderlyingType");
+    extern const Type kInvalid = Type();
+    extern const Type kNormalTex((Type::UnderlyingType)VertexType::kNormalTex);
+    extern const Type kColor    ((Type::UnderlyingType)VertexType::kColor);
+};
+
+namespace greShaderType {
+    static_assert(std::is_same<Type::UnderlyingType, std::underlying_type_t<ShaderType>>::value,
+        "Underlying type of Graphics::ShaderType is different from greShaderType::UnderlyingType");
+    extern const Type kInvalid = Type();
+    extern const Type kLighting             ((Type::UnderlyingType)ShaderType::kLighting);
+    extern const Type kLightingWithInstances((Type::UnderlyingType)ShaderType::kLightingWithInstances);
+    extern const Type kColor                ((Type::UnderlyingType)ShaderType::kColor);
+};
+
+namespace greRootSignature {
+    static_assert(std::is_same<Type::UnderlyingType, std::underlying_type_t<RootSignatureType>>::value,
+        "Underlying type of Graphics::ShaderType is different from greRootSignature::UnderlyingType");
+    extern const Type kInvalid = Type();
+    extern const Type kLighting             ((Type::UnderlyingType)RootSignatureType::kLighting);
+    extern const Type kLightingWithInstances((Type::UnderlyingType)RootSignatureType::kLightingWithInstances);
+    extern const Type kColor                ((Type::UnderlyingType)RootSignatureType::kColor);
+};
 
 namespace grePrimitiveTopology {
     static_assert(std::is_same<Type::UnderlyingType, std::underlying_type_t<D3D12_PRIMITIVE_TOPOLOGY>>::value,
         "Underlying type of D3D12_PRIMITIVE_TOPOLOGY is different from grePrimitiveTopology::UnderlyingType");
     extern const Type kInvalid = Type();
     extern const Type kTriangleList(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    extern const Type kLineList(D3D10_PRIMITIVE_TOPOLOGY_LINELIST);
+    extern const Type kLineList    (D3D10_PRIMITIVE_TOPOLOGY_LINELIST);
 }
 
 namespace grePrimitiveTopologyType {
@@ -17,7 +45,7 @@ namespace grePrimitiveTopologyType {
         "Underlying type of D3D12_PRIMITIVE_TOPOLOGY_TYPE is different from grePrimitiveTopologyType::UnderlyingType");
     extern const Type kInvalid = Type();
     extern const Type kTriangle(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
-    extern const Type kLine(D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);
+    extern const Type kLine    (D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);
 }
 
 namespace greFillMode {
@@ -25,7 +53,7 @@ namespace greFillMode {
         "Underlying type of D3D12_FILL_MODE is different from greFillMode::UnderlyingType");
     extern const Type kInvalid = Type();
     extern const Type kWireframe(D3D12_FILL_MODE_WIREFRAME);
-    extern const Type kSolid(D3D12_FILL_MODE_SOLID);
+    extern const Type kSolid    (D3D12_FILL_MODE_SOLID);
 }
 
 namespace greLibraryMaterial {

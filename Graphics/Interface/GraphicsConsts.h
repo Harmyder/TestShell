@@ -2,6 +2,29 @@
 
 #include "Pile\DefineNamespaceEnumType.h"
 
+namespace greVertexType {
+    DEFINE_NAMESPACE_ENUM_TYPE(int, -1);
+    extern const Type kInvalid;
+    extern const Type kNormalTex;
+    extern const Type kColor;
+};
+
+namespace greShaderType {
+    DEFINE_NAMESPACE_ENUM_TYPE(int, -1);
+    extern const Type kInvalid;
+    extern const Type kLighting;
+    extern const Type kLightingWithInstances;
+    extern const Type kColor;
+};
+
+namespace greRootSignature {
+    DEFINE_NAMESPACE_ENUM_TYPE(int, -1);
+    extern const Type kInvalid;
+    extern const Type kLighting;
+    extern const Type kLightingWithInstances;
+    extern const Type kColor;
+};
+
 namespace grePrimitiveTopology {
     DEFINE_NAMESPACE_ENUM_TYPE(int, -1);
     extern const Type kInvalid;

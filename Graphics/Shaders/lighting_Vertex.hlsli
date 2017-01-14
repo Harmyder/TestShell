@@ -10,12 +10,18 @@ VertexOut main(
 #ifdef SETTINGS_LIGHTING_INSTANCED
     InstanceData instData = gInstanceData[instanceId];
     vout.MatIndex = instData.MaterialIndex;
-    float4x4 world = instData.World;
+    float4x3 iw = instData.World;
+    float4x4 world =
+        float4x4(
+            float4(iw[0][0], iw[1][0], iw[2][0], iw[1][2]),
+            float4(iw[3][0], iw[0][1], iw[1][1], iw[2][2]),
+            float4(iw[2][1], iw[3][1], iw[0][2], iw[3][2]),
+            float4(0.f, 0.f, 0.f, 1.f));
 #else
     float4x4 world = gWorld;
 #endif
 
-    float4 posW = mul(world, float4(vin.PosL, 1.0f));
+    float4 posW = mul(world, float4(vin.PosL, 1.f));
     vout.PosW = posW.xyz;
     vout.PosH = mul(gView, posW);
     vout.PosH = mul(gProj, vout.PosH);

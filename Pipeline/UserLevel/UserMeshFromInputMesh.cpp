@@ -24,7 +24,7 @@ namespace Pipeline
     {
         mesh_.SetTransform(inputMesh_.GetTransform());
 
-        MeshGeometry &mg = mesh_.GetNonConstGeometry();
+        MeshGeometry &mg = mesh_.GetGeometryNonConst();
 
         const auto& positions = inputMesh_.GetPositions();
         const auto& normals = inputMesh_.GetNormals();

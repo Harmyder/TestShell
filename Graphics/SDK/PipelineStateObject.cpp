@@ -5,6 +5,8 @@
 
 #include "Shaders\Compiled\lighting_Pixel.h"
 #include "Shaders\Compiled\lighting_Vertex.h"
+#include "Shaders\Compiled\lightingInstanced_Pixel.h"
+#include "Shaders\Compiled\lightingInstanced_Vertex.h"
 #include "Shaders\Compiled\color_Pixel.h"
 #include "Shaders\Compiled\color_Vertex.h"
 
@@ -69,15 +71,22 @@ namespace Graphics
         ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
         psoDesc.InputLayout = { inputLayout_.data(), (UINT)inputLayout_.size() };
         psoDesc.pRootSignature = rootSignature_->GetRootSignature();
-        if (vertexType_ == VertexType::kNormalTex) {
-            psoDesc.VS = { gsh_lighting_Vertex, sizeof(gsh_lighting_Vertex) };
-            psoDesc.PS = { gsh_lighting_Pixel, sizeof(gsh_lighting_Pixel) };
-        }
-        else if (vertexType_ == VertexType::kColor) {
+        switch (shaderType_) {
+        case ShaderType::kColor:
             psoDesc.VS = { gsh_color_Vertex, sizeof(gsh_color_Vertex) };
             psoDesc.PS = { gsh_color_Pixel, sizeof(gsh_color_Pixel) };
+            break;
+        case ShaderType::kLighting:
+            psoDesc.VS = { gsh_lighting_Vertex, sizeof(gsh_lighting_Vertex) };
+            psoDesc.PS = { gsh_lighting_Pixel, sizeof(gsh_lighting_Pixel) };
+            break;
+        case ShaderType::kLightingWithInstances:
+            psoDesc.VS = { gsh_lightingInstanced_Vertex, sizeof(gsh_lightingInstanced_Vertex) };
+            psoDesc.PS = { gsh_lightingInstanced_Pixel, sizeof(gsh_lightingInstanced_Pixel) };
+            break;
+        default:
+            throw "Unknown vertex type";
         }
-        else throw "Unknown vertex type";
         psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
         psoDesc.RasterizerState.FillMode = fillMode_;
         psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);

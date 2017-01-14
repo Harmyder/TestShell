@@ -28,6 +28,7 @@ namespace Graphics
     class FrameResources;
     class CommandContext;
     class RenderItem;
+    class RenderItemWithInstances;
     class RenderSubItem;
     class LightsHolder;
     class MaterialsBuffer;
@@ -48,6 +49,8 @@ namespace Graphics
         uint32 FrameResourcesCount;
     };
 
+    enum class RootSignatureType;
+
     class GraphicsCore : Pile::NonCopyable
     {
     public:
@@ -61,11 +64,11 @@ namespace Graphics
         void Resize();
 
         void Update();
-        void PreBeginScene();
         void BeginScene();
         void EndScene();
         void DrawRenderItem(RenderItem& ri);
         void DrawRenderSubItem(RenderItem& ri, const std::string& name);
+        void DrawRenderItemWithInstances(RenderItemWithInstances& ri);
 
         CommandQueue* GetCommandQueue() { return commandQueue_.get(); }
         CommandContext* GetCommandContext() { return commandContext_.get(); }
@@ -75,7 +78,10 @@ namespace Graphics
         LightsHolder& GetLightsHolder() { return *lightsHolder_; }
         MaterialsBuffer& GetMaterialsBuffer() { return *materialsBuffer_; }
 
-        uint_t GetFrameResourcesCount() const;
+        const FrameResources* GetFrameResources() const { return frameResources_.get(); }
+        FrameResources* GetFrameResourcesNonConst() { return frameResources_.get(); }
+
+        void SetGraphicsRoot(RootSignatureType type);
 
     private:
         void CreateSwapChain();

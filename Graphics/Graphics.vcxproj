@@ -65,7 +65,8 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3d12.lib;dxgi.lib;</AdditionalDependencies>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -84,11 +85,16 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <Lib>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Core\Camera.h" />
     <ClInclude Include="Core\Lighting.h" />
-    <ClInclude Include="Utility\FreeIndices.h" />
+    <ClInclude Include="Core\RenderItemWithInstances.h" />
+    <ClInclude Include="Utility\BufferStuff.h" />
     <ClInclude Include="Interface\GraphicsConsts.h" />
     <ClInclude Include="Interface\GraphicsTypes.h" />
     <ClInclude Include="SDK\PipelineStateObject.h" />
@@ -110,7 +116,8 @@
   <ItemGroup>
     <ClCompile Include="Core\Camera.cpp" />
     <ClCompile Include="Core\Lighting.cpp" />
-    <ClCompile Include="Utility\FreeIndices.cpp" />
+    <ClCompile Include="Core\RenderItemWithInstances.cpp" />
+    <ClCompile Include="Utility\BufferStuff.cpp" />
     <ClCompile Include="Interface\GraphicsConsts.cpp" />
     <ClCompile Include="SDK\PipelineStateObject.cpp" />
     <ClCompile Include="SDK\RootSignature.cpp" />
@@ -158,9 +165,9 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
-      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">gsh_%(Filename).h</VariableName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">gsh_%(Filename)</VariableName>
       <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Shaders\Compiled\%(Filename).h</HeaderFileOutput>
-      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">gsh_%(Filename).h</VariableName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">gsh_%(Filename)</VariableName>
       <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Shaders\Compiled\%(Filename).h</HeaderFileOutput>
     </FxCompile>
     <FxCompile Include="Shaders\lightingInstanced_Vertex.hlsl">
@@ -168,9 +175,9 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
-      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">gsh_%(Filename).h</VariableName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">gsh_%(Filename)</VariableName>
       <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Shaders\Compiled\%(Filename).h</HeaderFileOutput>
-      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">gsh_%(Filename).h</VariableName>
+      <VariableName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">gsh_%(Filename)</VariableName>
       <HeaderFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Shaders\Compiled\%(Filename).h</HeaderFileOutput>
     </FxCompile>
     <FxCompile Include="Shaders\lighting_Pixel.hlsl">
@@ -208,10 +215,17 @@
     <None Include="Shaders\InputLayouts\color.hlsli" />
     <None Include="Shaders\ConstantBuffers\PerObject.hlsli" />
     <None Include="Shaders\ConstantBuffers\PerPass.hlsli" />
-    <None Include="Shaders\consts.shared" />
+    <ClInclude Include="Shaders\consts.shared.h">
+      <FileType>Document</FileType>
+    </ClInclude>
     <None Include="Shaders\InputLayouts\normalTex.hlsli" />
     <None Include="Shaders\StructuredBuffers\InstanceData.hlsli" />
     <None Include="Shaders\StructuredBuffers\MaterialData.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Pile\Pile.vcxproj">
+      <Project>{2f76dd6a-5f4a-48c0-b377-2cca96985032}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,28 +1,29 @@
 #pragma once
 #include "stdafx.h"
 #include "SDK\GpuBuffer.h"
-#include "Core\GraphicsCore.h"
+#include "Utility\BufferStuff.h"
 
 namespace Graphics {
 
     class Material;
 
-    struct RenderVerticesDesc // keep in sync with grtRenderVertices
+    struct RenderVerticesDesc
     {
         uint8 *data;
         uint32 verticesCount;
     };
-    struct RenderItemDesc // keep in sync with grtRenderSubItemDesc
+    struct RenderItemDesc
     {
         std::string& name;
         XMFLOAT4X4& transform;
-        Material *material;
         D3D12_PRIMITIVE_TOPOLOGY primitiveTopology;
+        Material *material;
     };
 
     class RenderItem;
     
-    class RenderSubItem {
+    class RenderSubItem : public Utility::BufferEntryDirty
+    {
     public:
         RenderSubItem(uint32 baseVertexLocation,
             uint32 verticesCount,
@@ -37,26 +38,15 @@ namespace Graphics {
         uint32 BaseVertexLocation() const { return baseVertexLocation_; }
         uint32 VerticesCount() const { return verticesCount_; }
         
-        uint32 BufferIndex() const { return objBufferIndex_; }
-        const bool IsDirty() const { return dirtyFramesCount_ != 0; }
-        const void DecreaseDirtyFramesCount() { --dirtyFramesCount_; }
-
         const XMFLOAT4X4& GetTransform() const { return transform_; }
-        void SetTransform(const XMFLOAT4X4& transform) {
-            transform_ = transform;
-            dirtyFramesCount_ = (uint32)GraphicsCore::GetInstance().GetFrameResourcesCount();
-        }
+        void SetTransform(const XMFLOAT4X4& transform);
 
         uint32 GetMaterialIndex() const { return materialIndex_; }
         D3D12_PRIMITIVE_TOPOLOGY GetPrimitiveTopology() const { return primitiveTopology_; }
 
-        const RenderItem& Container() const { return container_; }
-
     private:
         uint32 baseVertexLocation_;
         uint32 verticesCount_;
-        uint32 dirtyFramesCount_;
-        uint32 objBufferIndex_;
         XMFLOAT4X4 transform_;
         uint32 materialIndex_;
         D3D12_PRIMITIVE_TOPOLOGY primitiveTopology_;
@@ -68,12 +58,12 @@ namespace Graphics {
     {
     public:
         static void Create(
-            const std::vector<RenderItemDesc>& itemsDescs,
-            const std::vector<RenderVerticesDesc>& verticesDescs,
-            const std::vector<uint32> itemsToVertices,
+            const RenderItemDesc* itemsDescs, uint32 itemsDescsCount,
+            const RenderVerticesDesc* verticesDescs, uint32 verticesDescsCount,
+            const uint32* itemsToVertices,
             uint32 vertexSize,
             CommandContext& commandContext_,
-            RenderItem *&pri);
+            std::unique_ptr<RenderItem>& ri);
 
         D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const;
         uint32 VertexByteStride() const { return vertexSize_; }

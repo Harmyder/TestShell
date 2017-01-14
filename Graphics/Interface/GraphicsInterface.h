@@ -18,17 +18,17 @@ void grSetPerspective(float aspectRatioWidthOverHeight, float fov, float nearCli
 XMMATRIX grGetViewTransform();
 XMMATRIX grGetInvViewTransform();
 
-void grPreBeginScene();
 void grBeginScene();
 void grEndScene();
-void grDrawRenderItem(grRenderItem renderItem);
-void grDrawRenderSubItem(grRenderItem renderItem, const std::string& name);
+void grDrawRenderItem(grRenderItem ri);
+void grDrawRenderItem(grRenderItemWithInstances riwi);
+void grDrawRenderSubItem(grRenderItem ri, const std::string& name);
 
 // As context contains CommandList may we need to be able to create several
 // of them even in single threaded application
 grCommandContext grGetGraphicsContext();
 
-grRootSignature grCreateRootSignature();
+grRootSignature grCreateRootSignature(greRootSignature::Type type);
 void grSetRootSignature(grRootSignature rootSignature, grCommandContext commandContext);
 void grDestroyRootSignature(grRootSignature rootSignature);
 
@@ -41,9 +41,11 @@ grMaterial grCreatePredefinedMaterial(greLibraryMaterial::Type lm, const std::st
 void grUpdateMaterial(grMaterial material, const DirectX::XMFLOAT4& ambient, const DirectX::XMFLOAT4& diffuse, const DirectX::XMFLOAT4& specular, float fresnelR0, float roughness);
 void grDestroyMaterial(grMaterial material);
 
-grRenderItem grCreateRenderItem(const std::vector<grtRenderVertices>& vertices, const std::vector<grtRenderSubItemDesc>& renderItems, const std::vector<uint32>& itemsToVertices, uint32 vertexSize, grCommandContext commandContext);
+grRenderItem grCreateRenderItem(const grtRenderItemDesc& renderItemDesc, uint32 vertexSize, grCommandContext commandContext);
+grRenderItemWithInstances grCreateRenderItemWithInstances(const grtRenderSubItemWithInstancesDesc& desc, const grtRenderVertices& vertices, uint32 vertexSize, grCommandContext cc);
 void grUpdateRenderSubItemTransform(grRenderItem renderItem, const std::string& name, const XMFLOAT4X4& transform);
 void grDestroyRenderItem(grRenderItem renderItem);
+void grDestroyRenderItem(grRenderItemWithInstances renderItem);
 
 void __vectorcall grSetCameraAffineTransform(FXMMATRIX affine, XMVECTOR translation);
 XMVECTOR __vectorcall grGetCameraPosition();

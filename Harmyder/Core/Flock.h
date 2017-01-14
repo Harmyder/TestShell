@@ -13,10 +13,18 @@ namespace Harmyder
         // float stdDevX; -- not implemented, for now all of the same size
     };
 
+    struct Piece {
+        XMFLOAT4X3 transform;
+        //float scale; -- not implemented, all of the same size for now, use scale_ instead
+    };
+
     class Flock
     {
     public:
         static void Create(const std::string& name, FlockEntity& type, std::unique_ptr<Flock>& flock);
+
+        uint32 GetPiecesCount() { return (uint32)pieces_.size(); }
+        const Piece* GetPieces() { return pieces_.data(); }
 
     private:
         Flock(const std::string& name, const float scale) : name_(name), scale_(scale) {}
@@ -27,10 +35,6 @@ namespace Harmyder
         const Sphere* sphereBV_;
 
         const float scale_; // global scale for now
-        struct Piece {
-            XMFLOAT4X3 transform;
-            //float scale; -- not implemented, all of the same size for now, use scale_ instead
-        };
         std::vector<Piece> pieces_;
     };
 }

@@ -22,7 +22,7 @@ namespace Graphics
     }
 
     ID3D12CommandAllocator* CommandQueue::AcquireAllocator() {
-        return commandAllocatorPool_->AcquireAllocator(currentFence_);
+        return commandAllocatorPool_->AcquireAllocator(fence_->GetCompletedValue());
     }
 
     void CommandQueue::ReleaseAllocator(ID3D12CommandAllocator* allocator) {

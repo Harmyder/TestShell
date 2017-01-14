@@ -1,8 +1,0 @@
-#ifndef __CONSTS_SHARED__
-    #define __CONSTS_SHARED__
-
-    #define MAX_DIR_LIGHTS_COUNT 3
-    #define MAX_PNT_LIGHTS_COUNT 3
-    #define MAX_SPT_LIGHTS_COUNT 3
-
-#endif // __CONSTS_SHARED__

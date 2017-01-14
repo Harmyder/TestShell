@@ -7,9 +7,11 @@
 #include "Core\FrameResource.h"
 #include "SDK\UploadBuffer.h"
 #include "SDK\CommandContext.h"
+#include "SDK\RootSignature.h"
 #include "Core\RenderItem.h"
+#include "Core\RenderItemWithInstances.h"
 #include "Core\Lighting.h"
-#include "Utility\FreeIndices.h"
+#include "Utility\BufferStuff.h"
 
 using namespace std;
 using namespace DirectX;
@@ -60,7 +62,8 @@ namespace Graphics
         frameResources_ = make_unique<FrameResources>(ip.FrameResourcesCount,
             ip.PassesCountLimit,
             ip.SceneObjectsCountLimit,
-            ip.MaterialsCountLimit);
+            ip.MaterialsCountLimit,
+            ip.InstancesCountLimit);
         materialsBuffer_ = make_unique<MaterialsBuffer>(ip.MaterialsCountLimit);
         lightsHolder_ = make_unique<LightsHolder>();
 
@@ -69,8 +72,6 @@ namespace Graphics
 
         commandContext_->Flush(true);
     }
-
-    uint_t GraphicsCore::GetFrameResourcesCount() const { return frameResources_->Count(); }
 
     void GraphicsCore::CreateSwapChain() {
         RECT rc;
@@ -303,11 +304,23 @@ namespace Graphics
             }
         }
     }
-    void GraphicsCore::PreBeginScene() {
-        commandContext_->Reset();
+
+    void GraphicsCore::SetGraphicsRoot(RootSignatureType type) {
+        auto commandList = commandContext_->GetCommandList();
+
+        int passCbvIndex = passCbvOffset_ + currFrameResource_;
+        auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
+        passCbvHandle.Offset(passCbvIndex, cbvSrvUavDescriptorSize_);
+        commandList->SetGraphicsRootDescriptorTable(1, passCbvHandle);
+
+        if (type != RootSignatureType::kColor) {
+            auto matBuffer = frameResources_->GetFrameResource(currFrameResource_).matBuffer->Resource();
+            commandList->SetGraphicsRootShaderResourceView(2, matBuffer->GetGPUVirtualAddress());
+        }
     }
 
     void GraphicsCore::BeginScene() {
+        commandContext_->Reset();
         auto commandList = commandContext_->GetCommandList();
 
         commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
@@ -325,13 +338,6 @@ namespace Graphics
         commandList->RSSetScissorRects(1, &scissorRect_);
 
         Update();
-        int passCbvIndex = passCbvOffset_ + currFrameResource_;
-        auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
-        passCbvHandle.Offset(passCbvIndex, cbvSrvUavDescriptorSize_);
-        commandList->SetGraphicsRootDescriptorTable(1, passCbvHandle);
-
-        auto matBuffer = frameResources_->GetFrameResource(currFrameResource_).matBuffer->Resource();
-        commandList->SetGraphicsRootShaderResourceView(2, matBuffer->GetGPUVirtualAddress());
     }
 
     void GraphicsCore::EndScene() {
@@ -380,5 +386,38 @@ namespace Graphics
             auto& rsi = (*it).second;
             DrawRenderSubItemInternal(ri, rsi);
         }
+    }
+
+    void GraphicsCore::DrawRenderItemWithInstances(RenderItemWithInstances& riwi) {
+        auto cbObjIndex = riwi.BufferIndex() + currFrameResource_ * frameResources_->ObjsCountLimit;
+        if (riwi.IsDirty()) {
+            auto& fr = frameResources_->GetFrameResource(currFrameResource_);
+            auto currObjectCB = fr.objCB.get();
+            PerObjConsts objConstants;
+            objConstants.World = riwi.GetTransform();
+            objConstants.MaterialIndex = (uint32)-1;
+            currObjectCB->CopyData(cbObjIndex, &objConstants);
+            riwi.DecreaseDirtyFramesCount();
+
+            auto currInstBuffer = fr.instBuffer.get();
+            uint32 instancesCount = (uint32)riwi.GetInstances().size();
+            for (uint32 i = 0; i < instancesCount; ++i) {
+                currInstBuffer->CopyData(riwi.GetStartInstanceIndex() + i, &riwi.GetInstances()[i]);
+            }
+        }
+
+        auto commandList = commandContext_->GetCommandList();
+
+        commandList->IASetVertexBuffers(0, 1, &riwi.VertexBufferView());
+        commandList->IASetPrimitiveTopology(riwi.GetPrimitiveTopology());
+
+        auto cbvHandleObj = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
+        cbvHandleObj.Offset(cbObjIndex, cbvSrvUavDescriptorSize_);
+        commandList->SetGraphicsRootDescriptorTable(0, cbvHandleObj);
+
+        auto instBuffer = frameResources_->GetFrameResource(currFrameResource_).instBuffer->Resource();
+        commandList->SetGraphicsRootShaderResourceView(3, instBuffer->GetGPUVirtualAddress());
+
+        commandList->DrawInstanced(riwi.VerticesCount(), (UINT)riwi.GetInstances().size(), 0, 0);
     }
 }

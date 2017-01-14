@@ -1,38 +1,16 @@
 #pragma once
 #include <DirectXMath.h>
 #include <string>
-#include "Shaders\consts.shared"
+#include "Shaders\consts.shared.h"
+#include "Utility\BufferStuff.h"
 
 namespace Graphics
 {
-    class LightsHolder;
-
-    class BufferDirty {
-    public:
-        BufferDirty(uint32 bufferIndex) :
-            bufferIndex_(bufferIndex),
-            dirtyFramesCount_(0)
-        {}
-            
-        uint32 BufferIndex() const { return bufferIndex_; }
-        bool IsDirty() const { return dirtyFramesCount_ != 0; }
-        void DecreaseDirtyFramesCount() { --dirtyFramesCount_; }
-
-    protected:
-        void SetAllFramesDirty();
-
-    private:
-        friend LightsHolder;
-
-        uint32 bufferIndex_;
-        uint32 dirtyFramesCount_;
-    };
-
-    class DirectionalLight : public BufferDirty
+    class DirectionalLight : public Utility::BufferEntryDirty
     {
     public:
         DirectionalLight(uint32 bufferIndex) :
-            BufferDirty(bufferIndex)
+            BufferEntryDirty(bufferIndex)
         {}
 
         void Update(
@@ -54,11 +32,11 @@ namespace Graphics
         float pad2;
     };
 
-    class PointLight : public BufferDirty
+    class PointLight : public Utility::BufferEntryDirty
     {
     public:
         PointLight(uint32 bufferIndex) :
-            BufferDirty(bufferIndex)
+            BufferEntryDirty(bufferIndex)
         {}
 
         void Update(
@@ -88,11 +66,11 @@ namespace Graphics
         float pad2;
     };
 
-    class SpotLight : public BufferDirty
+    class SpotLight : public Utility::BufferEntryDirty
     {
     public:
         SpotLight(uint32 bufferIndex) :
-            BufferDirty(bufferIndex)
+            BufferEntryDirty(bufferIndex)
         {}
 
         void Update(
@@ -131,12 +109,12 @@ namespace Graphics
     };
 
     class MaterialsBuffer;
-    class Material : public BufferDirty
+    class Material : public Utility::BufferEntryDirty
     {
         friend MaterialsBuffer;
     public:
         Material(const std::string& name, uint32 bufferIndex) :
-            BufferDirty(bufferIndex),
+            BufferEntryDirty(bufferIndex),
             name_(name)
         {}
 

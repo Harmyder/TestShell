@@ -12,7 +12,7 @@ namespace Graphics
     class GpuBuffer : public Pile::NonCopyable
     {
         friend class RenderItem;
-        friend class RenderIndexedItem;
+        friend class RenderItemWithInstances;
     public:
         ~GpuBuffer();
 

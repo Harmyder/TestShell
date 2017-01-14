@@ -4,6 +4,7 @@
 //
 
 #pragma once
+#pragma warning(disable:4238) // nonstandard extension used : class rvalue used as lvalue
 
 #include <cassert>
 #include <vector>

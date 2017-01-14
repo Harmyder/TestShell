@@ -15,6 +15,8 @@ struct grCommandContext : grHandle { grCommandContext(void *commandContext) : gr
 
 struct grRenderItem : grHandle { grRenderItem(void *renderItem) : grHandle(renderItem) {} };
 
+struct grRenderItemWithInstances : grHandle { grRenderItemWithInstances(void *renderItem) : grHandle(renderItem) {} };
+
 struct grMaterial : grHandle { grMaterial(void *material) : grHandle(material) {} };
 
 struct grDirectionalLight : grHandle { grDirectionalLight(void *light) : grHandle(light) {} };

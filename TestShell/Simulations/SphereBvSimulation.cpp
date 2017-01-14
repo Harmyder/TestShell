@@ -7,6 +7,7 @@
 #include "Pipeline\SceneManager\SceneManager.h"
 #include "Pipeline\UserLevel\UserSceneFactory.h"
 #include "Harmyder\Interface\HarmyderInterface.h"
+#include "Simulations\Utility.h"
 
 using namespace Pipeline;
 using namespace Viewer;
@@ -24,13 +25,8 @@ void SphereBvSimulation::Init()
 
     const string path = "..\\..\\FBX\\";
     const string filetitle = "shark";
-    SceneManager &manager = SceneManager::GetInstance();
-    manager.Load(path, filetitle);
-
-    InputScene *inputScene = manager.GetScene();
-    UserSceneFactory factory;
-    RenderItemsDescriptions descs;
-    descs = factory.Build(*scene_, *inputScene);
+    ImportScene(path, filetitle);
+    auto descs = BuildDescsFromScene(*scene_);
     if (descs.Vertices.size() > 0) sceneDescsVertices_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque(descs.Vertices, sizeof(VertexNormalTex)));
     if (descs.Types.size() > 0) sceneDescsTypes_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque(descs.Types));
 
@@ -42,11 +38,11 @@ void SphereBvSimulation::Init()
     for (uint_t i = 0; i < verticesCount; ++i) {
         positions[i] = *(htPosition*)&mg.Vertices[i].Position;
     }
-    auto pointCloud = hfCreatePointCloudRigid(positions.get(), (uint32)verticesCount);
+    auto pointCloud = hfPointCloudRigidCreate(positions.get(), (uint32)verticesCount);
     auto sphere = hfComputeSphereBV(pointCloud);
 
-    auto rigidBody = hfCreateRigidBody(pointCloud, sphere);
-    hfSetTransform(rigidBody, *(htTransform*)&mesh.GetTransform());
+    auto rigidBody = hfRigidBodyCreate(pointCloud, sphere);
+    hfRigidBodySetTransform(rigidBody, *(htTransform4x4*)&mesh.GetTransform());
 
     vector<RenderItemTypeDesc> descsBV;
     PredefinedGeometryType type = PredefinedGeometryType::kSphere;
@@ -71,4 +67,7 @@ void SphereBvSimulation::Quit()
     if (sceneDescsVertices_) viewport_.DestroyRenderItemOpaque(*sceneDescsVertices_);
     if (sceneDescsTypes_) viewport_.DestroyRenderItemOpaque(*sceneDescsTypes_);
     if (boundingVolumeDesc_) viewport_.DestroyRenderItemTransparent(*boundingVolumeDesc_);
+    viewport_.DestroyMaterial("rigid");
+    viewport_.DestroyMaterial("collider");
+    viewport_.DestroyMaterial("boundingVolume");
 }

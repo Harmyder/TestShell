@@ -6,18 +6,20 @@
 void hfInit();
 void hfClose();
 
-hhPointCloudRigid hfCreatePointCloudRigid(const htPosition *points, uint32 pointsCount);
+hhPointCloudRigid hfPointCloudRigidCreate(const htPosition *points, uint32 pointsCount);
 htSphere hfComputeSphereBV(hhPointCloudRigid pointCloud);
-void hfDestroyPointCloud(hhPointCloudRigid pointCloud);
+void hfPointCloudRigidDestroy(hhPointCloudRigid pointCloud);
 
-hhMeshRigid hfCreateMeshRigid(const htPosition *vertices, uint32 verticesCount, const htTriangle *triangles, uint32 trianglesCount);
-void hfDestroyMesh(hhMeshRigid mesh);
+hhMeshRigid hfMeshRigidCreate(const htPosition *vertices, uint32 verticesCount, const htTriangle *triangles, uint32 trianglesCount);
+void hfMeshRigidDestroy(hhMeshRigid mesh);
 
-hhRigidBody hfCreateRigidBody(hhPointCloudRigid pointCloud, htSphere bv);
-void hfSetTransform(hhRigidBody rigidBody, const htTransform& transform);
-const htTransform& hfGetTransform(hhRigidBody rigidBody);
-void hfDestroyRigidBody(hhRigidBody rigidBody);
+hhRigidBody hfRigidBodyCreate(hhPointCloudRigid pointCloud, htSphere bv);
+void hfRigidBodySetTransform(hhRigidBody rigidBody, const htTransform4x4& transform);
+const htTransform4x4& hfRigidBodyGetTransform(hhRigidBody rigidBody);
+void hfRigidBodyDestroy(hhRigidBody rigidBody);
 
-hhFlock hfCreateFlock(const char* name, const htFlockEntity &type);
-void hfDestroyFlock(hhFlock flock);
+hhFlock hfFlockCreate(const char* name, const htFlockEntity &type);
+uint32 hfFlockGetPiecesCount(hhFlock flock);
+const htFlockPiece* hfFlockGetPieces(hhFlock flock);
+void hfFlockDestroy(hhFlock flock);
 

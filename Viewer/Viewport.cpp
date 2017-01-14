@@ -46,12 +46,11 @@ namespace Viewer
     }
 
     Viewport::Viewport(HWND hWnd) : hwnd_(hWnd),
-        rootSignature_(nullptr),
         referenceFrame_(nullptr),
         grid_(nullptr)
     {
         grInit(hwnd_, { kSceneObjectsCountLimit, kInstancesCountLimit, kPassesCountLimit, kMaterialsCountLimit, kFrameResourcesCount });
-        rootSignature_ = grCreateRootSignature();
+        PrepareRootSignatures();
         PreparePsos();
 
         RECT rect;
@@ -91,6 +90,12 @@ namespace Viewer
         grShutdown();
     }
 
+    void Viewport::PrepareRootSignatures() {
+        rootSignatures_.insert(make_pair(RootSignatureType::kColor, grCreateRootSignature(greRootSignature::kColor)));
+        rootSignatures_.insert(make_pair(RootSignatureType::kLighting, grCreateRootSignature(greRootSignature::kLighting)));
+        rootSignatures_.insert(make_pair(RootSignatureType::kLightingWithInstances, grCreateRootSignature(greRootSignature::kLightingWithInstances)));
+    }
+
     void Viewport::PreparePsos() {
         grtPipelineStateDesc desc;
         desc.BlendEnable = false;
@@ -98,29 +103,40 @@ namespace Viewer
         desc.FillMode = greFillMode::kSolid;
         desc.PrimitiveTolopologyType = grePrimitiveTopologyType::kTriangle;
         desc.VertexType = greVertexType::kNormalTex;
-        psos_.insert(make_pair(PsoType::kOpaque, grCreatePipelineStateObject(desc, rootSignature_)));
+        desc.ShaderType = greShaderType::kLighting;
+        pso2rs_.insert(make_pair(PsoType::kOpaque, RootSignatureType::kLighting));
+        psos_.insert(make_pair(PsoType::kOpaque, grCreatePipelineStateObject(desc, rootSignatures_.at(pso2rs_[PsoType::kOpaque]))));
 
-        // Transparent objects
+        desc.ShaderType = greShaderType::kLightingWithInstances;
+        pso2rs_.insert(make_pair(PsoType::kOpaqueWithInstances, RootSignatureType::kLightingWithInstances));
+        psos_.insert(make_pair(PsoType::kOpaqueWithInstances, grCreatePipelineStateObject(desc, rootSignatures_.at(pso2rs_[PsoType::kOpaqueWithInstances]))));
+
         desc.PrimitiveTolopologyType = grePrimitiveTopologyType::kLine;
         desc.VertexType = greVertexType::kColor;
-        psos_.insert(make_pair(PsoType::kLine, grCreatePipelineStateObject(desc, rootSignature_)));
+        desc.ShaderType = greShaderType::kColor;
+        pso2rs_.insert(make_pair(PsoType::kLine, RootSignatureType::kColor));
+        psos_.insert(make_pair(PsoType::kLine, grCreatePipelineStateObject(desc, rootSignatures_.at(pso2rs_[PsoType::kLine]))));
 
-        // Transparent objects
         desc.BlendEnable = true;
         desc.DepthEnable = false;
         desc.PrimitiveTolopologyType = grePrimitiveTopologyType::kTriangle;
         desc.VertexType = greVertexType::kNormalTex;
-        psos_.insert(make_pair(PsoType::kTransparent, grCreatePipelineStateObject(desc, rootSignature_)));
+        desc.ShaderType = greShaderType::kLighting;
+        pso2rs_.insert(make_pair(PsoType::kTransparent, RootSignatureType::kLighting));
+        psos_.insert(make_pair(PsoType::kTransparent, grCreatePipelineStateObject(desc, rootSignatures_.at(pso2rs_[PsoType::kTransparent]))));
     }
 
     void Viewport::CreateMaterial(Material::Type material, const string& name) {
         materials_.insert(make_pair(name, grCreatePredefinedMaterial(Material::ToSrc(material), name)));
     }
 
+    void Viewport::DestroyMaterial(const std::string& name) {
+        grDestroyMaterial(materials_.at(name));
+    }
+
     void Viewport::BeforeDraw() {
-        grPreBeginScene();
-        grSetRootSignature(rootSignature_, grGetGraphicsContext());
         grBeginScene();
+        grSetRootSignature(rootSignatures_.at(RootSignatureType::kLighting), grGetGraphicsContext());
     }
 
     void Viewport::AfterDraw() {
@@ -128,19 +144,34 @@ namespace Viewer
     }
 
     void Viewport::BeforeOpaque() { SetPso(PsoType::kOpaque); }
+    void Viewport::BeforeOpaqueWithInstances() { SetPso(PsoType::kOpaqueWithInstances); }
     void Viewport::BeforeLine() { SetPso(PsoType::kLine); }
     void Viewport::BeforeTransparent() { SetPso(PsoType::kTransparent); }
+
+    void Viewport::SetRootSignature(RootSignatureType type) {
+        if (currentRootSignatureType_ != type) {
+            currentRootSignatureType_ = type;
+            grSetRootSignature(rootSignatures_.at(type), grGetGraphicsContext());
+        }
+    }
 
     void Viewport::SetPso(PsoType type) {
         if (currentPsoType_ != type) {
             currentPsoType_ = type;
             grSetPipelineStateObject(psos_.at(currentPsoType_), grGetGraphicsContext());
+            SetRootSignature(pso2rs_[type]);
         }
     }
 
     void Viewport::DrawRenderItemsOpaque() {
-        for (const auto& ri : renderItemsOpaque_) {
+        for (auto& ri : renderItemsOpaque_) {
             grDrawRenderItem(ri);
+        }
+    }
+
+    void Viewport::DrawRenderItemsOpaqueWithInstances() {
+        for (auto& riwi : renderItemsWithInstances_) {
+            grDrawRenderItem(riwi);
         }
     }
 
@@ -239,6 +270,12 @@ namespace Viewer
         return --renderItemsTransparent_.end();
     }
 
+    RenderItemWithInstancesId Viewport::CreateRenderItemOpaqueWithInstances(const RenderItemWithInstancesDesc& descs, uint32 vertexSize) {
+        grRenderItemWithInstances ri = CreateRenderItemInternal(descs, vertexSize);
+        renderItemsWithInstances_.push_back(ri);
+        return --renderItemsWithInstances_.end();
+    }
+
     void Viewport::DestroyRenderItemOpaque(const StructRenderItemId& id) {
         grDestroyRenderItem(*id.Value);
         renderItemsOpaque_.erase(id.Value);
@@ -247,6 +284,11 @@ namespace Viewer
     void Viewport::DestroyRenderItemTransparent(const StructRenderItemId& id) {
         grDestroyRenderItem(*id.Value);
         renderItemsTransparent_.erase(id.Value);
+    }
+
+    void Viewport::DestroyRenderItemOpaqueWithInstances(const StructRenderItemWithInstancesId& id) {
+        grDestroyRenderItem(*id.Value);
+        renderItemsWithInstances_.erase(id.Value);
     }
 
     grRenderItem Viewport::CreateRenderItemInternal(const DescsVertices& viewportVerticesDescs, uint32 vertexSize) {
@@ -267,7 +309,21 @@ namespace Viewer
             ++currentItem;
         }
 
-        return grCreateRenderItem(vertices, descs, itemsToVertices, vertexSize, grGetGraphicsContext());
+        grtRenderItemDesc rid{ vertices.data(), (uint32)vertices.size(), descs.data(), (uint32)descs.size(), itemsToVertices.data() };
+        return grCreateRenderItem(rid, vertexSize, grGetGraphicsContext());
+    }
+
+    grRenderItemWithInstances Viewport::CreateRenderItemInternal(const RenderItemWithInstancesDesc& desc, uint32 vertexSize) {
+        vector<grtRenderSubItemInstanceDesc> engineInstancesDesc;
+        engineInstancesDesc.reserve(desc.instancesCount);
+        for (uint32 i = 0; i < desc.instancesCount; ++i) {
+            engineInstancesDesc.emplace_back(desc.instances[i].transform, materials_.at(desc.instances[i].material));
+        }
+        grtRenderSubItemWithInstancesDesc engineDesc(
+            desc.name, desc.transform, PrimitiveTopology::ToSrc(desc.primitiveTopology),
+            engineInstancesDesc.data(), (uint32)engineInstancesDesc.size());
+        grtRenderVertices vertices(desc.vertices, desc.verticesCount);
+        return grCreateRenderItemWithInstances(engineDesc, vertices, vertexSize, grGetGraphicsContext());
     }
 
     grRenderItem Viewport::CreateRenderItemInternal(const DescsTypes& viewportTypeDescs) {
@@ -296,6 +352,7 @@ namespace Viewer
             ++currentItem;
         }
 
-        return grCreateRenderItem(vertices, descs, itemsToVertices, sizeof(VertexNormalTex), grGetGraphicsContext());
+        grtRenderItemDesc rid{ vertices.data(), (uint32)vertices.size(), descs.data(), (uint32)descs.size(), itemsToVertices.data() };
+        return grCreateRenderItem(rid, sizeof(VertexNormalTex), grGetGraphicsContext());
     }
 }

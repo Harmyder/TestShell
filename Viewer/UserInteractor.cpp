@@ -7,6 +7,7 @@
 #include "GameInput.h"
 #include "Viewport.h"
 #include "CameraController.h"
+
 using namespace std;
 using namespace Pile;
 
@@ -154,7 +155,9 @@ namespace Viewer
             }
         }
         else {
-            if (cameraCtrl_->IsStopedTrackingMouse()) ReleaseCapture();
+            if (cameraCtrl_->IsStopedTrackingMouse()) {
+                ReleaseCapture();
+            }
         }
         gameInput_->OnMouseMove(x, y);
     }
@@ -231,6 +234,9 @@ namespace Viewer
         
         viewport_->BeforeOpaque();
         viewport_->DrawRenderItemsOpaque();
+
+        viewport_->BeforeOpaqueWithInstances();
+        viewport_->DrawRenderItemsOpaqueWithInstances();
 
         viewport_->BeforeTransparent();
         viewport_->DrawRenderItemsTransparent();

@@ -23,7 +23,7 @@ namespace Pipeline
         void SetTransform(const DirectX::XMFLOAT4X4& transform);
 
         const MeshGeometry &GetGeometry() const;
-        MeshGeometry &GetNonConstGeometry();
+        MeshGeometry &GetGeometryNonConst();
         uint_t GetRenderItemIndex() const { return renderItemIndex_; }
         void SetRenderItemIndex(uint_t index) { renderItemIndex_ = index; }
 

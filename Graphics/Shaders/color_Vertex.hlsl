@@ -1,5 +1,7 @@
-#define REGISTER_CB_PER_OBJECT b0
-#define REGISTER_CB_PER_PASS   b1
+#include "consts.shared.h"
+
+#define REGISTER_CB_PER_OBJECT b0//REGISTER_C_CB_PER_OBJECT
+#define REGISTER_CB_PER_PASS   b1//REGISTER_C_CB_PER_OBJECT
 
 #include "InputLayouts\color.hlsli"
 #include "ConstantBuffers\PerObject.hlsli"
