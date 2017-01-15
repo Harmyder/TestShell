@@ -232,6 +232,11 @@ void grUpdateDirectionalLight(grDirectionalLight light, DirectX::XMFLOAT3 streng
     l->Update(strength, direction);
 }
 
+void grUpdatePointLight(grPointLight light, DirectX::XMFLOAT3 position) {
+    auto l = static_cast<PointLightHandle>(light).GetValue();
+    l->Update(position);
+}
+
 void grUpdatePointLight(grPointLight light, DirectX::XMFLOAT3 strength, float range, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 attenuation) {
     auto l = static_cast<PointLightHandle>(light).GetValue();
     l->Update(strength, range, position, attenuation);
@@ -240,6 +245,11 @@ void grUpdatePointLight(grPointLight light, DirectX::XMFLOAT3 strength, float ra
 void grUpdateSpotLight(grSpotLight light, DirectX::XMFLOAT3 strength, float range, DirectX::XMFLOAT3 position, float spot, DirectX::XMFLOAT3 direction, DirectX::XMFLOAT3 attenuation) {
     auto l = static_cast<SpotLightHandle>(light).GetValue();
     l->Update(strength, range, position, spot, direction, attenuation);
+}
+
+void grUpdateSpotLight(grSpotLight light, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 direction) {
+    auto l = static_cast<SpotLightHandle>(light).GetValue();
+    l->Update(position, direction);
 }
 
 void grDestroyDirectionalLight(grDirectionalLight light) {

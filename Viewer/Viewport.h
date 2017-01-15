@@ -118,6 +118,8 @@ namespace Viewer
         Viewport(HWND hWnd);
         ~Viewport();
 
+        void UpdateCamera(const XMFLOAT3X3& transform, const XMFLOAT3& frameTranslation);
+
         HWND GetHwnd() const { return hwnd_; }
         uint32 GetWidth() const { return width_; }
         uint32 GetHeight() const { return height_; }
@@ -182,5 +184,11 @@ namespace Viewer
         std::unordered_map<PsoType, RootSignatureType> pso2rs_;
         grRenderItem referenceFrame_;
         grRenderItem grid_;
+
+        grDirectionalLight lightKey_;
+        grDirectionalLight lightFill_;
+        grDirectionalLight lightBack_;
+        grPointLight lightPoint_;
+        grSpotLight lightSpot_;
     };
 }

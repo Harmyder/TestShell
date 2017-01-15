@@ -52,10 +52,12 @@ XMVECTOR __vectorcall grGetCameraPosition();
 
 grDirectionalLight grCreateDirectionalLight(DirectX::XMFLOAT3 strength, DirectX::XMFLOAT3 direction);
 grPointLight grCreatePointLight(DirectX::XMFLOAT3 strength, float range, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 attenuation);
-grSpotLight grCreateSpotLight(DirectX::XMFLOAT3 strength, float range, DirectX::XMFLOAT3 position, float spot, DirectX::XMFLOAT3 eirection, DirectX::XMFLOAT3 attenuation);
+grSpotLight grCreateSpotLight(DirectX::XMFLOAT3 strength, float range, DirectX::XMFLOAT3 position, float spot, DirectX::XMFLOAT3 direction, DirectX::XMFLOAT3 attenuation);
 
 void grUpdateDirectionalLight(grDirectionalLight light, DirectX::XMFLOAT3 strength, DirectX::XMFLOAT3 direction);
+void grUpdatePointLight(grPointLight light, DirectX::XMFLOAT3 position);
 void grUpdatePointLight(grPointLight light, DirectX::XMFLOAT3 strength, float range, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 attenuation);
+void grUpdateSpotLight(grSpotLight light, DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 direction);
 void grUpdateSpotLight(grSpotLight light, DirectX::XMFLOAT3 strength, float range, DirectX::XMFLOAT3 position, float spot, DirectX::XMFLOAT3 eirection, DirectX::XMFLOAT3 attenuation);
 
 void grDestroyDirectionalLight(grDirectionalLight light);

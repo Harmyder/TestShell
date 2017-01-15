@@ -3,7 +3,6 @@
 #include "CameraController.h"
 
 #include "GameInput.h"
-#include "Graphics\Interface\GraphicsInterface.h"
 
 using namespace std;
 using namespace DirectX;
@@ -11,10 +10,15 @@ using namespace DirectX;
 namespace Viewer
 {
     CameraController::CameraController(const GameInput& gameInput, UpVector upVector) : gameInput_(gameInput) {
-        if (upVector == UpVector::Y) worldUp_ = g_XMIdentityR1;
-        else if (upVector == UpVector::Z) worldUp_ = g_XMIdentityR2;
-        worldNorth_ = XMVector3Normalize(XMVector3Cross(worldUp_, g_XMIdentityR0));
-        worldEast_ = XMVector3Normalize(XMVector3Cross(worldNorth_, worldUp_));
+        XMVECTOR up, north, east;
+        if (upVector == UpVector::Y) up = g_XMIdentityR1;
+        else if (upVector == UpVector::Z) up = g_XMIdentityR2;
+        else throw "X can't be up axis";
+        north = XMVector3Normalize(XMVector3Cross(up, g_XMIdentityR0));
+        east = XMVector3Normalize(XMVector3Cross(north, up));
+        XMStoreFloat3(&worldUp_, up);
+        XMStoreFloat3(&worldNorth_, north);
+        XMStoreFloat3(&worldEast_, east);
     }
 
     void CameraController::Update(float dT) {
@@ -51,7 +55,7 @@ namespace Viewer
             strafe = -dT * kKeyboardSensitivity;
         }
         if (gameInput_.IsPressed(GameInput::Input::kKeyD)) {
-            strafe = dT * kKeyboardSensitivity;
+            strafe = +dT * kKeyboardSensitivity;
         }
         if (gameInput_.IsPressed(GameInput::Input::kKeyS)) {
             walk = dT * kKeyboardSensitivity;
@@ -66,16 +70,19 @@ namespace Viewer
             ascent = dT * kKeyboardSensitivity;
         }
 
-        XMMATRIX transform(worldEast_, worldUp_, worldNorth_, g_XMIdentityR3);
+        XMVECTOR up = XMLoadFloat3(&worldUp_);
+        XMVECTOR forward = XMLoadFloat3(&worldNorth_);
+        XMVECTOR right = XMLoadFloat3(&worldEast_);
+        XMMATRIX transform(right, up, forward, g_XMIdentityR3);
         transform = transform
-            * XMMatrixRotationAxis(worldEast_, currentPitch_)
-            * XMMatrixRotationAxis(worldUp_, currentYaw_);
+            * XMMatrixRotationAxis(right, currentPitch_)
+            * XMMatrixRotationAxis(up, currentYaw_);
 
-        XMVECTOR frameTranslation = { strafe, ascent, walk, 0.f };
-        frameTranslation = XMVectorSetW(XMVector3Transform(frameTranslation, transform), 1.f);
-        XMVECTOR translation = frameTranslation + grGetCameraPosition();
-        
-        grSetCameraAffineTransform(transform, translation);
+        XMVECTOR translation = { strafe, ascent, walk, 0.f };
+        translation = XMVectorSetW(XMVector3Transform(translation, transform), 1.f);
+
+        XMStoreFloat3x3(&transform_, transform);
+        XMStoreFloat3(&translation_, translation);
     }
 
     bool CameraController::IsTrackingMouse() const {

@@ -6,7 +6,7 @@ namespace Viewer
     class Camera;
     class GameInput;
 
-    __declspec(align(16)) class CameraController
+    class CameraController
     {
     public:
         enum class UpVector { Y, Z };
@@ -15,15 +15,21 @@ namespace Viewer
         void Update(float dT);
         bool IsTrackingMouse() const;
 
+        XMFLOAT3X3 GetTransform() { return transform_; }
+        XMFLOAT3 GetFrameTranslation() { return translation_; }
+
     public:
         void ObserverAdd(ICameraControllerObserver* o) { observers_.push_back(o); }
         void ObserverRemove(ICameraControllerObserver* o) { observers_.remove(o); }
 
     private:
-        XMVECTOR worldUp_;
-        XMVECTOR worldNorth_;
-        XMVECTOR worldEast_;
-        
+        XMFLOAT3 worldUp_;
+        XMFLOAT3 worldNorth_;
+        XMFLOAT3 worldEast_;
+
+        XMFLOAT3X3 transform_;
+        XMFLOAT3 translation_;
+       
         const float kMouseSensitivityX = .003f;
         const float kMouseSensitivityY = .003f;
         const float kKeyboardSensitivity = 3.f;

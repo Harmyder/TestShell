@@ -20,9 +20,6 @@ namespace Graphics
     }
 
     void Camera::SetLookDirection(FXMVECTOR forward, FXMVECTOR up) {
-        XMFLOAT4 v;
-        DirectX::XMStoreFloat4(&v, forward);
-        DirectX::XMStoreFloat4(&v, up);
         XMVECTOR right = XMVector3Cross(forward, up);
         cameraRotation_ = XMMATRIX(right, XMVector3Cross(right, forward), forward, g_XMIdentityR3);
     }

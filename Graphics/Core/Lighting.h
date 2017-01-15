@@ -39,6 +39,11 @@ namespace Graphics
             BufferEntryDirty(bufferIndex)
         {}
 
+        void Update(DirectX::XMFLOAT3 position) {
+            position_ = position;
+            SetAllFramesDirty();
+        }
+
         void Update(
             DirectX::XMFLOAT3 strength,
             float range,
@@ -72,6 +77,12 @@ namespace Graphics
         SpotLight(uint32 bufferIndex) :
             BufferEntryDirty(bufferIndex)
         {}
+
+        void Update(DirectX::XMFLOAT3 position, DirectX::XMFLOAT3 direction) {
+            position_ = position;
+            direction_ = direction;
+            SetAllFramesDirty();
+        }
 
         void Update(
             DirectX::XMFLOAT3 strength,
@@ -125,6 +136,7 @@ namespace Graphics
             kJade,
             kObsidian,
             kSilver,
+            kGold,
         };
         static std::unique_ptr<Material> CreatePredefined(Type type, const std::string& name, uint32 bufferIndex);
 

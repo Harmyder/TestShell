@@ -49,17 +49,17 @@ namespace Viewer
         XMFLOAT3 normals[6] =
         {
             // front face
-            XMFLOAT3(0.f, 0.f, -.5f),
+            XMFLOAT3(0.f, 0.f, -1.f),
             // back face
-            XMFLOAT3(0.f, 0.f, .5f),
+            XMFLOAT3(0.f, 0.f, 1.f),
             // left face
-            XMFLOAT3(.5f, 0.f, 0.f),
+            XMFLOAT3(-1.f, 0.f, 0.f),
             // right face
-            XMFLOAT3(-.5f, 0.f, 0.f),
+            XMFLOAT3(1.f, 0.f, 0.f),
             // top face
-            XMFLOAT3(0.f, 5.f, 0.f),
+            XMFLOAT3(0.f, 1.f, 0.f),
             // bottom face
-            XMFLOAT3(0.f, -5.f, 0.f),
+            XMFLOAT3(0.f, -1.f, 0.f),
         };
 
         XMFLOAT2 uvs[6] =
@@ -211,6 +211,10 @@ namespace Viewer
             XMStoreFloat3(&output[baseVertexIndex + 1].Normal, normalXM);
             XMStoreFloat3(&output[baseVertexIndex + 2].Normal, normalXM);
         }
+
+        for (auto& v : output) {
+            XMStoreFloat3(&v.Normal, XMVector3Normalize(XMLoadFloat3(&v.Normal)));
+        }
     }
 
     // Create cylinder along Y-axis
@@ -227,7 +231,7 @@ namespace Viewer
         uint32 ringsCount = stacksCount + 1;
 
         const uint32 baseVerticesCount = ringsCount * slicesCount;
-        XMFLOAT3 *baseVertices = new XMFLOAT3[baseVerticesCount];
+        vector<XMFLOAT3> baseVertices(baseVerticesCount);
 
         // Compute all cylinder vertices starting at the bottom and moving up.
         uint32 vertexIndex = 0;
@@ -340,8 +344,6 @@ namespace Viewer
                 output[vertexIndex++].Position = topCenter;
             }
         }
-
-        delete[] baseVertices;
     }
 
     void GeometryGenerator::CreateCone(VerticesTriangle &vertices, float bottomRadius, float height, uint32 slicesCount, uint32 stacksCount)

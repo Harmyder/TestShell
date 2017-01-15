@@ -194,6 +194,7 @@ namespace Viewer
         startTicks_ = newStartTicks;
 
         cameraCtrl_->Update(frameTime);
+        viewport_->UpdateCamera(cameraCtrl_->GetTransform(), cameraCtrl_->GetFrameTranslation());
         gameInput_->PreUpdate();
     }
 

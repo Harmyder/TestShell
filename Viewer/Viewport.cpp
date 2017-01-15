@@ -47,7 +47,8 @@ namespace Viewer
 
     Viewport::Viewport(HWND hWnd) : hwnd_(hWnd),
         referenceFrame_(nullptr),
-        grid_(nullptr)
+        grid_(nullptr),
+        lightKey_(nullptr), lightFill_(nullptr), lightBack_(nullptr), lightPoint_(nullptr), lightSpot_(nullptr)
     {
         grInit(hwnd_, { kSceneObjectsCountLimit, kInstancesCountLimit, kPassesCountLimit, kMaterialsCountLimit, kFrameResourcesCount });
         PrepareRootSignatures();
@@ -62,9 +63,11 @@ namespace Viewer
 
         PrepareGeometry();
 
-        grCreateDirectionalLight(XMFLOAT3(.5f, .5f, .45f), XMFLOAT3(1.f, 0.f, 0.f));
-        grCreateDirectionalLight(XMFLOAT3(.9f, .9f, .8f), XMFLOAT3(0.f, 0.f, 1.f));
-        grCreateDirectionalLight(XMFLOAT3(.3f, .3f, .37f), XMFLOAT3(0.f, 0.f, -1.f));
+        lightFill_  = grCreateDirectionalLight(XMFLOAT3(.5f, .5f, .45f), XMFLOAT3(1.f, 0.f, 0.f));
+        lightKey_   = grCreateDirectionalLight(XMFLOAT3(.9f, .9f, .8f),  XMFLOAT3(0.f, 0.f, 1.f));
+        lightBack_  = grCreateDirectionalLight(XMFLOAT3(.3f, .3f, .37f), XMFLOAT3(0.f, 0.f, -1.f));
+        lightPoint_ = grCreatePointLight(XMFLOAT3(.5f, .5f, .5f), 45.f, XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(0.f, .3f, 1.f));
+        lightSpot_  = grCreateSpotLight(XMFLOAT3(.5f, .5f, .5f), 50.f, XMFLOAT3(0.f, 0.f, 0.f), 64.f, XMFLOAT3(0.f, 0.f, 1.f), XMFLOAT3(0.f, .3f, 1.f));
 
         CreateMaterial(Material::kRed(), "red");
         CreateMaterial(Material::kGreen(), "green");
@@ -88,6 +91,17 @@ namespace Viewer
 
     Viewport::~Viewport() {
         grShutdown();
+    }
+
+    void Viewport::UpdateCamera(const XMFLOAT3X3& transform, const XMFLOAT3& frameTranslation) {
+        XMVECTOR ft = XMLoadFloat3(&frameTranslation);
+        XMVECTOR position = grGetCameraPosition() + ft;
+        XMMATRIX t = XMLoadFloat3x3(&transform);
+        grSetCameraAffineTransform(t, position);
+
+        XMFLOAT3 p; XMStoreFloat3(&p, position);
+        grUpdatePointLight(lightPoint_, p);
+        grUpdateSpotLight(lightSpot_, p, XMFLOAT3(transform.m[2][0], transform.m[2][1], -transform.m[2][2]));
     }
 
     void Viewport::PrepareRootSignatures() {
@@ -222,7 +236,7 @@ namespace Viewer
 
     void Viewport::PrepareGeometry() {
         GeometryGenerator::CreateCube(geometries_[(size_t)PredefinedGeometryType::kBox]);
-        GeometryGenerator::CreateSphere(geometries_[(size_t)PredefinedGeometryType::kSphere], 4);
+        GeometryGenerator::CreateSphere(geometries_[(size_t)PredefinedGeometryType::kSphere], 3);
         GeometryGenerator::CreateCylinder(geometries_[(size_t)PredefinedGeometryType::kCylinder], 0.5f, 0.5f, 1.f, 8, 4);
         GeometryGenerator::CreateCone(geometries_[(size_t)PredefinedGeometryType::kCone], 0.5f, 1.f, 8, 4);
     }
