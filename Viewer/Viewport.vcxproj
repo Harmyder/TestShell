@@ -87,6 +87,7 @@
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="GameInput.h" />
     <ClInclude Include="GeometryGenerator.h" />
+    <ClInclude Include="ICameraControllerObserver.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="UserInteractor.h" />
     <ClInclude Include="Vertex.h" />

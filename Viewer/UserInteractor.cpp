@@ -30,9 +30,13 @@ namespace Viewer
     {
         assert(s_Instance == NULL);
         s_Instance = this;
+
+        cameraCtrl_->ObserverAdd(this);
     }
 
-    UserInteractor::~UserInteractor() {}
+    UserInteractor::~UserInteractor() {
+        cameraCtrl_->ObserverRemove(this);
+    }
 
     HWND UserInteractor::CreateDemoWindow(HINSTANCE instance, uint32 width, uint32 height) {
         RECT rc = { 0, 0, (LONG)width, (LONG)height };
@@ -124,19 +128,16 @@ namespace Viewer
     }
 
     void UserInteractor::OnMouseLDown(int x, int y) {
-        SetCapture(viewport_->GetHwnd());
         gameInput_->OnMouseLDown(x, y);
     }
 
     void UserInteractor::OnMouseRDown(int x, int y) {
-        SetCapture(viewport_->GetHwnd());
         gameInput_->OnMouseRDown(x, y);
     }
 
     void UserInteractor::OnMouseMove(int x, int y) {
         POINT p = { x, y };
         if (cameraCtrl_->IsTrackingMouse()) {
-            if (cameraCtrl_->IsStartedTrackingMouse()) SetCapture(viewport_->GetHwnd());
             const int width = viewport_->GetWidth();
             const int height = viewport_->GetHeight();
 
@@ -154,21 +155,14 @@ namespace Viewer
                 SetCursorPos(screen.x, screen.y);
             }
         }
-        else {
-            if (cameraCtrl_->IsStopedTrackingMouse()) {
-                ReleaseCapture();
-            }
-        }
         gameInput_->OnMouseMove(x, y);
     }
 
     void UserInteractor::OnMouseLUp(int x, int y) {
-        ReleaseCapture();
         gameInput_->OnMouseLUp(x, y);
     }
 
     void UserInteractor::OnMouseRUp(int x, int y) {
-        ReleaseCapture();
         gameInput_->OnMouseRUp(x, y);
     }
 
@@ -245,5 +239,13 @@ namespace Viewer
     void UserInteractor::AfterRender() {
         DrawHUD();
         viewport_->AfterDraw();
+    }
+
+    void UserInteractor::HandleStartTracking() {
+        SetCapture(viewport_->GetHwnd());
+    }
+
+    void UserInteractor::HandleStopTracking() {
+        ReleaseCapture();
     }
 }

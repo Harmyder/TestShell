@@ -1,4 +1,5 @@
 #pragma once
+#include "ICameraControllerObserver.h"
 
 namespace Viewer
 {
@@ -12,9 +13,11 @@ namespace Viewer
         CameraController(const GameInput& gameInput, UpVector upVector);
 
         void Update(float dT);
-        bool IsStartedTrackingMouse();
-        bool IsStopedTrackingMouse();
         bool IsTrackingMouse() const;
+
+    public:
+        void ObserverAdd(ICameraControllerObserver* o) { observers_.push_back(o); }
+        void ObserverRemove(ICameraControllerObserver* o) { observers_.remove(o); }
 
     private:
         XMVECTOR worldUp_;
@@ -32,5 +35,7 @@ namespace Viewer
         
         float currentPitch_ = 0.f;
         float currentYaw_ = 0.f;
+
+        std::list<ICameraControllerObserver*> observers_;
     };
 }

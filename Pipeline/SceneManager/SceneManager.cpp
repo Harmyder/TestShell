@@ -53,7 +53,7 @@ namespace Pipeline
         if (fs.fail()) {
             char buf[256];
             strerror_s(buf, errno);
-            Pile::DebugPrintf("Error opening %s file: %s", filename.c_str(), buf);
+            Pile::DebugPrintf("Error opening %s file: %s\n", filename.c_str(), buf);
         }
 
         const char* kName = "-name";

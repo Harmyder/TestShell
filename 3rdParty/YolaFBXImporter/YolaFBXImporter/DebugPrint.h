@@ -21,7 +21,7 @@ void Printf(const char* formatstring, ...)
     if (!pointer) \
         OutputDebugString("YolaFbxImporter: Unable to create "##objectName##".\n"); \
     else \
-        OutputDebugString("YolaFbxImporter: "##objectName##" created successfully.\n")
+        OutputDebugString("YolaFbxImporter: "##objectName##" creation succeeded .\n")
 
 //***************************************************************************************
 #define PrintErroOnFunctionCall(result, failureMark, functionName) \

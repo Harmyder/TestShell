@@ -3,6 +3,7 @@
 #include <Windows.h>
 
 #include "Pile\Attribute\NonCopyable.h"
+#include "ICameraControllerObserver.h"
 
 namespace Pile {
     class Timer;
@@ -15,7 +16,7 @@ namespace Viewer
     class GameInput;
     class CameraController;
 
-    class UserInteractor : public Pile::NonCopyable
+    class UserInteractor : public Pile::NonCopyable, public ICameraControllerObserver
     {
     public:
         static UserInteractor &GetInstance();
@@ -38,6 +39,10 @@ namespace Viewer
         void BeforeRender();
         void Render();
         void AfterRender();
+
+    public:
+        void HandleStartTracking() override;
+        void HandleStopTracking() override;
 
     private:
         HWND CreateDemoWindow(HINSTANCE instance, uint32 width, uint32 height);

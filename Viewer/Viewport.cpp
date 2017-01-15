@@ -131,7 +131,9 @@ namespace Viewer
     }
 
     void Viewport::DestroyMaterial(const std::string& name) {
-        grDestroyMaterial(materials_.at(name));
+        auto it = materials_.find(name);
+        grDestroyMaterial(it->second);
+        materials_.erase(it);
     }
 
     void Viewport::BeforeDraw() {
