@@ -150,7 +150,8 @@ namespace Harmyder
                 c = XMVectorMultiplyAdd(d, XMVectorReplicate(k), c);
                 XMStoreFloat3(&s.center, c);
             }
-            assert(s.radius >= XMVectorGetX(XMVector3Length(XMVectorSubtract(XMLoadFloat3(&points[i]), c))));
+            float dist = XMVectorGetX(XMVector3Length(XMVectorSubtract(XMLoadFloat3(&points[i]), c)));
+            assert(s.radius + 1e-5f >= dist);
         }
     }
 }

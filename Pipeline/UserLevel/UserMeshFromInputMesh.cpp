@@ -36,7 +36,11 @@ namespace Pipeline
         for (uint32 i = 0; i < trianglePositions.size(); ++i) {
             mg.Vertices[i].Position = positions[trianglePositions[i]];
             mg.Vertices[i].Normal = normals[trianglePositions[i]];
-            mg.Vertices[i].TexCoord = texCoords[triangleTexCoords[i]];
+        }
+        if (texCoords.size()) {
+            for (uint32 i = 0; i < trianglePositions.size(); ++i) {
+                mg.Vertices[i].TexCoord = texCoords[triangleTexCoords[i]];
+            }
         }
     }
 }
