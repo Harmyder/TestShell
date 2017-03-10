@@ -91,6 +91,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Simulations\CubeSimulation.h" />
     <ClInclude Include="Simulations\FlockSimulation.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Internal\BaseSimulation.h" />
@@ -104,6 +105,7 @@
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Simulations\CubeSimulation.cpp" />
     <ClCompile Include="Simulations\FlockSimulation.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Internal\BaseSimulation.cpp" />

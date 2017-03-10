@@ -12,8 +12,8 @@ namespace Utility
     public:
         FreeIndices(uint32 sceneObjectsCountLimit);
 
-        uint32 AcquireIndex();
-        void ReleaseIndex(uint32 index);
+        uint32 OccupyIndex();
+        void FreeIndex(uint32 index);
 
         uint32 FirstTakenIndex() { return NextTakenIndexInternal(0) - 1; }
         uint32 NextTakenIndex(uint32 index) { return NextTakenIndexInternal(index + 1) - 1; }

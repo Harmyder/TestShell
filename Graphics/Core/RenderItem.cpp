@@ -69,7 +69,7 @@ namespace Graphics
                     verticesOffsets[itemsToVertices[i]],
                     cur_vd.verticesCount,
                     cur_id.transform,
-                    objBufferIndices.AcquireIndex(),
+                    objBufferIndices.OccupyIndex(),
                     cur_id.material,
                     cur_id.primitiveTopology,
                     *ri)

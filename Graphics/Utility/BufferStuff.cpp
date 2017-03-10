@@ -19,14 +19,14 @@ namespace Utility
         std::iota(std::begin(indices_), std::end(indices_), 1);
     }
 
-    uint32 FreeIndices::AcquireIndex() {
+    uint32 FreeIndices::OccupyIndex() {
         const uint32 res = indices_[0];
         indices_[0] = indices_[res];
         indices_[res] = 0;
         return res - 1;
     }
 
-    void FreeIndices::ReleaseIndex(uint32 index) {
+    void FreeIndices::FreeIndex(uint32 index) {
         const auto internalIndex = index + 1;
         const uint32 prevFree = indices_[internalIndex];
         indices_[internalIndex] = indices_[prevFree];

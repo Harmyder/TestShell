@@ -86,7 +86,7 @@ namespace Graphics {
     class FrameResource
     {
     public:
-        FrameResource(uint32 passesCount, uint32 objsCount, uint32 matsCount, uint32 instsCount);
+        FrameResource(uint32 passesCount, uint32 objsCount, uint32 matsCount, uint32 instsCount, const std::wstring& suffix);
         ~FrameResource();
 
         uint64 Fence = 0;
@@ -101,8 +101,11 @@ namespace Graphics {
         FrameResources(uint32 count, uint32 passesCount, uint32 objsCount, uint32 matsCount, uint32 instsCount);
         ~FrameResources();
 
-        FrameResource& GetFrameResource(uint_t i) { return *resources_[i]; }
-        uint_t Count() const { return resources_.size(); }
+        void AdvanceFrame() { currentIndex_ = ++currentIndex_ % Count(); }
+        uint32 GetCurrentIndex() { return currentIndex_; }
+        FrameResource& GetCurrentFrameResource() { return *resources_[currentIndex_]; }
+        FrameResource& GetFrameResource(uint_t index) { return *resources_[index]; }
+        uint32 Count() const { return (uint32)resources_.size(); }
 
         uint_t CalcPassCbSize() const { return Utility::CalcConstBufSize(sizeof(PerPassConsts)); }
         uint_t CalcObjCbSize() const { return Utility::CalcConstBufSize(sizeof(PerObjConsts)); }
@@ -121,6 +124,7 @@ namespace Graphics {
 
     private:
         std::vector<std::unique_ptr<FrameResource>> resources_;
+        uint32 currentIndex_ = 0;
         uint32 nextFreeInst = 0;
     };
 }

@@ -130,14 +130,14 @@ namespace Graphics
         float fresnelR0,
         float roughness)
     {
-        auto bufferIndex = freeIndices_->AcquireIndex();
+        auto bufferIndex = freeIndices_->OccupyIndex();
         materials_[bufferIndex] = make_unique<Material>(name, bufferIndex);
         materials_[bufferIndex]->Update(ambient, diffuse, specular, fresnelR0, roughness);
         return materials_[bufferIndex].get();
     }
 
     Material* MaterialsBuffer::CreatePredefined(const std::string& name, Material::Type type) {
-        auto bufferIndex = freeIndices_->AcquireIndex();
+        auto bufferIndex = freeIndices_->OccupyIndex();
         materials_[bufferIndex] = Material::CreatePredefined(type, name, bufferIndex);
         return materials_[bufferIndex].get();
     }
@@ -145,7 +145,7 @@ namespace Graphics
     void MaterialsBuffer::Destroy(Material* material) {
         auto index = material->BufferIndex();
         materials_[index].reset();
-        freeIndices_->ReleaseIndex(index);
+        freeIndices_->FreeIndex(index);
     }
 
 }

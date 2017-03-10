@@ -13,7 +13,7 @@ namespace GraphicsTest
 
         TEST_METHOD(TestFreeIndices_FirstTakenSimple) {
             Graphics::Utility::FreeIndices fi(10);
-            auto index = fi.AcquireIndex();
+            auto index = fi.OccupyIndex();
             Assert::AreEqual(index, fi.FirstTakenIndex());
         }
 
@@ -26,7 +26,7 @@ namespace GraphicsTest
             constexpr uint32 kIndices = 10;
             Graphics::Utility::FreeIndices fi(kIndices);
 
-            for (uint32 i = 0; i < kIndices; ++i) fi.AcquireIndex();
+            for (uint32 i = 0; i < kIndices; ++i) fi.OccupyIndex();
 
             Assert::AreEqual((uint32)0, fi.FirstTakenIndex());
             for (uint32 i = 1; i <= kIndices; ++i)
@@ -38,7 +38,7 @@ namespace GraphicsTest
             constexpr uint32 kAcquiredCount = 5;
             Graphics::Utility::FreeIndices fi(kIndices);
 
-            for (uint32 i = 0; i < kAcquiredCount; ++i) fi.AcquireIndex();
+            for (uint32 i = 0; i < kAcquiredCount; ++i) fi.OccupyIndex();
 
             uint32 index = fi.FirstTakenIndex();
             uint32 takenCount = 0;
@@ -55,9 +55,9 @@ namespace GraphicsTest
             constexpr uint32 kToRelease = 5;
             Graphics::Utility::FreeIndices fi(kIndices);
 
-            for (uint32 i = 0; i < kIndices; ++i) fi.AcquireIndex();
+            for (uint32 i = 0; i < kIndices; ++i) fi.OccupyIndex();
 
-            fi.ReleaseIndex(kToRelease);
+            fi.FreeIndex(kToRelease);
 
             Assert::AreEqual(kToRelease + 1, fi.NextTakenIndex(kToRelease));
         }
@@ -67,10 +67,10 @@ namespace GraphicsTest
             constexpr uint32 kToRelease = 5;
             Graphics::Utility::FreeIndices fi(kIndices);
 
-            for (uint32 i = 0; i < kIndices; ++i) fi.AcquireIndex();
+            for (uint32 i = 0; i < kIndices; ++i) fi.OccupyIndex();
 
-            fi.ReleaseIndex(kToRelease);
-            fi.ReleaseIndex(kToRelease + 1);
+            fi.FreeIndex(kToRelease);
+            fi.FreeIndex(kToRelease + 1);
 
             set<uint32> s;
             for (uint32 i = 0; i < kIndices; ++i) s.insert(i);

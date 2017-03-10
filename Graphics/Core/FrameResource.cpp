@@ -33,11 +33,11 @@ namespace Graphics
         }
     }
 
-    FrameResource::FrameResource(uint32 passesCount, uint32 objsCount, uint32 matsCount, uint32 instsCount) {
-        passCB = make_unique<ConstantBuffer<PerPassConsts>>(L"fr passes", passesCount);
-        objCB  = make_unique<ConstantBuffer<PerObjConsts>>(L"fr objs", objsCount);
-        matBuffer  = make_unique<UploadBuffer<PerMatConsts>>(L"fr mats", matsCount, false);
-        instBuffer = make_unique<UploadBuffer<InstanceData>>(L"fr insts", instsCount, false);
+    FrameResource::FrameResource(uint32 passesCount, uint32 objsCount, uint32 matsCount, uint32 instsCount, const wstring& suffix) {
+        passCB = make_unique<ConstantBuffer<PerPassConsts>>(L"fr passes " + suffix, passesCount);
+        objCB  = make_unique<ConstantBuffer<PerObjConsts>>(L"fr objs " + suffix, objsCount);
+        matBuffer  = make_unique<UploadBuffer<PerMatConsts>>(L"fr mats " + suffix, matsCount, false);
+        instBuffer = make_unique<UploadBuffer<InstanceData>>(L"fr insts " + suffix, instsCount, false);
     }
 
     FrameResource::~FrameResource() {}
@@ -49,7 +49,7 @@ namespace Graphics
         InstancesCountLimit(instsCount)
     {
         for (uint_t i = 0; i < count; ++i) {
-            resources_.push_back(make_unique<FrameResource>(passesCount, objsCount, matsCount, instsCount));
+            resources_.push_back(make_unique<FrameResource>(passesCount, objsCount, matsCount, instsCount, L"#" + to_wstring(i)));
         }
     }
 

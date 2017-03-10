@@ -40,7 +40,7 @@ namespace Graphics
         CommandContext& cc,
         unique_ptr<RenderItemWithInstances>& riwi) 
     {
-        auto bi = GraphicsCore::GetInstance().GetFreePerObjBufferIndices().AcquireIndex();
+        auto bi = GraphicsCore::GetInstance().GetFreePerObjBufferIndices().OccupyIndex();
 
         struct RenderItemWithInstancesUniquePtrEnabler : public RenderItemWithInstances { 
             RenderItemWithInstancesUniquePtrEnabler(uint32 bufferIndex, uint32 vertexSize, uint32 verticesCount, uint32 instancesCount, XMFLOAT4X4 transform, D3D12_PRIMITIVE_TOPOLOGY primitiveTopology) :

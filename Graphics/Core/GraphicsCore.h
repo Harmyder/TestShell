@@ -129,7 +129,6 @@ namespace Graphics
         D3D12_RECT scissorRect_;
 
         std::unique_ptr<FrameResources> frameResources_;
-        uint32 currFrameResource_ = 0;
         uint32 passCbvOffset_;
         uint32 currentObject_;
 
