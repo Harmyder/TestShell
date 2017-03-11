@@ -11,23 +11,16 @@ class Launcher
 public:
     Launcher();
 
-    void Simulate(const int factoryId);
-    void ChangeSimulation(const int factoryId);
-
-public:
     void Init(Viewer::UserInteractor *userInteractor, BaseSimulation *simulation);
     void Loop();
     void Finish();
 
-    void SetMustStop();
-
-private:
-    bool IsMustStop();
+    bool IsMustStop() { return isMustStop_; }
 
 private:
     Viewer::UserInteractor *userInteractor_;
     BaseSimulation *simulation_;
 
-    bool isMustStop_;
+    bool isMustStop_ = false;
 };
 

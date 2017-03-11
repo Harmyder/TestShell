@@ -52,8 +52,7 @@ namespace Graphics
 
         commandQueue_ = make_unique<CommandQueue>();
         commandQueue_->Create(g_device.Get());
-        commandContext_ = make_unique<CommandContext>(commandQueue_.get());
-        commandContext_->Initialize();
+        CommandContext::PreInitialize(commandQueue_.get());
 
         CreateSwapChain();
         CreateRtvDsvHeaps();
@@ -69,8 +68,6 @@ namespace Graphics
 
         CreateDescriptorHeaps();
         CreateConstantBufferViews();
-
-        commandContext_->Flush(true);
     }
 
     void GraphicsCore::CreateSwapChain() {
@@ -98,6 +95,17 @@ namespace Graphics
             commandQueue_->GetCommandQueue(),
             &sd,
             swapChain_.GetAddressOf()));
+    }
+
+    void GraphicsCore::Shutdown() {
+        CommandContext::DestroyAllInstances();
+
+#if defined(_DEBUG)
+        ID3D12DebugDevice* debugInterface;
+        THROW_IF_FAILED(g_device->QueryInterface(&debugInterface));
+        debugInterface->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL);
+        debugInterface->Release();
+#endif
     }
 
     void GraphicsCore::CreateRtvDsvHeaps() {
@@ -221,9 +229,8 @@ namespace Graphics
     }
 
     void GraphicsCore::Resize() {
-        commandContext_->Flush(true);
-        commandContext_->Reset();
-        auto commandList = commandContext_->GetCommandList();
+        auto commandContext = CommandContext::Start();
+        auto commandList = commandContext->GetCommandList();
 
         RECT rc;
         GetClientRect(hwnd_, &rc);
@@ -248,9 +255,6 @@ namespace Graphics
         commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(depthStencilBuffer_.Get(),
             D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
-        commandContext_->Flush(true);
-        commandContext_->Reset();
-
         screenViewport_->TopLeftX = 0;
         screenViewport_->TopLeftY = 0;
         screenViewport_->Width = static_cast<float>(width);
@@ -262,6 +266,8 @@ namespace Graphics
     
         commandList->RSSetViewports(1, screenViewport_.get());
         commandList->RSSetScissorRects(1, &scissorRect_);
+
+        commandContext->Finish(true);
     }
 
     void GraphicsCore::Update() {
@@ -320,7 +326,7 @@ namespace Graphics
     }
 
     void GraphicsCore::BeginScene() {
-        commandContext_->Reset();
+        commandContext_ = CommandContext::Start();
         auto commandList = commandContext_->GetCommandList();
 
         commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
@@ -346,11 +352,10 @@ namespace Graphics
         commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
             D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
-        commandContext_->Flush(false);
+        frameResources_->GetCurrentFrameResource().Fence = commandContext_->Finish(false);
 
         THROW_IF_FAILED(swapChain_->Present(0, 0));
         currentBackBuffer_ = (currentBackBuffer_ + 1) % SWAP_CHAIN_BUFFERS_COUNT;
-        frameResources_->GetCurrentFrameResource().Fence = commandQueue_->CurrentFence();
         frameResources_->AdvanceFrame();
     }
 

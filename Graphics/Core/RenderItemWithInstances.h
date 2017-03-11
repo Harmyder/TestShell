@@ -34,7 +34,6 @@ namespace Graphics {
             const RenderItemWithInstancesDesc& desc, 
             const RenderVerticesDesc& vertices,
             uint32 vertexSize,
-            CommandContext& cc,
             std::unique_ptr<RenderItemWithInstances>& priwi);
         
         D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const;

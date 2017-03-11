@@ -10,16 +10,18 @@ namespace Graphics
     class RootSignature;
     class PipelineStateObject;
 
+    class CommandContextPool;
+
     class CommandContext
     {
     public:
-        CommandContext(CommandQueue *commandQueue);
-
-        void Initialize();
+        static void PreInitialize(CommandQueue *commandQueue);
+        static void DestroyAllInstances();
+        static CommandContext* Start();
+        uint64 Finish(bool wait);
 
         void Reset();
-        void Close();
-        void Flush(bool wait);
+        uint64 Flush(bool wait);
 
         void SetRootSignature(RootSignature& rootSignature);
         void SetPipelineStateObject(PipelineStateObject& pso);
@@ -27,8 +29,11 @@ namespace Graphics
         ID3D12GraphicsCommandList* GetCommandList() { return commandList_.Get(); }
 
     private:
-        CommandQueue* commandQueue_;
+        void Initialize();
 
+        friend class CommandContextPool;
+
+    private:
         ID3D12CommandAllocator* currentAllocator_;
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_;
     };

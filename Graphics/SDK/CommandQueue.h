@@ -16,7 +16,7 @@ namespace Graphics
         void ReleaseAllocator(ID3D12CommandAllocator* allocator);
 
         uint64 CurrentFence() { return currentFence_; }
-        void ExecuteCommandList(ID3D12GraphicsCommandList* list);
+        uint64 ExecuteCommandList(ID3D12GraphicsCommandList* list);
         void WaitForFence(uint64 fenceValue);
         void WaitAllDone();
 

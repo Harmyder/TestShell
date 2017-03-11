@@ -15,6 +15,7 @@ namespace Graphics
         queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
         queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
         THROW_IF_FAILED(device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(commandQueue_.GetAddressOf())));
+        commandQueue_->SetName(L"CommandQueue::commandQueue_");
 
         THROW_IF_FAILED(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_)));
 
@@ -29,12 +30,13 @@ namespace Graphics
         commandAllocatorPool_->ReleaseAllocatorUpon(currentFence_, allocator);
     }
 
-    void CommandQueue::ExecuteCommandList(ID3D12GraphicsCommandList* list) {
+    uint64 CommandQueue::ExecuteCommandList(ID3D12GraphicsCommandList* list) {
         THROW_IF_FAILED(list->Close());
         ID3D12CommandList* l = list;
         // Should i put guard_lock here?
         commandQueue_->ExecuteCommandLists(1, &l);
         commandQueue_->Signal(fence_.Get(), ++currentFence_);
+        return currentFence_;
     }
 
     void CommandQueue::WaitForFence(uint64 fenceValue) {

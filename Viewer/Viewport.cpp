@@ -326,7 +326,7 @@ namespace Viewer
         }
 
         grtRenderItemDesc rid{ vertices.data(), (uint32)vertices.size(), descs.data(), (uint32)descs.size(), itemsToVertices.data() };
-        return grCreateRenderItem(rid, vertexSize, grGetGraphicsContext());
+        return grCreateRenderItem(rid, vertexSize);
     }
 
     grRenderItemWithInstances Viewport::CreateRenderItemInternal(const RenderItemWithInstancesDesc& desc, uint32 vertexSize) {
@@ -339,7 +339,7 @@ namespace Viewer
             desc.name, desc.transform, PrimitiveTopology::ToSrc(desc.primitiveTopology),
             engineInstancesDesc.data(), (uint32)engineInstancesDesc.size());
         grtRenderVertices vertices(desc.vertices, desc.verticesCount);
-        return grCreateRenderItemWithInstances(engineDesc, vertices, vertexSize, grGetGraphicsContext());
+        return grCreateRenderItemWithInstances(engineDesc, vertices, vertexSize);
     }
 
     grRenderItem Viewport::CreateRenderItemInternal(const DescsTypes& viewportTypeDescs) {
@@ -369,6 +369,6 @@ namespace Viewer
         }
 
         grtRenderItemDesc rid{ vertices.data(), (uint32)vertices.size(), descs.data(), (uint32)descs.size(), itemsToVertices.data() };
-        return grCreateRenderItem(rid, sizeof(VertexNormalTex), grGetGraphicsContext());
+        return grCreateRenderItem(rid, sizeof(VertexNormalTex));
     }
 }

@@ -60,6 +60,7 @@ namespace Graphics
         ~GraphicsCore();
 
         void Initialize(HWND hwnd, const InitParams& ip);
+        void Shutdown();
 
         void Resize();
 
@@ -71,7 +72,7 @@ namespace Graphics
         void DrawRenderItemWithInstances(RenderItemWithInstances& ri);
 
         CommandQueue* GetCommandQueue() { return commandQueue_.get(); }
-        CommandContext* GetCommandContext() { return commandContext_.get(); }
+        CommandContext* GetCommandContext() { return commandContext_; }
         Camera& GetCamera() { return camera_; }
 
         Utility::FreeIndices& GetFreePerObjBufferIndices() { return *freePerObjBufferIndices_; }
@@ -105,7 +106,7 @@ namespace Graphics
         Microsoft::WRL::ComPtr<IDXGISwapChain> swapChain_;
 
         std::unique_ptr<CommandQueue> commandQueue_;
-        std::unique_ptr<CommandContext> commandContext_;
+        CommandContext* commandContext_;
 
         UINT rtvDescriptorSize_;
         UINT dsvDescriptorSize_;

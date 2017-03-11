@@ -31,7 +31,7 @@ int Game::Run(HINSTANCE hInstance)
 
         launcher_ = make_unique<Launcher>();
         int nextSimulation_ = -1; // Start with first simulation
-        while (++nextSimulation_ < simulationManager.GetFactoriesCount())
+        while (++nextSimulation_ < simulationManager.GetFactoriesCount() && !launcher_->IsMustStop())
         {
             BaseFactory *factory = simulationManager.GetFactory(nextSimulation_);
             auto simulation = factory->Create(userInteractor_->GetViewport(), userInteractor_->GetGameInput());

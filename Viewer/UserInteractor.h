@@ -34,7 +34,7 @@ namespace Viewer
         float GetDeltaTime() const { return dT_; }
 
         void BeforeStep();
-        void AfterStep();
+        bool AfterStep();
 
         void BeforeRender();
         void Render();
@@ -46,7 +46,7 @@ namespace Viewer
 
     private:
         HWND CreateDemoWindow(HINSTANCE instance, uint32 width, uint32 height);
-        void TreatMessages();
+        bool TreatMessages();
         void WaitForDeltaTime();
         void DrawHUD();
 

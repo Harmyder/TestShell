@@ -45,7 +45,6 @@ namespace Graphics
         const RenderVerticesDesc* verticesDescs, uint32 verticesDescsCount,
         const uint32* itemsToVertices,
         uint32 vertexSize,
-        CommandContext& commandContext,
         unique_ptr<RenderItem>& ri)
     {
         auto& objBufferIndices = GraphicsCore::GetInstance().GetFreePerObjBufferIndices();
@@ -83,6 +82,6 @@ namespace Graphics
             vertices.insert(vertices.end(), vd.data, vd.data + vd.verticesCount * vertexSize);
         }
 
-        ri->vertexBuffer_.Create(L"ri_vertex", totalVerticesCount, vertexSize, vertices.data(), &commandContext);
+        ri->vertexBuffer_.Create(L"ri_vertex", totalVerticesCount, vertexSize, vertices.data());
     }
 }

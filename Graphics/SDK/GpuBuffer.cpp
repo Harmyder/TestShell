@@ -15,8 +15,7 @@ namespace Graphics
         const std::wstring& name,
         const uint_t elementsCount,
         const uint_t elementSize,
-        const void* data,
-        CommandContext* commandContext) 
+        const void* data) 
     {
         elementsCount_ = elementsCount;
         elementSize_ = elementSize;
@@ -32,32 +31,28 @@ namespace Graphics
         buffer_->SetName(name.c_str());
 
         if (data) {
+            auto cc = CommandContext::Start();
+            ComPtr<ID3D12Resource> uploadBuffer;
             THROW_IF_FAILED(g_device->CreateCommittedResource(
                 &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
                 D3D12_HEAP_FLAG_NONE,
                 &CD3DX12_RESOURCE_DESC::Buffer(byteSize),
                 D3D12_RESOURCE_STATE_GENERIC_READ,
                 nullptr,
-                IID_PPV_ARGS(uploadBuffer_.GetAddressOf())));
-            uploadBuffer_->SetName((name + L" (upload)").c_str());
+                IID_PPV_ARGS(uploadBuffer.GetAddressOf())));
+            uploadBuffer->SetName((name + L" (upload)").c_str());
 
             D3D12_SUBRESOURCE_DATA subResourceData = {};
             subResourceData.pData = data;
             subResourceData.RowPitch = byteSize;
             subResourceData.SlicePitch = subResourceData.RowPitch;
 
-            commandContext->Reset();
-            auto commandList = commandContext->GetCommandList();
-            UpdateSubresources<1>(commandList, buffer_.Get(), uploadBuffer_.Get(), 0, 0, 1, &subResourceData);
+            auto commandList = cc->GetCommandList();
+            UpdateSubresources<1>(commandList, buffer_.Get(), uploadBuffer.Get(), 0, 0, 1, &subResourceData);
             commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(buffer_.Get(),
                 D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
-            commandContext->Flush(false);
-            // Keep uploadBuffer_ alive till copy has been executed.
+            cc->Finish(true);
         }
-    }
-
-    void GpuBuffer::ReleaseUpload() {
-        uploadBuffer_ = nullptr;
     }
 
 }

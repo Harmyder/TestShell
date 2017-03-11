@@ -159,9 +159,8 @@ void grDestroyPipelineStateObject(grPipelineStateObject pipelineState) {
     delete pso;
 }
 
-grRenderItem grCreateRenderItem(const grtRenderItemDesc& renderItemDesc, uint32 vertexSize, grCommandContext cc) {
+grRenderItem grCreateRenderItem(const grtRenderItemDesc& renderItemDesc, uint32 vertexSize) {
     assert(renderItemDesc.renderVerticesCount && renderItemDesc.renderSubItemsCount);
-    CommandContext* ccInternal = static_cast<CommandContextHandle*>(&cc)->GetValue();
     auto renderSubItemsInternal = (RenderItemDesc*)renderItemDesc.renderSubItems;
     auto renderVerticesInternal = (RenderVerticesDesc*)renderItemDesc.renderVertices;
     unique_ptr<RenderItem> ri;
@@ -169,16 +168,14 @@ grRenderItem grCreateRenderItem(const grtRenderItemDesc& renderItemDesc, uint32 
         renderSubItemsInternal, renderItemDesc.renderSubItemsCount,
         renderVerticesInternal, renderItemDesc.renderVerticesCount,
         renderItemDesc.itemsToVertices,
-        vertexSize, *ccInternal, ri);
+        vertexSize, ri);
     return grRenderItem(ri.release());
 }
 
-grRenderItemWithInstances grCreateRenderItemWithInstances(const grtRenderSubItemWithInstancesDesc& desc, const grtRenderVertices& vertices, uint32 vertexSize, grCommandContext cc) {
+grRenderItemWithInstances grCreateRenderItemWithInstances(const grtRenderSubItemWithInstancesDesc& desc, const grtRenderVertices& vertices, uint32 vertexSize) {
     assert(desc.instancesCount > 0);
-    CommandContext* ccInternal = static_cast<CommandContextHandle*>(&cc)->GetValue();
-
     unique_ptr<RenderItemWithInstances> riwi;
-    RenderItemWithInstances::Create(*(RenderItemWithInstancesDesc*)&desc, *(RenderVerticesDesc*)&vertices, vertexSize, *ccInternal, riwi);
+    RenderItemWithInstances::Create(*(RenderItemWithInstancesDesc*)&desc, *(RenderVerticesDesc*)&vertices, vertexSize, riwi);
     return grRenderItemWithInstances(riwi.release());
 }
 

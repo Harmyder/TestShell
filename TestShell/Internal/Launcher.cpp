@@ -28,7 +28,7 @@ void Launcher::Loop() {
 
         simulation_->Step(dT);
 
-        userInteractor_->AfterStep();
+        isMustStop_ = userInteractor_->AfterStep();
         simulation_->AfterStep();
 
         userInteractor_->BeforeRender();
@@ -39,12 +39,4 @@ void Launcher::Loop() {
 
 void Launcher::Finish() {
     simulation_->Quit();
-}
-
-void Launcher::SetMustStop() {
-    isMustStop_ = true;
-}
-
-bool Launcher::IsMustStop() {
-    return isMustStop_;
 }

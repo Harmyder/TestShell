@@ -178,14 +178,15 @@ namespace Viewer
         gameInput_->OnWheelRotate(delta);
     }
 
-    void UserInteractor::TreatMessages() {
+    bool UserInteractor::TreatMessages() {
         MSG  msg;
-
         while (::PeekMessage(&msg, NULL, NULL, NULL, PM_REMOVE))
         {
             ::TranslateMessage(&msg);
             ::DispatchMessage(&msg);
         }
+
+        return IsWindow(viewport_->GetHwnd()) == TRUE;
     }
 
     void UserInteractor::BeforeStep() {
@@ -198,10 +199,10 @@ namespace Viewer
         gameInput_->PreUpdate();
     }
 
-    void UserInteractor::AfterStep() {
+    bool UserInteractor::AfterStep() {
         WaitForDeltaTime();
         gameInput_->ClearDeltas();
-        TreatMessages();
+        return !TreatMessages();
     }
 
     void UserInteractor::DrawHUD() {

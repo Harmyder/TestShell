@@ -37,7 +37,6 @@ namespace Graphics
         const RenderItemWithInstancesDesc& desc,
         const RenderVerticesDesc& vertices,
         uint32 vertexSize,
-        CommandContext& cc,
         unique_ptr<RenderItemWithInstances>& riwi) 
     {
         auto bi = GraphicsCore::GetInstance().GetFreePerObjBufferIndices().OccupyIndex();
@@ -47,7 +46,7 @@ namespace Graphics
                 RenderItemWithInstances(bufferIndex, vertexSize, verticesCount, instancesCount, transform, primitiveTopology) {}
         };
         riwi = make_unique<RenderItemWithInstancesUniquePtrEnabler>(bi, vertexSize, vertices.verticesCount, desc.instancesCount, desc.transform, desc.primitiveTopology);
-        riwi->vertexBuffer_.Create(L"riwi_vertex", vertices.verticesCount, vertexSize, vertices.data, &cc);
+        riwi->vertexBuffer_.Create(L"riwi_vertex", vertices.verticesCount, vertexSize, vertices.data);
 
         riwi->instances_.resize(desc.instancesCount);
         for (uint32 i = 0; i < desc.instancesCount; ++i) {
