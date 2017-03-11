@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "Pile/Pattern/Singleton.h"
+#include "Common/Pattern/Singleton.h"
 
 namespace FBX
 {

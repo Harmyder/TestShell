@@ -7,7 +7,7 @@
 using namespace DirectX;
 using namespace std;
 
-namespace Pile
+namespace Common
 {
     static const char* SelectStyle(DumpStyle style, const char* vs, const char* matlab) {
         if (style == DumpStyle::kVisualStudio) {

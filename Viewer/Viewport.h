@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Pile\DefineNamespaceEnumType.h"
-#include "Pile\Attribute\NonCopyable.h"
+#include "Common\DefineNamespaceEnumType.h"
+#include "Common\Attribute\NonCopyable.h"
 #include "Graphics\Interface\GraphicsHandle.h"
 #include "Graphics\Interface\GraphicsConsts.h"
 #include "Vertex.h"
@@ -112,7 +112,7 @@ namespace Viewer
         DescsTypes Types;
     };
 
-    class Viewport : Pile::NonCopyable
+    class Viewport : Common::NonCopyable
     {
     public:
         Viewport(HWND hWnd);

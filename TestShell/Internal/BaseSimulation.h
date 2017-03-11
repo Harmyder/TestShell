@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Pile\Attribute\NamedObject.h"
+#include "Common\Attribute\NamedObject.h"
 
 namespace Pipeline {
     class UserScene;
@@ -11,7 +11,7 @@ namespace Viewer {
     class GameInput;
 }
 
-class BaseSimulation : Pile::NamedByCopyObject
+class BaseSimulation : Common::NamedByCopyObject
 {
 public:
     BaseSimulation(const char* name, Viewer::Viewport& viewport, const Viewer::GameInput& gameInput);

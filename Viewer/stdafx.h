@@ -19,5 +19,5 @@
 #include <set>
 #include <cassert>
 
-#include "Pile\DirectXInclude.h"
-#include "Pile\Types.h"
+#include "Common\DirectXInclude.h"
+#include "Common\Types.h"

@@ -40,7 +40,7 @@ namespace Pipeline
                 return i;
             }
         }
-        return Pile::NOT_FOUND;
+        return Common::NOT_FOUND;
     }
 
     void UserScene::AddCollider(UserCollider *collider) {
@@ -68,6 +68,6 @@ namespace Pipeline
                 return i;
             }
         }
-        return Pile::NOT_FOUND;
+        return Common::NOT_FOUND;
     }
 }

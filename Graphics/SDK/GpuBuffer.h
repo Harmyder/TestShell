@@ -1,7 +1,7 @@
 #pragma once
 
 #include <wrl.h>
-#include "Pile\Attribute\NonCopyable.h"
+#include "Common\Attribute\NonCopyable.h"
 struct ID3D12Resource;
 
 namespace Graphics
@@ -9,7 +9,7 @@ namespace Graphics
     class CommandContext;
     class RenderItem;
 
-    class GpuBuffer : public Pile::NonCopyable
+    class GpuBuffer : public Common::NonCopyable
     {
         friend class RenderItem;
         friend class RenderItemWithInstances;

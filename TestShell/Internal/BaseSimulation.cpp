@@ -14,7 +14,7 @@ using namespace Pipeline;
 using namespace Viewer;
 
 BaseSimulation::BaseSimulation(const char* name, Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) :
-    Pile::NamedByCopyObject(name),
+    Common::NamedByCopyObject(name),
     viewport_(viewport),
     gameInput_(gameInput)
 {

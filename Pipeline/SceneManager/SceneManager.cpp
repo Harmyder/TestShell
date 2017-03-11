@@ -9,7 +9,7 @@
 #include "InputLevel/FactoryFbx.h"
 #include "InputLevel/InputMesh.h"
 #include "InputLevel/InputCollider.h"
-#include "Pile\Print\DebugPrint.h"
+#include "Common\Print\DebugPrint.h"
 
 #include <fstream>
 #include <sstream>
@@ -53,7 +53,7 @@ namespace Pipeline
         if (fs.fail()) {
             char buf[256];
             strerror_s(buf, errno);
-            Pile::DebugPrintf("Error opening %s file: %s\n", filename.c_str(), buf);
+            Common::DebugPrintf("Error opening %s file: %s\n", filename.c_str(), buf);
         }
 
         const char* kName = "-name";

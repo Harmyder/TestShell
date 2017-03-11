@@ -21,7 +21,7 @@ using DirectX::FXMVECTOR;
 using DirectX::XMMATRIX;
 using DirectX::FXMMATRIX;
 
-#include "Pile\Types.h"
+#include "Common\Types.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>

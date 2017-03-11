@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Pile
+namespace Common
 {
     void DebugPrintf(const char* formatstring, ...);
 }

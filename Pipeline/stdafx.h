@@ -16,7 +16,7 @@
 #include <algorithm>
 #include <memory>
 
-#include "Pile\DirectXInclude.h"
+#include "Common\DirectXInclude.h"
 
-#include "Pile\Types.h"
-#include "Pile\Consts.h"
+#include "Common\Types.h"
+#include "Common\Consts.h"

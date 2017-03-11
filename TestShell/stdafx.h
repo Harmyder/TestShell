@@ -11,9 +11,9 @@
 #include <memory>
 #include <Windows.h>
 
-#include "Pile\Types.h"
+#include "Common\Types.h"
 
 #ifdef _DEBUG
-#include "Pile\Print\DumpDirectX.h"
-#include "Pile\Print\DebugPrint.h"
+#include "Common\Print\DumpDirectX.h"
+#include "Common\Print\DebugPrint.h"
 #endif

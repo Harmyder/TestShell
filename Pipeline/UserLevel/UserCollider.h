@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Pile\Attribute\NonCopyable.h"
-#include "Pile\Attribute\NamedObject.h"
+#include "Common\Attribute\NonCopyable.h"
+#include "Common\Attribute\NamedObject.h"
 #include "Pipeline\ColliderType.h"
 
 #include <DirectXMath.h>
@@ -10,7 +10,7 @@ namespace Pipeline
 {
     class InputCollider;
 
-    class UserCollider : public Pile::NonCopyable, public Pile::NamedByRefObject
+    class UserCollider : public Common::NonCopyable, public Common::NamedByRefObject
     {
     public:
         UserCollider(ColliderType type, const InputCollider& input);

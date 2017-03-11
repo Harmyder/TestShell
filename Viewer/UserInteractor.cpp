@@ -3,13 +3,13 @@
 #include "UserInteractor.h"
 #include <WindowsX.h>
 
-#include "Pile\Timer\Timer.h"
+#include "Common\Timer\Timer.h"
 #include "GameInput.h"
 #include "Viewport.h"
 #include "CameraController.h"
 
 using namespace std;
-using namespace Pile;
+using namespace Common;
 
 constexpr uint32 kWidth = 800;
 constexpr uint32 kHeight = 600;

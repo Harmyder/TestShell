@@ -1,5 +1,5 @@
 #pragma once
-#include "Pile\DirectXInclude.h"
+#include "Common\DirectXInclude.h"
 
 namespace Viewer
 {

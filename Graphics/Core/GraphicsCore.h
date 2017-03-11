@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Pile\Attribute\NonCopyable.h"
-#include "Pile\Pattern\Singleton.h"
-#include "Pile\DirectXInclude.h"
+#include "Common\Attribute\NonCopyable.h"
+#include "Common\Pattern\Singleton.h"
+#include "Common\DirectXInclude.h"
 #include "Core\Camera.h"
 #include <wrl.h>
 
@@ -51,7 +51,7 @@ namespace Graphics
 
     enum class RootSignatureType;
 
-    class GraphicsCore : Pile::NonCopyable
+    class GraphicsCore : Common::NonCopyable
     {
     public:
         DECLARE_CLASS_SINGLETON(GraphicsCore);

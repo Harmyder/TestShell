@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-namespace Pile
+namespace Common
 {
     void DebugPrintf(const char* formatstring, ...)
     {

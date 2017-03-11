@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Pile/Attribute/NonCopyable.h"
+#include "Common/Attribute/NonCopyable.h"
 
-namespace Pile
+namespace Common
 {
-    class Command : public Pile::NonCopyable
+    class Command : public Common::NonCopyable
     {
     public:
         void SetReceiver(void *receiver)

@@ -2,7 +2,7 @@
 #include "Simulations\CubeSimulation.h"
 
 #include "Viewer\Viewport.h"
-#include "Pile\Math\XmFloatHelper.h"
+#include "Common\Math\XmFloatHelper.h"
 
 using namespace Viewer;
 using namespace std;
@@ -14,7 +14,7 @@ CubeSimulation::~CubeSimulation() {}
 void CubeSimulation::Init() {
     viewport_.CreateMaterial(Material::kSilver(), "collider");
 
-    const RenderItemTypeDesc d("TheCube", PredefinedGeometryType::kBox, Pile::Identity4x4(), "collider", PrimitiveTopology::kTriangleList());
+    const RenderItemTypeDesc d("TheCube", PredefinedGeometryType::kBox, Common::Identity4x4(), "collider", PrimitiveTopology::kTriangleList());
 
     cube_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque({d}));
 }

@@ -30,7 +30,7 @@ namespace Utility
 #define THROW_IF_FAILED(hr) \
     if (FAILED(hr)) { \
         auto err = _com_error(hr); \
-        Pile::DebugPrintf("Error in %s@%d: %s\n", Utility::basename(__FILE__).c_str(), __LINE__, err.ErrorMessage()); \
+        Common::DebugPrintf("Error in %s@%d: %s\n", Utility::basename(__FILE__).c_str(), __LINE__, err.ErrorMessage()); \
         DebugBreak(); \
     }
 }

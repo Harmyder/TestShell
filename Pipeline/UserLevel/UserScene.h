@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Pile\Attribute\NonCopyable.h"
+#include "Common\Attribute\NonCopyable.h"
 
 namespace Pipeline
 {
     class UserMesh;
     class UserCollider;
 
-    class UserScene : public Pile::NonCopyable
+    class UserScene : public Common::NonCopyable
     {
     public:
         ~UserScene();

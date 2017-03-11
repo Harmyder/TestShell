@@ -223,7 +223,7 @@
     <None Include="Shaders\StructuredBuffers\MaterialData.hlsli" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Pile\Pile.vcxproj">
+    <ProjectReference Include="..\Common\Common.vcxproj">
       <Project>{2f76dd6a-5f4a-48c0-b377-2cca96985032}</Project>
     </ProjectReference>
   </ItemGroup>

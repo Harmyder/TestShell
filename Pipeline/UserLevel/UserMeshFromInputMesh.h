@@ -3,14 +3,14 @@
 // **************************************************************************************
 #pragma once
 
-#include "Pile\Attribute\NonCopyable.h"
+#include "Common\Attribute\NonCopyable.h"
 
 namespace Pipeline
 {
     class UserMesh;
     class InputMesh;
 
-    class UserMeshFromInputMesh : Pile::NonCopyable
+    class UserMeshFromInputMesh : Common::NonCopyable
     {
     public:
         UserMeshFromInputMesh(UserMesh &mesh);

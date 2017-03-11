@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Pile\DefineNamespaceEnumType.h"
+#include "Common\DefineNamespaceEnumType.h"
 
 namespace greVertexType {
     DEFINE_NAMESPACE_ENUM_TYPE(int, -1);

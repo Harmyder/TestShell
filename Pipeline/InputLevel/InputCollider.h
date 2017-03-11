@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Pile\Attribute\NamedObject.h"
-#include "Pile\Attribute\NonCopyable.h"
+#include "Common\Attribute\NamedObject.h"
+#include "Common\Attribute\NonCopyable.h"
 #include "ColliderType.h"
 
 namespace Pipeline {
-    class InputCollider : public Pile::NamedByCopyObject, public Pile::NonCopyable
+    class InputCollider : public Common::NamedByCopyObject, public Common::NonCopyable
     {
     public:
         InputCollider(const std::string& name, const XMFLOAT4X4& transform, ColliderType type) : NamedByCopyObject(name), 

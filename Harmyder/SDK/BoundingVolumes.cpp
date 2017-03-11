@@ -2,8 +2,8 @@
 #include "SDK\BoundingVolumes.h"
 
 #include "SDK\Utility.h"
-#include "Pile\Print\DumpDirectX.h"
-#include "Pile\Print\DebugPrint.h"
+#include "Common\Print\DumpDirectX.h"
+#include "Common\Print\DebugPrint.h"
 
 using namespace std;
 using namespace DirectX;

@@ -1,7 +1,7 @@
 #ifndef __SIMULATION_FACTORY__
 #define __SIMULATION_FACTORY__
 
-#include "Pile/Attribute/NamedObject.h"
+#include "Common/Attribute/NamedObject.h"
 
 namespace Viewer
 {
@@ -11,7 +11,7 @@ namespace Viewer
 
 class BaseSimulation;
 
-class BaseFactory : public Pile::NamedByCopyObject
+class BaseFactory : public Common::NamedByCopyObject
 {
 public:
     BaseFactory(const char *name) : NamedByCopyObject(name) {}

@@ -2,7 +2,7 @@
 
 #include <DirectXMath.h>
 
-namespace Pile
+namespace Common
 {
     enum class DumpStyle {
         kVisualStudio,

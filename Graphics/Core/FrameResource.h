@@ -2,7 +2,7 @@
 
 #include <d3d12.h>
 #include <DirectXMath.h>
-#include "Pile\Math\XmFloatHelper.h"
+#include "Common\Math\XmFloatHelper.h"
 #include "Core\Lighting.h"
 
 namespace Graphics {
@@ -12,7 +12,7 @@ namespace Graphics {
 
     struct PerObjConsts
     {
-        DirectX::XMFLOAT4X4 World = Pile::Identity4x4();
+        DirectX::XMFLOAT4X4 World = Common::Identity4x4();
         uint32 MaterialIndex;
         uint32 pad1, pad2, pad3;
     };

@@ -2,7 +2,7 @@
 
 #include <ostream>
 
-namespace Pile
+namespace Common
 {
     template<size_t Size, typename... Args>
     typename std::enable_if<Size == 0, void>::type tuple_print_hlp(std::ostream&, const std::tuple<Args...>&)

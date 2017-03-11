@@ -33,7 +33,7 @@ using Microsoft::WRL::ComPtr;
 #include <tuple>
 #include <array>
 
-#include "Pile/Types.h"
-#include "Pile/Print/DebugPrint.h"
-#include "Pile/DirectXInclude.h"
+#include "Common/Types.h"
+#include "Common/Print/DebugPrint.h"
+#include "Common/DirectXInclude.h"
 #include "Utility.h"

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Pile\Attribute\NamedObject.h"
+#include "Common\Attribute\NamedObject.h"
 
 namespace Pipeline
 {
-    class InputMesh : public Pile::NamedByCopyObject
+    class InputMesh : public Common::NamedByCopyObject
     {
     public:
         InputMesh(const std::string& name) : NamedByCopyObject(name) {}

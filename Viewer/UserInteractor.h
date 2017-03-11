@@ -2,10 +2,10 @@
 
 #include <Windows.h>
 
-#include "Pile\Attribute\NonCopyable.h"
+#include "Common\Attribute\NonCopyable.h"
 #include "ICameraControllerObserver.h"
 
-namespace Pile {
+namespace Common {
     class Timer;
 }
 
@@ -16,7 +16,7 @@ namespace Viewer
     class GameInput;
     class CameraController;
 
-    class UserInteractor : public Pile::NonCopyable, public ICameraControllerObserver
+    class UserInteractor : public Common::NonCopyable, public ICameraControllerObserver
     {
     public:
         static UserInteractor &GetInstance();
@@ -68,7 +68,7 @@ namespace Viewer
         std::unique_ptr<Viewport> viewport_;
         std::unique_ptr<CameraController> cameraCtrl_;
 
-        std::unique_ptr<Pile::Timer> timer_;
+        std::unique_ptr<Common::Timer> timer_;
         float dT_;
         uint64 startTicks_;
     };

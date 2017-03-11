@@ -4,7 +4,7 @@
 #include "CameraController.h"
 #include "GameInput.h"
 #include "GeometryGenerator.h"
-#include "Pile\Math\XmFloatHelper.h"
+#include "Common\Math\XmFloatHelper.h"
 #include "Graphics\Interface\GraphicsInterface.h"
 #include "Graphics\Interface\GraphicsConsts.h"
 
@@ -75,9 +75,9 @@ namespace Viewer
 
         vector<RenderItemTypeDesc> descs;
         auto type = PredefinedGeometryType::kCone;
-        descs.emplace_back("X", type, Pile::Identity4x4(), "red", PrimitiveTopology::kTriangleList());
-        descs.emplace_back("Y", type, Pile::Identity4x4(), "green", PrimitiveTopology::kTriangleList());
-        descs.emplace_back("Z", type, Pile::Identity4x4(), "blue", PrimitiveTopology::kTriangleList());
+        descs.emplace_back("X", type, Common::Identity4x4(), "red", PrimitiveTopology::kTriangleList());
+        descs.emplace_back("Y", type, Common::Identity4x4(), "green", PrimitiveTopology::kTriangleList());
+        descs.emplace_back("Z", type, Common::Identity4x4(), "blue", PrimitiveTopology::kTriangleList());
         referenceFrame_ = CreateRenderItemInternal(descs);
 
         vector<VertexColor> vertices;

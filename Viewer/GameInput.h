@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Pile/Attribute/NonCopyable.h"
+#include "Common/Attribute/NonCopyable.h"
 
 namespace Viewer
 {
-    class GameInput : public Pile::NonCopyable
+    class GameInput : public Common::NonCopyable
     {
     public:
         struct InputEnum {

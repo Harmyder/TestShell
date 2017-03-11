@@ -2,7 +2,7 @@
 
 #include "Interface\GraphicsHandle.h"
 #include "GraphicsTypes.h"
-#include "Pile\DirectXInclude.h"
+#include "Common\DirectXInclude.h"
 
 struct grInitParams {
     uint32 SceneObjectsCountLimit;
@@ -24,8 +24,6 @@ void grDrawRenderItem(grRenderItem ri);
 void grDrawRenderItem(grRenderItemWithInstances riwi);
 void grDrawRenderSubItem(grRenderItem ri, const std::string& name);
 
-// As context contains CommandList may we need to be able to create several
-// of them even in single threaded application
 grCommandContext grGetGraphicsContext();
 
 grRootSignature grCreateRootSignature(greRootSignature::Type type);

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Pile\Attribute\NonCopyable.h"
-#include "Pile\Attribute\NamedObject.h"
+#include "Common\Attribute\NonCopyable.h"
+#include "Common\Attribute\NamedObject.h"
 
 #include "Viewer\Vertex.h"
 
@@ -14,7 +14,7 @@ namespace Pipeline
         std::vector<Viewer::VertexNormalTex> Vertices;
     };
 
-    class UserMesh : public Pile::NamedByRefObject, public Pile::NonCopyable
+    class UserMesh : public Common::NamedByRefObject, public Common::NonCopyable
     {
     public:
         UserMesh(const InputMesh &mesh);

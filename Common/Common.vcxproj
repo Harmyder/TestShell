@@ -15,6 +15,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Pile</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <ProjectName>Common</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -88,6 +89,8 @@
     <ClInclude Include="Consts.h" />
     <ClInclude Include="DefineNamespaceEnumType.h" />
     <ClInclude Include="DirectXInclude.h" />
+    <ClInclude Include="Math\Scalar.h" />
+    <ClInclude Include="Math\Vector.h" />
     <ClInclude Include="Print\DumpDirectX.h" />
     <ClInclude Include="Math\XmFloatHelper.h" />
     <ClInclude Include="Pattern\Command.h" />
