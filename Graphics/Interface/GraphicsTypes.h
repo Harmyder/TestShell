@@ -29,14 +29,14 @@ struct grtRenderVertices {
 };
 struct grtRenderSubItemDescBase
 {
-    grtRenderSubItemDescBase(const std::string& name, const XMFLOAT4X4& transform, grePrimitiveTopology::Type primitiveTopology) :
+    grtRenderSubItemDescBase(const std::string& name, const XMFLOAT4X3& transform, grePrimitiveTopology::Type primitiveTopology) :
         name(name),
         transform(transform),
         primitiveTopology(primitiveTopology)
     {}
 
     const std::string& name;
-    const XMFLOAT4X4& transform;
+    const XMFLOAT4X3& transform;
     grePrimitiveTopology::Type primitiveTopology;
 };
 struct grtRenderSubItemInstanceDesc
@@ -49,7 +49,7 @@ struct grtRenderSubItemInstanceDesc
 struct grtRenderSubItemWithInstancesDesc : grtRenderSubItemDescBase
 {
     grtRenderSubItemWithInstancesDesc(
-        const std::string& name, const XMFLOAT4X4& transform, grePrimitiveTopology::Type primitiveTopology,
+        const std::string& name, const XMFLOAT4X3& transform, grePrimitiveTopology::Type primitiveTopology,
         const grtRenderSubItemInstanceDesc* instancesDescs, uint32 instancesCount) :
         grtRenderSubItemDescBase(name, transform, primitiveTopology),
         instancesDescs(instancesDescs),
@@ -61,7 +61,7 @@ struct grtRenderSubItemWithInstancesDesc : grtRenderSubItemDescBase
 };
 struct grtRenderSubItemDesc : grtRenderSubItemDescBase
 {
-    grtRenderSubItemDesc(const std::string& name, const XMFLOAT4X4& transform, grMaterial material, grePrimitiveTopology::Type primitiveTopology) :
+    grtRenderSubItemDesc(const std::string& name, const XMFLOAT4X3& transform, grMaterial material, grePrimitiveTopology::Type primitiveTopology) :
         grtRenderSubItemDescBase(name, transform, primitiveTopology),
         material(material)
     {}

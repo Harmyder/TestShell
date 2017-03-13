@@ -19,15 +19,16 @@ namespace Pipeline
     public:
         UserMesh(const InputMesh &mesh);
 
-        const DirectX::XMFLOAT4X4& GetTransform() const;
-        void SetTransform(const DirectX::XMFLOAT4X4& transform);
 
-        const MeshGeometry &GetGeometry() const;
-        MeshGeometry &GetGeometryNonConst();
+        const auto& GetTransform() const { return transform_; }
+        void SetTransform(const DirectX::XMFLOAT4X3& transform) { transform_ = transform; }
+
+        const MeshGeometry &GetGeometry() const { return meshGeometry_; }
+        MeshGeometry &GetGeometryNonConst() { return meshGeometry_; }
         uint_t GetRenderItemIndex() const { return renderItemIndex_; }
         void SetRenderItemIndex(uint_t index) { renderItemIndex_ = index; }
 
-        const InputMesh& GetInput() const;
+        const InputMesh& GetInput() const { return input_; }
 
     private:
         const InputMesh &input_;
@@ -35,6 +36,6 @@ namespace Pipeline
 
         MeshGeometry meshGeometry_;
 
-        DirectX::XMFLOAT4X4 transform_;
+        DirectX::XMFLOAT4X3 transform_;
     };
 }

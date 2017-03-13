@@ -8,11 +8,12 @@
 #include "Pipeline\UserLevel\UserSceneFactory.h"
 #include "Harmyder\Interface\HarmyderInterface.h"
 #include "Simulations\Utility.h"
+#include "Common\Math\Transform.h"
 
 using namespace Pipeline;
 using namespace Viewer;
 using namespace std;
-using namespace DirectX;
+using namespace Common;
 
 FlockSimulation::FlockSimulation(Viewport& viewport, const GameInput& gameInput) : BaseSimulation("FlockSimulation", viewport, gameInput) {}
 FlockSimulation::~FlockSimulation() {}
@@ -54,10 +55,10 @@ void FlockSimulation::Init()
         instancesDescs.emplace_back(*(XMFLOAT4X3*)&pieces[i], mats[i % 3]);
     }
 
-    XMFLOAT4X4 t; XMStoreFloat4x4(&t, XMMatrixIdentity());
     RenderItemWithInstancesDesc desc("Flock",
         (const uint8*)mg.Vertices.data(), (uint32)verticesCount,
-        t, PrimitiveTopology::kTriangleList(),
+        AffineTransform(kIdentity).Store(),
+        PrimitiveTopology::kTriangleList(),
         instancesDescs.data(), instancesCount);
     flock_ = make_unique<StructRenderItemWithInstancesId>(viewport_.CreateRenderItemOpaqueWithInstances(desc, sizeof(VertexNormalTex)));
 }

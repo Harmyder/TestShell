@@ -22,7 +22,12 @@ namespace Pipeline
 
     void UserMeshFromInputMesh::Restore()
     {
-        mesh_.SetTransform(inputMesh_.GetTransform());
+        const XMFLOAT4X4 &src = inputMesh_.GetTransform();
+        XMFLOAT4X3 dst(src._11, src._12, src._13,
+            src._21, src._22, src._23,
+            src._31, src._32, src._33,
+            src._41, src._42, src._43);
+        mesh_.SetTransform(dst);
 
         MeshGeometry &mg = mesh_.GetGeometryNonConst();
 

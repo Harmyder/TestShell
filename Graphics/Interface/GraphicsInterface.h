@@ -41,7 +41,7 @@ void grDestroyMaterial(grMaterial material);
 
 grRenderItem grCreateRenderItem(const grtRenderItemDesc& renderItemDesc, uint32 vertexSize);
 grRenderItemWithInstances grCreateRenderItemWithInstances(const grtRenderSubItemWithInstancesDesc& desc, const grtRenderVertices& vertices, uint32 vertexSize);
-void grUpdateRenderSubItemTransform(grRenderItem renderItem, const std::string& name, const XMFLOAT4X4& transform);
+void grUpdateRenderSubItemTransform(grRenderItem renderItem, const std::string& name, const XMFLOAT4X3& transform);
 void grDestroyRenderItem(grRenderItem renderItem);
 void grDestroyRenderItem(grRenderItemWithInstances renderItem);
 

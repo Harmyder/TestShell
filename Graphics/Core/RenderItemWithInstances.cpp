@@ -9,7 +9,7 @@ using namespace std;
 
 namespace Graphics
 {
-    RenderItemWithInstances::RenderItemWithInstances(uint32 bufferIndex, uint32 vertexSize, uint32 verticesCount, uint32 instancesCount, XMFLOAT4X4 transform, D3D12_PRIMITIVE_TOPOLOGY primitiveTopology) :
+    RenderItemWithInstances::RenderItemWithInstances(uint32 bufferIndex, uint32 vertexSize, uint32 verticesCount, uint32 instancesCount, XMFLOAT4X3 transform, D3D12_PRIMITIVE_TOPOLOGY primitiveTopology) :
         BufferEntryDirty(bufferIndex),
         transform_(transform),
         primitiveTopology_(primitiveTopology),
@@ -20,7 +20,7 @@ namespace Graphics
         SetAllFramesDirty();
     }
 
-    void RenderItemWithInstances::SetTransform(const XMFLOAT4X4& transform) {
+    void RenderItemWithInstances::SetTransform(const XMFLOAT4X3& transform) {
         transform_ = transform;
         SetAllFramesDirty();
     }
@@ -42,7 +42,7 @@ namespace Graphics
         auto bi = GraphicsCore::GetInstance().GetFreePerObjBufferIndices().OccupyIndex();
 
         struct RenderItemWithInstancesUniquePtrEnabler : public RenderItemWithInstances { 
-            RenderItemWithInstancesUniquePtrEnabler(uint32 bufferIndex, uint32 vertexSize, uint32 verticesCount, uint32 instancesCount, XMFLOAT4X4 transform, D3D12_PRIMITIVE_TOPOLOGY primitiveTopology) :
+            RenderItemWithInstancesUniquePtrEnabler(uint32 bufferIndex, uint32 vertexSize, uint32 verticesCount, uint32 instancesCount, XMFLOAT4X3 transform, D3D12_PRIMITIVE_TOPOLOGY primitiveTopology) :
                 RenderItemWithInstances(bufferIndex, vertexSize, verticesCount, instancesCount, transform, primitiveTopology) {}
         };
         riwi = make_unique<RenderItemWithInstancesUniquePtrEnabler>(bi, vertexSize, vertices.verticesCount, desc.instancesCount, desc.transform, desc.primitiveTopology);

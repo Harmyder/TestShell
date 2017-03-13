@@ -3,7 +3,7 @@
 
 cbuffer cbPerObject : register(REGISTER_CB_PER_OBJECT)
 {
-    float4x4 gWorld;
+    float4x3 gWorld;
     uint     gMaterialIndex;
     uint __PerObjectPad1;
     uint __PerObjectPad2;

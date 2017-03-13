@@ -4,7 +4,7 @@
 #include "CameraController.h"
 #include "GameInput.h"
 #include "GeometryGenerator.h"
-#include "Common\Math\XmFloatHelper.h"
+#include "Common\Math\Transform.h"
 #include "Graphics\Interface\GraphicsInterface.h"
 #include "Graphics\Interface\GraphicsConsts.h"
 
@@ -74,16 +74,17 @@ namespace Viewer
         CreateMaterial(Material::kBlue(), "blue");
 
         vector<RenderItemTypeDesc> descs;
-        auto type = PredefinedGeometryType::kCone;
-        descs.emplace_back("X", type, Common::Identity4x4(), "red", PrimitiveTopology::kTriangleList());
-        descs.emplace_back("Y", type, Common::Identity4x4(), "green", PrimitiveTopology::kTriangleList());
-        descs.emplace_back("Z", type, Common::Identity4x4(), "blue", PrimitiveTopology::kTriangleList());
+        const auto type = PredefinedGeometryType::kCone;
+        const auto transform = Common::AffineTransform(Common::kIdentity).Store();
+        descs.emplace_back("X", type, transform, "red", PrimitiveTopology::kTriangleList());
+        descs.emplace_back("Y", type, transform, "green", PrimitiveTopology::kTriangleList());
+        descs.emplace_back("Z", type, transform, "blue", PrimitiveTopology::kTriangleList());
         referenceFrame_ = CreateRenderItemInternal(descs);
 
         vector<VertexColor> vertices;
         GeometryGenerator::CreateGridXY(vertices, 10, 10, 1.f, 1.f);
         DescsVertices descsGrid;
-        XMFLOAT4X4 t; XMStoreFloat4x4(&t, XMMatrixRotationX(XM_PIDIV2));
+        XMFLOAT4X3 t; XMStoreFloat4x3(&t, XMMatrixRotationX(XM_PIDIV2));
         RenderItemVerticesDesc descGrid("Grid", (uint8*)vertices.data(), (uint32)vertices.size(), t, "red", PrimitiveTopology::kLineList());
         descsGrid.push_back(descGrid);
         grid_ = CreateRenderItemInternal(descsGrid, sizeof(VertexColor));
@@ -205,18 +206,18 @@ namespace Viewer
         XMMATRIX translation = XMMatrixTranslationFromVector(referenceFrame);
 
         XMMATRIX localTranslation = XMMatrixTranslation(length / 2.f, 0, 0);
-        XMMATRIX transform = scaling * XMMatrixRotationZ(-XM_PIDIV2) * translation * localTranslation;
-        XMFLOAT4X4 t; XMStoreFloat4x4(&t, transform);
+        XMMATRIX transform = XMMatrixRotationZ(XM_PIDIV2) * scaling * translation * localTranslation;
+        XMFLOAT4X3 t; XMStoreFloat4x3(&t, transform);
         grUpdateRenderSubItemTransform(referenceFrame_, "X", t);
 
         localTranslation = XMMatrixTranslation(0, length / 2.f, 0);
         transform = scaling * translation * localTranslation;
-        XMStoreFloat4x4(&t, transform);
+        XMStoreFloat4x3(&t, transform);
         grUpdateRenderSubItemTransform(referenceFrame_, "Y", t);
 
         localTranslation = XMMatrixTranslation(0, 0, length / 2.f);
-        transform = scaling * XMMatrixRotationX(XM_PIDIV2) * translation * localTranslation;
-        XMStoreFloat4x4(&t, transform);
+        transform = XMMatrixRotationX(-XM_PIDIV2) * scaling * translation * localTranslation;
+        XMStoreFloat4x3(&t, transform);
         grUpdateRenderSubItemTransform(referenceFrame_, "Z", t);
 
         XMMATRIX view = grGetViewTransform();
@@ -305,6 +306,10 @@ namespace Viewer
     void Viewport::DestroyRenderItemOpaqueWithInstances(const StructRenderItemWithInstancesId& id) {
         grDestroyRenderItem(*id.Value);
         renderItemsWithInstances_.erase(id.Value);
+    }
+
+    void Viewport::UpdateRenderSubitemTransform(const StructRenderItemId& id, const string& name, const XMFLOAT4X3& transform) {
+        grUpdateRenderSubItemTransform(*id.Value, name, transform);
     }
 
     grRenderItem Viewport::CreateRenderItemInternal(const DescsVertices& viewportVerticesDescs, uint32 vertexSize) {

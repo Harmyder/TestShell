@@ -179,7 +179,7 @@ grRenderItemWithInstances grCreateRenderItemWithInstances(const grtRenderSubItem
     return grRenderItemWithInstances(riwi.release());
 }
 
-void grUpdateRenderSubItemTransform(grRenderItem renderItem, const std::string& name, const XMFLOAT4X4& transform) {
+void grUpdateRenderSubItemTransform(grRenderItem renderItem, const std::string& name, const XMFLOAT4X3& transform) {
     auto rih = static_cast<RenderItemHandle>(renderItem);
     auto ri = rih.GetValue();
     auto& subItem = ri->FindSubItem(name);

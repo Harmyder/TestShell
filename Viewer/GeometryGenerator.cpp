@@ -81,10 +81,10 @@ namespace Viewer
 
     void GeometryGenerator::CreateSphere(VerticesTriangle &output, uint32 iterations)
     {
-        const float radius = 1.f;
+        constexpr float radius = 1.f;
 
         // Build icosahedron, then on every iteration split every in four and project new point onto sphere surface
-        const uint32 facetsCount = 20;
+        constexpr uint32 facetsCount = 20;
 
         // Create 12 vertices of a icosahedron
         const float sqrt5 = sqrt(5.f);

@@ -48,11 +48,11 @@ void SphereBvSimulation::Init()
     PredefinedGeometryType type = PredefinedGeometryType::kSphere;
 
     XMMATRIX translation = XMMatrixTranslation(sphere.center[0], sphere.center[1], sphere.center[2]);
-    XMMATRIX meshT = XMLoadFloat4x4(&mesh.GetTransform());
+    XMMATRIX meshT = XMLoadFloat4x3(&mesh.GetTransform());
     XMMATRIX transform = XMMatrixMultiply(translation, meshT);
     XMMATRIX scale = XMMatrixScaling(sphere.radius, sphere.radius, sphere.radius);
     transform = XMMatrixMultiply(scale, transform);
-    XMFLOAT4X4 t; XMStoreFloat4x4(&t, transform);
+    XMFLOAT4X3 t; XMStoreFloat4x3(&t, transform);
     descsBV.emplace_back("", type, t, "boundingVolume", PrimitiveTopology::kTriangleList());
     boundingVolumeDesc_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemTransparent(descsBV));
 }

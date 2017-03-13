@@ -15,7 +15,7 @@ namespace Graphics {
     struct RenderItemDesc
     {
         std::string& name;
-        XMFLOAT4X4& transform;
+        XMFLOAT4X3& transform;
         D3D12_PRIMITIVE_TOPOLOGY primitiveTopology;
         Material *material;
     };
@@ -27,7 +27,7 @@ namespace Graphics {
     public:
         RenderSubItem(uint32 baseVertexLocation,
             uint32 verticesCount,
-            const XMFLOAT4X4& transform,
+            const XMFLOAT4X3& transform,
             uint32 objBufferIndex,
             Material* material,
             D3D_PRIMITIVE_TOPOLOGY primitiveTopology,
@@ -38,8 +38,8 @@ namespace Graphics {
         uint32 BaseVertexLocation() const { return baseVertexLocation_; }
         uint32 VerticesCount() const { return verticesCount_; }
         
-        const XMFLOAT4X4& GetTransform() const { return transform_; }
-        void SetTransform(const XMFLOAT4X4& transform);
+        const auto& GetTransform() const { return transform_; }
+        void SetTransform(const XMFLOAT4X3& transform);
 
         uint32 GetMaterialIndex() const { return materialIndex_; }
         D3D12_PRIMITIVE_TOPOLOGY GetPrimitiveTopology() const { return primitiveTopology_; }
@@ -47,7 +47,7 @@ namespace Graphics {
     private:
         uint32 baseVertexLocation_;
         uint32 verticesCount_;
-        XMFLOAT4X4 transform_;
+        XMFLOAT4X3 transform_;
         uint32 materialIndex_;
         D3D12_PRIMITIVE_TOPOLOGY primitiveTopology_;
 

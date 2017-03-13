@@ -50,11 +50,11 @@ namespace Viewer
     };
 
     struct RenderItemDesc {
-        RenderItemDesc(const std::string& name, const XMFLOAT4X4& transform, PrimitiveTopology::Type primitiveTopology) :
+        RenderItemDesc(const std::string& name, const XMFLOAT4X3& transform, PrimitiveTopology::Type primitiveTopology) :
             name(name), transform(transform), primitiveTopology(primitiveTopology) {}
 
         const std::string name;
-        const XMFLOAT4X4 transform;
+        const XMFLOAT4X3 transform;
         const PrimitiveTopology::Type primitiveTopology;
     };
     struct RenderItemInstanceDesc {
@@ -67,7 +67,7 @@ namespace Viewer
             const std::string& name,
             const uint8* vertices,
             uint32 verticesCount,
-            const XMFLOAT4X4& transform,
+            const XMFLOAT4X3& transform,
             PrimitiveTopology::Type primitiveTopology,
             const RenderItemInstanceDesc* instances,
             uint32 instancesCount
@@ -84,7 +84,7 @@ namespace Viewer
         const uint32 instancesCount;
     };
     struct RenderItemVerticesDesc : RenderItemDesc {
-        RenderItemVerticesDesc(const std::string& name, const uint8* vertices, uint32 verticesCount, const XMFLOAT4X4& transform, const std::string& material, PrimitiveTopology::Type primitiveTopology) :
+        RenderItemVerticesDesc(const std::string& name, const uint8* vertices, uint32 verticesCount, const XMFLOAT4X3& transform, const std::string& material, PrimitiveTopology::Type primitiveTopology) :
             RenderItemDesc(name, transform, primitiveTopology),
             material(material),
             vertices(vertices),
@@ -96,7 +96,7 @@ namespace Viewer
         const uint32 verticesCount;
     };
     struct RenderItemTypeDesc : RenderItemDesc {
-        RenderItemTypeDesc(const std::string& name, const PredefinedGeometryType type, const XMFLOAT4X4& transform, const std::string& material, PrimitiveTopology::Type primitiveTopology) :
+        RenderItemTypeDesc(const std::string& name, const PredefinedGeometryType type, const XMFLOAT4X3& transform, const std::string& material, PrimitiveTopology::Type primitiveTopology) :
             RenderItemDesc(name, transform, primitiveTopology),
             material(material),
             type(type) {}
@@ -135,6 +135,8 @@ namespace Viewer
         void DestroyRenderItemOpaque(const StructRenderItemId& id);
         void DestroyRenderItemTransparent(const StructRenderItemId& id);
         void DestroyRenderItemOpaqueWithInstances(const StructRenderItemWithInstancesId& id);
+
+        void UpdateRenderSubitemTransform(const StructRenderItemId& id, const std::string& name, const XMFLOAT4X3& transform);
 
         void BeforeDraw();
         void AfterDraw();

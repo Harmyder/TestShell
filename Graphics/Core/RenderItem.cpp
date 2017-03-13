@@ -11,7 +11,7 @@ namespace Graphics
 {
     RenderSubItem::RenderSubItem(uint32 baseVertexLocation,
         uint32 verticesCount,
-        const XMFLOAT4X4& transform,
+        const XMFLOAT4X3& transform,
         uint32 objBufferIndex,
         Material* material,
         D3D_PRIMITIVE_TOPOLOGY primitiveTopology,
@@ -27,7 +27,7 @@ namespace Graphics
         SetAllFramesDirty();
     }
 
-    void RenderSubItem::SetTransform(const XMFLOAT4X4& transform) {
+    void RenderSubItem::SetTransform(const XMFLOAT4X3& transform) {
         transform_ = transform;
         SetAllFramesDirty();
     }

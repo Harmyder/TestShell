@@ -25,7 +25,7 @@ Viewer::RenderItemTypeDesc BuildDescFromCollider(const Pipeline::UserCollider& c
 
     XMMATRIX transform = XMLoadFloat4x4(&collider.GetTransform());
     transform = XMLoadFloat4x4(&collider.GetScalingTransform()) * transform;
-    XMFLOAT4X4 t; XMStoreFloat4x4(&t, transform);
+    XMFLOAT4X3 t; XMStoreFloat4x3(&t, transform);
     return RenderItemTypeDesc(collider.GetName(), type, t, "collider", PrimitiveTopology::kTriangleList());
 }
 
