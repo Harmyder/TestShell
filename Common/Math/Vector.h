@@ -12,10 +12,10 @@ namespace Common {
         Vector3(FXMVECTOR v) { v_ = v; }
         Vector3(const Vector3& o) { v_ = o.v_; }
         Vector3(ZeroTag) { v_ = XMVectorSet(0.f, 0.f, 0.f, w); }
-        Vector3(OneTag) { v_ = XMVectorSet(1.f, 1.f, 1.f, w); }
+        Vector3(IdentityTag) { v_ = XMVectorSet(1.f, 1.f, 1.f, w); }
         Vector3(XUnitTag) { v_ = XMVectorSet(1.f, 0.f, 0.f, w); }
-        Vector3(XUnitTag) { v_ = XMVectorSet(0.f, 1.f, 0.f, w); }
-        Vector3(XUnitTag) { v_ = XMVectorSet(0.f, 0.f, 1.f, w); }
+        Vector3(YUnitTag) { v_ = XMVectorSet(0.f, 1.f, 0.f, w); }
+        Vector3(ZUnitTag) { v_ = XMVectorSet(0.f, 0.f, 1.f, w); }
 
         operator XMVECTOR() const { return v_; }
 
@@ -54,7 +54,6 @@ namespace Common {
     XMVECTOR_ALIGNMENT class Vector4
     {
     public:
-        Vector4() {}
         Vector4(float x, float y, float z, float w) { v_ = XMVectorSet(x, y, z, w); }
         Vector4(Vector3 xyz, float w) { v_ = XMVectorSetW(xyz, w); }
         Vector4(const Vector4& v) { v_ = v; }
@@ -62,7 +61,7 @@ namespace Common {
         explicit Vector4(Vector3 xyz) { v_ = XMVectorSetZ(xyz, 1.f); }
         explicit Vector4(FXMVECTOR vec) { v_ = vec; }
         explicit Vector4(ZeroTag) { v_ = XMVectorZero(); }
-        explicit Vector4(OneTag) { v_ = XMVectorSplatOne(); }
+        explicit Vector4(IdentityTag) { v_ = XMVectorSplatOne(); }
         explicit Vector4(XUnitTag) { v_ = XMVectorSet(1.f, 0.f, 0.f, 0.f); }
         explicit Vector4(YUnitTag) { v_ = XMVectorSet(0.f, 1.f, 0.f, 0.f); }
         explicit Vector4(ZUnitTag) { v_ = XMVectorSet(0.f, 0.f, 1.f, 0.f); }

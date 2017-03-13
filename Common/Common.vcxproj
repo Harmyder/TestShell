@@ -89,7 +89,10 @@
     <ClInclude Include="Consts.h" />
     <ClInclude Include="DefineNamespaceEnumType.h" />
     <ClInclude Include="DirectXInclude.h" />
+    <ClInclude Include="Math\Functions.h" />
+    <ClInclude Include="Math\Matrix.h" />
     <ClInclude Include="Math\Scalar.h" />
+    <ClInclude Include="Math\Transform.h" />
     <ClInclude Include="Math\Vector.h" />
     <ClInclude Include="Print\DumpDirectX.h" />
     <ClInclude Include="Math\XmFloatHelper.h" />

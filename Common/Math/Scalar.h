@@ -7,7 +7,7 @@ using namespace DirectX;
 
 namespace Common {
     enum ZeroTag { kZero };
-    enum OneTag { kOne };
+    enum IdentityTag { kOne, kIdentity };
     enum XUnitTag { kXUnit };
     enum YUnitTag { kYUnit };
     enum ZUnitTag { kZUnit };
@@ -20,7 +20,7 @@ namespace Common {
         Scalar(float f) { v_ = XMVectorReplicate(f); }
         explicit Scalar(FXMVECTOR vec) { v_ = vec; }
         explicit Scalar(ZeroTag) { v_ = XMVectorZero(); }
-        explicit Scalar(OneTag) { v_ = XMVectorSplatOne(); }
+        explicit Scalar(IdentityTag) { v_ = XMVectorSplatOne(); }
 
         operator XMVECTOR() const { return v_; }
         operator float() const { return XMVectorGetX(v_); }
@@ -29,17 +29,17 @@ namespace Common {
         XMVECTOR v_;
     };
 
-    Scalar operator- (Scalar s) { return Scalar(XMVectorNegate(s)); }
-    Scalar operator+ (Scalar s1, Scalar s2) { return Scalar(XMVectorAdd(s1, s2)); }
-    Scalar operator- (Scalar s1, Scalar s2) { return Scalar(XMVectorSubtract(s1, s2)); }
-    Scalar operator* (Scalar s1, Scalar s2) { return Scalar(XMVectorMultiply(s1, s2)); }
-    Scalar operator/ (Scalar s1, Scalar s2) { return Scalar(XMVectorDivide(s1, s2)); }
-    Scalar operator+ (Scalar s1, float s2) { return s1 + Scalar(s2); }
-    Scalar operator- (Scalar s1, float s2) { return s1 - Scalar(s2); }
-    Scalar operator* (Scalar s1, float s2) { return s1 * Scalar(s2); }
-    Scalar operator/ (Scalar s1, float s2) { return s1 / Scalar(s2); }
-    Scalar operator+ (float s1, Scalar s2) { return Scalar(s1) + s2; }
-    Scalar operator- (float s1, Scalar s2) { return Scalar(s1) - s2; }
-    Scalar operator* (float s1, Scalar s2) { return Scalar(s1) * s2; }
-    Scalar operator/ (float s1, Scalar s2) { return Scalar(s1) / s2; }
+    inline Scalar operator- (Scalar s) { return Scalar(XMVectorNegate(s)); }
+    inline Scalar operator+ (Scalar s1, Scalar s2) { return Scalar(XMVectorAdd(s1, s2)); }
+    inline Scalar operator- (Scalar s1, Scalar s2) { return Scalar(XMVectorSubtract(s1, s2)); }
+    inline Scalar operator* (Scalar s1, Scalar s2) { return Scalar(XMVectorMultiply(s1, s2)); }
+    inline Scalar operator/ (Scalar s1, Scalar s2) { return Scalar(XMVectorDivide(s1, s2)); }
+    inline Scalar operator+ (Scalar s1, float s2) { return s1 + Scalar(s2); }
+    inline Scalar operator- (Scalar s1, float s2) { return s1 - Scalar(s2); }
+    inline Scalar operator* (Scalar s1, float s2) { return s1 * Scalar(s2); }
+    inline Scalar operator/ (Scalar s1, float s2) { return s1 / Scalar(s2); }
+    inline Scalar operator+ (float s1, Scalar s2) { return Scalar(s1) + s2; }
+    inline Scalar operator- (float s1, Scalar s2) { return Scalar(s1) - s2; }
+    inline Scalar operator* (float s1, Scalar s2) { return Scalar(s1) * s2; }
+    inline Scalar operator/ (float s1, Scalar s2) { return Scalar(s1) / s2; }
 }
