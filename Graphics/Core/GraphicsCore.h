@@ -89,7 +89,7 @@ namespace Graphics
         void CreateRtvDsvHeaps();
         void CreateRenderTargetViews();
         void CreateDepthStencil(uint32 width, uint32 height);
-        void CreateDescriptorHeaps();
+        void CreateCbvDescriptorHeap();
         void CreateConstantBufferViews();
 
         D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView();

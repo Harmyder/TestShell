@@ -13,7 +13,7 @@ namespace Graphics
         uint32 verticesCount,
         const XMFLOAT4X3& transform,
         uint32 objBufferIndex,
-        Material* material,
+        const Material* material,
         D3D_PRIMITIVE_TOPOLOGY primitiveTopology,
         const RenderItem& container) :
         BufferEntryDirty(objBufferIndex),

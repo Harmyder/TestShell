@@ -9,15 +9,15 @@ namespace Graphics {
 
     struct RenderVerticesDesc
     {
-        uint8 *data;
+        const uint8 *data;
         uint32 verticesCount;
     };
     struct RenderItemDesc
     {
-        std::string& name;
-        XMFLOAT4X3& transform;
+        const std::string& name;
+        const XMFLOAT4X3& transform;
         D3D12_PRIMITIVE_TOPOLOGY primitiveTopology;
-        Material *material;
+        const Material *material;
     };
 
     class RenderItem;
@@ -29,7 +29,7 @@ namespace Graphics {
             uint32 verticesCount,
             const XMFLOAT4X3& transform,
             uint32 objBufferIndex,
-            Material* material,
+            const Material* material,
             D3D_PRIMITIVE_TOPOLOGY primitiveTopology,
             const RenderItem& container);
 

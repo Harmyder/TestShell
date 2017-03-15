@@ -66,7 +66,7 @@ namespace Graphics
         materialsBuffer_ = make_unique<MaterialsBuffer>(ip.MaterialsCountLimit);
         lightsHolder_ = make_unique<LightsHolder>();
 
-        CreateDescriptorHeaps();
+        CreateCbvDescriptorHeap();
         CreateConstantBufferViews();
     }
 
@@ -176,7 +176,7 @@ namespace Graphics
             rtvDescriptorSize_);
     }
 
-    void GraphicsCore::CreateDescriptorHeaps() {
+    void GraphicsCore::CreateCbvDescriptorHeap() {
         UINT numDescriptors = (frameResources_->ObjsCountLimit + frameResources_->PassesCountLimit) * frameResources_->Count();
 
         passCbvOffset_ = frameResources_->ObjsCountLimit * frameResources_->Count();

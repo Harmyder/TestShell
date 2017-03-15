@@ -8,11 +8,9 @@ namespace Graphics
         friend class GraphicsCore;
     public:
         UploadBuffer(std::wstring name, uint32 elementCount, bool isConstantBuffer);
-
         ~UploadBuffer();
 
         void CopyData(int elementIndex, const void* data);
-        uint_t ElementByteSize() { return elementByteSize_; }
 
     private:
         ID3D12Resource* Resource() const { return uploadBuffer_.Get(); }
