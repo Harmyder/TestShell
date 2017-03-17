@@ -89,11 +89,12 @@
     <ClInclude Include="Consts.h" />
     <ClInclude Include="DefineNamespaceEnumType.h" />
     <ClInclude Include="DirectXInclude.h" />
-    <ClInclude Include="Math\Functions.h" />
-    <ClInclude Include="Math\Matrix.h" />
-    <ClInclude Include="Math\Scalar.h" />
-    <ClInclude Include="Math\Transform.h" />
-    <ClInclude Include="Math\Vector.h" />
+    <ClInclude Include="Math\Vector\Functions.h" />
+    <ClInclude Include="Math\Vector\Matrix.h" />
+    <ClInclude Include="Math\Vector\Quaternion.h" />
+    <ClInclude Include="Math\Vector\Scalar.h" />
+    <ClInclude Include="Math\Vector\Transform.h" />
+    <ClInclude Include="Math\Vector\Vector.h" />
     <ClInclude Include="Print\DumpDirectX.h" />
     <ClInclude Include="Pattern\Command.h" />
     <ClInclude Include="Pattern\Singleton.h" />

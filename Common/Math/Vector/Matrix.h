@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/Vector.h"
+#include "Math/Vector/Quaternion.h"
 
 namespace Common {
     XMVECTOR_ALIGNMENT class Matrix3
@@ -8,7 +8,7 @@ namespace Common {
     public:
         Matrix3(Vector3 x, Vector3 y, Vector3 z) : m_{ x,y,z } {}
         Matrix3(const Matrix3& m) : m_{ m.m_[0], m.m_[1], m.m_[2] } {}
-//        Matrix3(Quaternion q) { *this = Matrix3(XMMatrixRotationQuaternion(q)); }
+        Matrix3(Quaternion q) : m_{Vector3(kInfinity), Vector3(kInfinity), Vector3(kInfinity) } { *this = Matrix3(XMMatrixRotationQuaternion(q)); }
         explicit Matrix3(const XMMATRIX& m) : m_{ Vector3(m.r[0]),  Vector3(m.r[1]), m_[2] = Vector3(m.r[2]) } {}
         explicit Matrix3(IdentityTag) : m_{ Vector3(kXUnit), Vector3(kYUnit), Vector3(kZUnit) } {}
         explicit Matrix3(ZeroTag) : m_{ Vector3(kZero), Vector3(kZero), Vector3(kZero) } {}
@@ -29,6 +29,7 @@ namespace Common {
         static Matrix3 MakeScale(Vector3 scale) { return Matrix3(XMMatrixScalingFromVector(scale)); }
 
         operator XMMATRIX() const { return (const XMMATRIX&)m_; }
+        XMFLOAT3X3 Store() const { XMFLOAT3X3 t; XMStoreFloat3x3(&t, (XMMATRIX&)*this); return t; }
 
         Vector3 operator* (Vector3 vec) const { return Vector3(XMVector3TransformNormal(vec, *this)); }
         Matrix3 operator* (const Matrix3& mat) const { return Matrix3(*this * mat.GetX(), *this * mat.GetY(), *this * mat.GetZ()); }

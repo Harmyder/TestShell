@@ -4,6 +4,6 @@
 
 namespace Common
 {
-    const uint32 NOT_FOUND = static_cast<uint32>(-1);
-    const float kFloatInfinity = std::numeric_limits<float>::infinity();
+    constexpr uint32 NOT_FOUND = static_cast<uint32>(-1);
+    constexpr float kFloatInfinity = std::numeric_limits<float>::infinity();
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Consts.h"
-#include "Math/Scalar.h"
+#include "Math/Vector/Scalar.h"
 
 namespace Common {
     XMVECTOR_ALIGNMENT class Vector3
@@ -19,6 +19,7 @@ namespace Common {
         Vector3(ZUnitTag) { v_ = XMVectorSet(0.f, 0.f, 1.f, w); }
 
         operator XMVECTOR() const { return v_; }
+        XMFLOAT3 Store() const { XMFLOAT3 t; XMStoreFloat3(&t, (XMVECTOR&)*this); return t; }
 
         Scalar GetX() const { return Scalar(XMVectorSplatX(v_)); }
         Scalar GetY() const { return Scalar(XMVectorSplatY(v_)); }
@@ -48,7 +49,7 @@ namespace Common {
         friend Vector3 operator/ (float   v1, Vector3 v2) { return Scalar(v1) / v2; }
 
     private:
-        static constexpr float w = std::numeric_limits<float>::infinity();
+        static constexpr float w = kFloatInfinity;
         XMVECTOR v_;
     };
 
@@ -70,6 +71,7 @@ namespace Common {
         explicit Vector4(WUnitTag) { v_ = XMVectorSet(0.f, 0.f, 0.f, 1.f); }
 
         operator XMVECTOR() const { return v_; }
+        XMFLOAT4 Store() const { XMFLOAT4 t; XMStoreFloat4(&t, (XMVECTOR&)*this); return t; }
 
         Scalar GetX() const { return Scalar(XMVectorSplatX(v_)); }
         Scalar GetY() const { return Scalar(XMVectorSplatY(v_)); }
