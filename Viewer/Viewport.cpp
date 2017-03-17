@@ -85,7 +85,7 @@ namespace Viewer
         GeometryGenerator::CreateGridXY(vertices, 10, 10, 1.f, 1.f);
         DescsVertices descsGrid;
         XMFLOAT4X3 t; XMStoreFloat4x3(&t, XMMatrixRotationX(XM_PIDIV2));
-        RenderItemVerticesDesc descGrid("Grid", (uint8*)vertices.data(), (uint32)vertices.size(), t, "red", PrimitiveTopology::kLineList());
+        RenderItemVerticesDesc descGrid("Grid", (uint8*)vertices.data(), (uint32)vertices.size(), nullptr, 0, t, "red", PrimitiveTopology::kLineList());
         descsGrid.push_back(descGrid);
         grid_ = CreateRenderItemInternal(descsGrid, sizeof(VertexColor));
     }
@@ -326,7 +326,7 @@ namespace Viewer
             const grtRenderSubItemDesc descEngine(d.name, d.transform, materials_.find(d.material)->second, PrimitiveTopology::ToSrc(d.primitiveTopology));
             descs.push_back(descEngine);
             itemsToVertices.push_back((uint32)vertices.size());
-            vertices.emplace_back(d.vertices, (uint32)d.verticesCount);
+            vertices.emplace_back(d.vertices, (uint32)d.verticesCount, d.indices, d.indicesCount);
             ++currentItem;
         }
 
@@ -343,7 +343,7 @@ namespace Viewer
         grtRenderSubItemWithInstancesDesc engineDesc(
             desc.name, desc.transform, PrimitiveTopology::ToSrc(desc.primitiveTopology),
             engineInstancesDesc.data(), (uint32)engineInstancesDesc.size());
-        grtRenderVertices vertices(desc.vertices, desc.verticesCount);
+        grtRenderVertices vertices(desc.vertices, desc.verticesCount, nullptr, 0);
         return grCreateRenderItemWithInstances(engineDesc, vertices, vertexSize);
     }
 
@@ -367,7 +367,7 @@ namespace Viewer
             const auto& currentGeometry = geometries_[geometryIndex];
             if (geometriesIndices[geometryIndex] == kNoIndex) {
                 geometriesIndices[geometryIndex] = (int)vertices.size();
-                vertices.emplace_back((uint8*)(void*)currentGeometry.data(), (uint32)currentGeometry.size());
+                vertices.emplace_back((uint8*)(void*)currentGeometry.data(), (uint32)currentGeometry.size(), nullptr, 0);
             }
             itemsToVertices.push_back(geometriesIndices[geometryIndex]);
             ++currentItem;

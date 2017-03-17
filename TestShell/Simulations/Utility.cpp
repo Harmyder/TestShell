@@ -8,7 +8,10 @@
 Viewer::RenderItemVerticesDesc BuildDescFromMesh(const Pipeline::UserMesh& mesh) {
     const auto& mg = mesh.GetGeometry();
     using namespace Viewer;
-    return RenderItemVerticesDesc(mesh.GetName(), (uint8*)mg.Vertices.data(), (uint32)mg.Vertices.size(), mesh.GetTransform(), "rigid", PrimitiveTopology::kTriangleList());
+    return RenderItemVerticesDesc(mesh.GetName(),
+        (uint8*)mg.UniqueVertices.data(), (uint32)mg.UniqueVertices.size(),
+        (uint8*)mg.TrianglesVertices.data(), (uint32)mg.TrianglesVertices.size(),
+        mesh.GetTransform().Store(), "rigid", PrimitiveTopology::kTriangleList());
 }
 
 Viewer::RenderItemTypeDesc BuildDescFromCollider(const Pipeline::UserCollider& collider) {

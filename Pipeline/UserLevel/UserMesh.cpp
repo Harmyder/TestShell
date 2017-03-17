@@ -9,6 +9,7 @@ namespace Pipeline
 {
     UserMesh::UserMesh(const InputMesh &mesh) :
         NamedByRefObject(mesh.GetName()),
-        input_(mesh)
+        input_(mesh),
+        transform_(Common::kIdentity)
     {}
 }

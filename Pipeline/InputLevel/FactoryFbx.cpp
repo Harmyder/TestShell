@@ -55,7 +55,7 @@ namespace Pipeline
             for (uint32 n = 0; n < normalsCount; n++)
             {
                 XMVECTOR normalXM = XMLoadFloat3(&normals[n]);
-                const XMVECTOR length = XMVector3LengthEst(normalXM);
+                const XMVECTOR length = XMVector3Length(normalXM);
                 assert(XMVector4Greater(length, XMVectorSet(1e-6f, 1e-6f, 1e-6f, 1e-6f)) && "Too small normal");
                 normalXM = normalXM / length;
                 XMStoreFloat3(&normals[n], normalXM);

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Interface\GraphicsHandle.h"
-#include "GraphicsTypes.h"
-#include "Common\DirectXInclude.h"
+#include "Interface/GraphicsHandle.h"
+#include "Interface/GraphicsTypes.h"
+#include "Common/DirectXInclude.h"
 
 struct grInitParams {
     uint32 SceneObjectsCountLimit;

@@ -33,10 +33,10 @@ void SphereBvSimulation::Init()
     const auto& mesh = scene_->GetMesh(0);
     
     const auto& mg = mesh.GetGeometry();
-    const auto verticesCount = mg.Vertices.size();
+    const auto verticesCount = mg.UniqueVertices.size();
     unique_ptr<htPosition[]> positions(new htPosition[verticesCount]);
     for (uint_t i = 0; i < verticesCount; ++i) {
-        positions[i] = *(htPosition*)&mg.Vertices[i].Position;
+        positions[i] = *(htPosition*)&mg.UniqueVertices[i].Position;
     }
     auto pointCloud = hfPointCloudRigidCreate(positions.get(), (uint32)verticesCount);
     auto sphere = hfComputeSphereBV(pointCloud);
@@ -48,7 +48,7 @@ void SphereBvSimulation::Init()
     PredefinedGeometryType type = PredefinedGeometryType::kSphere;
 
     XMMATRIX translation = XMMatrixTranslation(sphere.center[0], sphere.center[1], sphere.center[2]);
-    XMMATRIX meshT = XMLoadFloat4x3(&mesh.GetTransform());
+    XMMATRIX meshT = mesh.GetTransform();
     XMMATRIX transform = XMMatrixMultiply(translation, meshT);
     XMMATRIX scale = XMMatrixScaling(sphere.radius, sphere.radius, sphere.radius);
     transform = XMMatrixMultiply(scale, transform);

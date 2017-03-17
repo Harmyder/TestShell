@@ -57,6 +57,7 @@ namespace Common {
         void SetW(Vector4 w) { m_.r[3] = w; }
 
         operator XMMATRIX() const { return m_; }
+        XMFLOAT4X3 Store() const { XMFLOAT4X3 t; XMStoreFloat4x3(&t, (XMMATRIX&)*this); return t; }
 
         Vector4 operator* (Vector3 vec) const { return Vector4(XMVector3Transform(vec, m_)); }
         Vector4 operator* (Vector4 vec) const { return Vector4(XMVector4Transform(vec, m_)); }

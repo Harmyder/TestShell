@@ -9,8 +9,10 @@ namespace Graphics {
 
     struct RenderVerticesDesc
     {
-        const uint8 *data;
+        const uint8 *vertices;
         uint32 verticesCount;
+        const uint8 *indices;
+        uint32 indicesCount;
     };
     struct RenderItemDesc
     {
@@ -26,7 +28,9 @@ namespace Graphics {
     {
     public:
         RenderSubItem(uint32 baseVertexLocation,
-            uint32 verticesCount,
+            uint32 baseIndexLocation,
+            int verticesCount,
+            int indicesCount,
             const XMFLOAT4X3& transform,
             uint32 objBufferIndex,
             const Material* material,
@@ -38,6 +42,10 @@ namespace Graphics {
         uint32 BaseVertexLocation() const { return baseVertexLocation_; }
         uint32 VerticesCount() const { return verticesCount_; }
         
+        bool HasIndices() const { return indicesCount_ != 0; }
+        uint32 BaseIndexLocation() const { return baseIndexLocation_; }
+        uint32 IndicesCount() const { return indicesCount_; }
+
         const auto& GetTransform() const { return transform_; }
         void SetTransform(const XMFLOAT4X3& transform);
 
@@ -47,6 +55,8 @@ namespace Graphics {
     private:
         uint32 baseVertexLocation_;
         uint32 verticesCount_;
+        uint32 baseIndexLocation_;
+        uint32 indicesCount_;
         XMFLOAT4X3 transform_;
         uint32 materialIndex_;
         D3D12_PRIMITIVE_TOPOLOGY primitiveTopology_;
@@ -57,6 +67,8 @@ namespace Graphics {
     class RenderItem
     {
     public:
+        enum { kIndexSize = 2 }; // Keep in sync with kIndexFormat
+
         static void Create(
             const RenderItemDesc* itemsDescs, uint32 itemsDescsCount,
             const RenderVerticesDesc* verticesDescs, uint32 verticesDescsCount,
@@ -65,8 +77,8 @@ namespace Graphics {
             std::unique_ptr<RenderItem>& ri);
 
         D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const;
-        uint32 VertexByteStride() const { return vertexSize_; }
-        uint32 VertexBufferByteSize() const { return vbByteSize_; }
+        bool HasIndexBuffer() const { return ibByteSize_ != 0; }
+        D3D12_INDEX_BUFFER_VIEW IndexBufferView() const;
 
         using SubItems = std::unordered_map<std::string, RenderSubItem>;
         const SubItems::iterator GetSubItemsBegin() { return begin(subItems_); }
@@ -74,15 +86,20 @@ namespace Graphics {
         RenderSubItem& FindSubItem(const std::string& name) { return subItems_.find(name)->second; }
 
     private:
-        RenderItem(uint32 vertexSize, uint32 verticesCount) :
+        RenderItem(uint32 vertexSize, uint32 verticesCount, uint32 indicesCount) :
             vertexSize_(vertexSize),
-            vbByteSize_(vertexSize * verticesCount)
+            vbByteSize_(vertexSize * verticesCount),
+            ibByteSize_(kIndexSize * indicesCount)
         {}
+
+        enum { kIndexFormat = DXGI_FORMAT_R16_UINT };
 
     private:
         SubItems subItems_;
         GpuBuffer vertexBuffer_;
         const uint32 vertexSize_;
         const uint32 vbByteSize_;
+        GpuBuffer indexBuffer_;
+        const uint32 ibByteSize_;
     };
 }

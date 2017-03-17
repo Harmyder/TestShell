@@ -35,10 +35,10 @@ void FlockSimulation::Init()
 
     const auto& mesh = scene_->GetMesh(0);
     const auto& mg = mesh.GetGeometry();
-    const auto verticesCount = mg.Vertices.size();
+    const auto verticesCount = mg.UniquePositions.size();
     auto positions = make_unique<htPosition[]>(verticesCount);
     for (uint_t i = 0; i < verticesCount; ++i) {
-        positions[i] = *(htPosition*)&mg.Vertices[i].Position;
+        positions[i] = *(htPosition*)&mg.UniquePositions[i];
     }
     auto pointCloud = hfPointCloudRigidCreate(positions.get(), (uint32)verticesCount);
     auto sphere = hfComputeSphereBV(pointCloud);
@@ -56,7 +56,7 @@ void FlockSimulation::Init()
     }
 
     RenderItemWithInstancesDesc desc("Flock",
-        (const uint8*)mg.Vertices.data(), (uint32)verticesCount,
+        (const uint8*)mg.UniqueVertices.data(), (uint32)verticesCount,
         AffineTransform(kIdentity).Store(),
         PrimitiveTopology::kTriangleList(),
         instancesDescs.data(), instancesCount);

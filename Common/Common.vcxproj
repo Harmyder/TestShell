@@ -95,7 +95,6 @@
     <ClInclude Include="Math\Transform.h" />
     <ClInclude Include="Math\Vector.h" />
     <ClInclude Include="Print\DumpDirectX.h" />
-    <ClInclude Include="Math\XmFloatHelper.h" />
     <ClInclude Include="Pattern\Command.h" />
     <ClInclude Include="Pattern\Singleton.h" />
     <ClInclude Include="Print\DebugPrint.h" />

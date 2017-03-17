@@ -84,16 +84,20 @@ namespace Viewer
         const uint32 instancesCount;
     };
     struct RenderItemVerticesDesc : RenderItemDesc {
-        RenderItemVerticesDesc(const std::string& name, const uint8* vertices, uint32 verticesCount, const XMFLOAT4X3& transform, const std::string& material, PrimitiveTopology::Type primitiveTopology) :
+        RenderItemVerticesDesc(const std::string& name, const uint8* vertices, uint32 verticesCount, uint8* indices, uint32 indicesCount, const XMFLOAT4X3& transform, const std::string& material, PrimitiveTopology::Type primitiveTopology) :
             RenderItemDesc(name, transform, primitiveTopology),
             material(material),
             vertices(vertices),
-            verticesCount(verticesCount)
+            verticesCount(verticesCount),
+            indices(indices),
+            indicesCount(indicesCount)
         {}
 
         const std::string material;
         const uint8* vertices;
         const uint32 verticesCount;
+        const uint8* indices;
+        const uint32 indicesCount;
     };
     struct RenderItemTypeDesc : RenderItemDesc {
         RenderItemTypeDesc(const std::string& name, const PredefinedGeometryType type, const XMFLOAT4X3& transform, const std::string& material, PrimitiveTopology::Type primitiveTopology) :

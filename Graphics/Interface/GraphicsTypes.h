@@ -1,5 +1,6 @@
 #pragma once
 #include "Interface\GraphicsConsts.h"
+#include "Interface/GraphicsHandle.h"
 
 struct grtPipelineStateDesc {
     greVertexType::Type VertexType;
@@ -20,12 +21,18 @@ struct grtVertexColor {
     float Color[4];
 };
 struct grtRenderVertices {
-    grtRenderVertices(const uint8* data, const uint32 verticesCount) :
-        data(data),
-        verticesCount(verticesCount) {}
+    grtRenderVertices(const uint8* vertices, const uint32 verticesCount, const uint8* indices, const uint32 indicesCount) :
+        vertices(vertices),
+        verticesCount(verticesCount),
+        indices(indices),
+        indicesCount(indicesCount) {}
 
-    const uint8* data;
+    const uint8* vertices;
     const uint32 verticesCount;
+    const uint8* indices;
+    const uint32 indicesCount;
+
+    static const int kIndexSize;
 };
 struct grtRenderSubItemDescBase
 {

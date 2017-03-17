@@ -384,7 +384,13 @@ namespace Graphics
         cbvHandleObj.Offset(cbHandleIndex, cbvSrvUavDescriptorSize_);
         commandList->SetGraphicsRootDescriptorTable(0, cbvHandleObj);
 
-        commandList->DrawInstanced(rsi.VerticesCount(), 1, rsi.BaseVertexLocation(), 0);
+        if (ri.HasIndexBuffer()) {
+            commandList->IASetIndexBuffer(&ri.IndexBufferView());
+            commandList->DrawIndexedInstanced(rsi.IndicesCount(), 1, rsi.BaseIndexLocation(), rsi.BaseVertexLocation(), 0);
+        }
+        else {
+            commandList->DrawInstanced(rsi.VerticesCount(), 1, rsi.BaseVertexLocation(), 0);
+        }
     }
 
     void GraphicsCore::DrawRenderItem(RenderItem& ri) {

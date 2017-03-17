@@ -46,7 +46,7 @@ namespace Graphics
                 RenderItemWithInstances(bufferIndex, vertexSize, verticesCount, instancesCount, transform, primitiveTopology) {}
         };
         riwi = make_unique<RenderItemWithInstancesUniquePtrEnabler>(bi, vertexSize, vertices.verticesCount, desc.instancesCount, desc.transform, desc.primitiveTopology);
-        riwi->vertexBuffer_.Create(L"riwi_vertex", vertices.verticesCount, vertexSize, vertices.data);
+        riwi->vertexBuffer_.Create(L"riwi_vertex", vertices.verticesCount, vertexSize, vertices.vertices);
 
         riwi->instances_.resize(desc.instancesCount);
         for (uint32 i = 0; i < desc.instancesCount; ++i) {

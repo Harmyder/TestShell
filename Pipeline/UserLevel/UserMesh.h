@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Common\Attribute\NonCopyable.h"
-#include "Common\Attribute\NamedObject.h"
-
-#include "Viewer\Vertex.h"
+#include "Common/Attribute/NonCopyable.h"
+#include "Common/Attribute/NamedObject.h"
+#include "Common/Math/Matrix.h"
+#include "Viewer/Vertex.h"
 
 namespace Pipeline
 {
@@ -11,7 +11,10 @@ namespace Pipeline
 
     struct MeshGeometry
     {
-        std::vector<Viewer::VertexNormalTex> Vertices;
+        std::vector<Common::Vector3> UniquePositions;
+        std::vector<uint16>          TrianglesPositions;
+        std::vector<Viewer::VertexNormalTex> UniqueVertices;
+        std::vector<uint16>                  TrianglesVertices;
     };
 
     class UserMesh : public Common::NamedByRefObject, public Common::NonCopyable
@@ -21,7 +24,7 @@ namespace Pipeline
 
 
         const auto& GetTransform() const { return transform_; }
-        void SetTransform(const DirectX::XMFLOAT4X3& transform) { transform_ = transform; }
+        void SetTransform(const Common::Matrix4& transform) { transform_ = transform; }
 
         const MeshGeometry &GetGeometry() const { return meshGeometry_; }
         MeshGeometry &GetGeometryNonConst() { return meshGeometry_; }
@@ -36,6 +39,6 @@ namespace Pipeline
 
         MeshGeometry meshGeometry_;
 
-        DirectX::XMFLOAT4X3 transform_;
+        Common::Matrix4 transform_;
     };
 }

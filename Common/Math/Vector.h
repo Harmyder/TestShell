@@ -1,6 +1,6 @@
 #pragma once
 
-#include <limits>
+#include "Consts.h"
 #include "Math/Scalar.h"
 
 namespace Common {
@@ -13,6 +13,7 @@ namespace Common {
         Vector3(const Vector3& o) { v_ = o.v_; }
         Vector3(ZeroTag) { v_ = XMVectorSet(0.f, 0.f, 0.f, w); }
         Vector3(IdentityTag) { v_ = XMVectorSet(1.f, 1.f, 1.f, w); }
+        Vector3(InfinityTag) { v_ = XMVectorSet(kFloatInfinity, kFloatInfinity, kFloatInfinity, w); }
         Vector3(XUnitTag) { v_ = XMVectorSet(1.f, 0.f, 0.f, w); }
         Vector3(YUnitTag) { v_ = XMVectorSet(0.f, 1.f, 0.f, w); }
         Vector3(ZUnitTag) { v_ = XMVectorSet(0.f, 0.f, 1.f, w); }
@@ -62,6 +63,7 @@ namespace Common {
         explicit Vector4(FXMVECTOR vec) { v_ = vec; }
         explicit Vector4(ZeroTag) { v_ = XMVectorZero(); }
         explicit Vector4(IdentityTag) { v_ = XMVectorSplatOne(); }
+        explicit Vector4(InfinityTag) { v_ = XMVectorReplicate(kFloatInfinity); }
         explicit Vector4(XUnitTag) { v_ = XMVectorSet(1.f, 0.f, 0.f, 0.f); }
         explicit Vector4(YUnitTag) { v_ = XMVectorSet(0.f, 1.f, 0.f, 0.f); }
         explicit Vector4(ZUnitTag) { v_ = XMVectorSet(0.f, 0.f, 1.f, 0.f); }

@@ -7,7 +7,6 @@ using namespace std;
 
 namespace Pipeline
 {
-    // **************************************************************************************
     bool InputMesh::Vertex::operator==(const Vertex& other) {
         return
             other.PositionIndex == PositionIndex &&
@@ -15,17 +14,6 @@ namespace Pipeline
             other.TexCoordIndex == TexCoordIndex;
     }
 
-    // **************************************************************************************
-    const std::vector<InputMesh::Vertex>& InputMesh::GetVertices() const {
-        return uniqueVertices_;
-    }
-
-    // **************************************************************************************
-    const std::vector<uint16>& InputMesh::GetTrianglesVertices() const {
-        return trianglesVertices_;
-    }
-
-    // **************************************************************************************
     void InputMesh::ComputeVertices() {
         const uint_t trianglesCount = trianglesPositions_.size() / 3;
         trianglesVertices_.resize(trianglesCount * 3);

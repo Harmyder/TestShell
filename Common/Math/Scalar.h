@@ -8,6 +8,7 @@ using namespace DirectX;
 namespace Common {
     enum ZeroTag { kZero };
     enum IdentityTag { kOne, kIdentity };
+    enum InfinityTag { kInfinity };
     enum XUnitTag { kXUnit };
     enum YUnitTag { kYUnit };
     enum ZUnitTag { kZUnit };

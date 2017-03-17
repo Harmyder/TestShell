@@ -34,8 +34,8 @@ namespace Pipeline
             bool operator==(const Vertex& other);
         };
 
-        const std::vector<Vertex>& GetVertices() const;
-        const std::vector<uint16>& GetTrianglesVertices() const;
+        const std::vector<Vertex>& GetVisualVertices() const { return uniqueVertices_; } // unique triplets
+        const std::vector<uint16>& GetTrianglesVertices() const { return trianglesVertices_; } // per triangle
 
     public:
         void ComputeVertices();
