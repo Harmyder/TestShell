@@ -2,5 +2,5 @@
 
 namespace Harmyder
 {
-    Sphere Compute(const XMFLOAT3 *vertices, uint32 verticesCount);
+    Sphere Compute(const Common::Vector3 *vertices, uint32 verticesCount);
 }

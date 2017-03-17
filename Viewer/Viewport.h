@@ -59,7 +59,7 @@ namespace Viewer
     };
     struct RenderItemInstanceDesc {
         RenderItemInstanceDesc(XMFLOAT4X3& transform, std::string& material) : transform(transform), material(material) {}
-        XMFLOAT4X3& transform;
+        XMFLOAT4X3 transform;
         std::string& material;
     };
     struct RenderItemWithInstancesDesc : RenderItemDesc {
@@ -67,6 +67,8 @@ namespace Viewer
             const std::string& name,
             const uint8* vertices,
             uint32 verticesCount,
+            const uint8* indices,
+            uint32 indicesCount,
             const XMFLOAT4X3& transform,
             PrimitiveTopology::Type primitiveTopology,
             const RenderItemInstanceDesc* instances,
@@ -75,11 +77,15 @@ namespace Viewer
             RenderItemDesc(name, transform, primitiveTopology),
             vertices(vertices),
             verticesCount(verticesCount),
+            indices(indices),
+            indicesCount(indicesCount),
             instances(instances),
             instancesCount(instancesCount)
         {}
         const uint8* vertices;
         const uint32 verticesCount;
+        const uint8* indices;
+        const uint32 indicesCount;
         const RenderItemInstanceDesc* instances;
         const uint32 instancesCount;
     };

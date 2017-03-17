@@ -66,6 +66,8 @@ namespace Common {
 
         static Matrix4 MakeScale(float scale) { return Matrix4(XMMatrixScaling(scale, scale, scale)); }
         static Matrix4 MakeScale(Vector3 scale) { return Matrix4(XMMatrixScalingFromVector(scale)); }
+        static Matrix4 MakeTranslation(float x, float y, float z) { return Matrix4(XMMatrixTranslation(x, y, z)); }
+        static Matrix4 MakeTranslation(Vector3 translation) { return Matrix4(XMMatrixTranslationFromVector(translation)); }
 
     private:
         XMMATRIX m_;

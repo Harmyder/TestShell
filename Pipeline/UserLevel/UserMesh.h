@@ -2,7 +2,7 @@
 
 #include "Common/Attribute/NonCopyable.h"
 #include "Common/Attribute/NamedObject.h"
-#include "Common/Math/Matrix.h"
+#include "Common/Math/Vector/Matrix.h"
 #include "Viewer/Vertex.h"
 
 namespace Pipeline

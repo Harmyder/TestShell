@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Internal\BaseSimulation.h"
-#include "Common\Math\Vector.h"
+#include "Common\Math\Vector\Vector.h"
 
 namespace Viewer
 {

@@ -53,6 +53,15 @@ bool operator==(const XMFLOAT4& p1, const XMFLOAT4 p2) {
     return res;
 }
 
+bool operator==(const Vector3& p1, const Vector3& p2) {
+    return p1.Store() == p2.Store();
+}
+
+bool operator==(const Matrix3& p1, const Matrix3& p2) {
+    return p1.Store() == p2.Store();
+}
+
+
 namespace Microsoft {
 namespace VisualStudio {
 namespace CppUnitTestFramework {
@@ -94,6 +103,13 @@ namespace CppUnitTestFramework {
         return res;
     }
 
+    template<> inline std::wstring ToString<Vector3>(const Vector3& t) {
+        return ToString(t.Store());
+    }
+
+    template<> inline std::wstring ToString<Matrix3>(const Matrix3& t) {
+        return ToString(t.Store());
+    }
 }
 }
 }

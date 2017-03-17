@@ -4,7 +4,7 @@
 #include "CameraController.h"
 #include "GameInput.h"
 #include "GeometryGenerator.h"
-#include "Common\Math\Transform.h"
+#include "Common\Math\Vector\Transform.h"
 #include "Graphics\Interface\GraphicsInterface.h"
 #include "Graphics\Interface\GraphicsConsts.h"
 
@@ -326,7 +326,7 @@ namespace Viewer
             const grtRenderSubItemDesc descEngine(d.name, d.transform, materials_.find(d.material)->second, PrimitiveTopology::ToSrc(d.primitiveTopology));
             descs.push_back(descEngine);
             itemsToVertices.push_back((uint32)vertices.size());
-            vertices.emplace_back(d.vertices, (uint32)d.verticesCount, d.indices, d.indicesCount);
+            vertices.emplace_back(d.vertices, d.verticesCount, d.indices, d.indicesCount);
             ++currentItem;
         }
 
@@ -343,7 +343,7 @@ namespace Viewer
         grtRenderSubItemWithInstancesDesc engineDesc(
             desc.name, desc.transform, PrimitiveTopology::ToSrc(desc.primitiveTopology),
             engineInstancesDesc.data(), (uint32)engineInstancesDesc.size());
-        grtRenderVertices vertices(desc.vertices, desc.verticesCount, nullptr, 0);
+        grtRenderVertices vertices(desc.vertices, desc.verticesCount, desc.indices, desc.indicesCount);
         return grCreateRenderItemWithInstances(engineDesc, vertices, vertexSize);
     }
 

@@ -3,6 +3,7 @@
 
 #include "HarmyderModule.h"
 #include "Interface\InternalHandle.h"
+#include "Interface\InterfaceToInternal.h"
 
 #include "Core\RigidBody.h"
 #include "Core\Mesh.h"
@@ -11,9 +12,9 @@
 
 using namespace Harmyder;
 using namespace std;
+using namespace Common;
 
-static_assert(sizeof(FlockEntity) == sizeof(htFlockEntity), "Keep FlockEntity and htFlockEntity in sync");
-static_assert(sizeof(Sphere) == sizeof(htSphere), "Keep Sphere and htSphere in sync");
+#pragma warning(disable: 4239)
 
 void hfInit() {
     HarmyderModule::GetInstance().Init();
@@ -24,7 +25,7 @@ void hfClose() {
 }
 
 hhPointCloudRigid hfPointCloudRigidCreate(const htPosition *points, uint32 pointsCount) {
-    auto pointCloud = new PointCloudRigid((const XMFLOAT3*)points, pointsCount);
+    auto pointCloud = new PointCloudRigid((const Vector3*)points, pointsCount);
     return hhPointCloudRigid(pointCloud);
 }
 
@@ -40,7 +41,7 @@ void hfPointCloudRigidDestroy(hhPointCloudRigid pointCloud) {
 }
 
 hhMeshRigid hfMeshRigidCreate(const htPosition *vertices, uint32 verticesCount, const htTriangle *triangles, uint32 trianglesCount) {
-    auto mesh = new MeshRigid((XMFLOAT3*)vertices, verticesCount, (Triangle*)triangles, trianglesCount);
+    auto mesh = new MeshRigid((Vector3*)vertices, verticesCount, (Triangle*)triangles, trianglesCount);
     return hhMeshRigid(mesh);
 }
 
@@ -51,18 +52,18 @@ void hfMeshRigidDestroy(hhMeshRigid mesh) {
 
 hhRigidBody hfRigidBodyCreate(hhPointCloudRigid pointCloud, htSphere bv) {
     PointCloudRigid* pc = static_cast<PointCloudRigidHandle>(pointCloud).GetValue();
-    auto rb = new RigidBodyBV<Sphere>(*pc, *(Sphere*)&bv);
+    auto rb = new RigidBodyBV<Sphere>(*pc, ToSphere(bv));
     return hhRigidBody(rb);
 }
 
-void hfRigidBodySetTransform(hhRigidBody rigidBody, const htTransform4x4& transform) {
+void hfRigidBodySetTransform(hhRigidBody rigidBody, const htTransform& transform) {
     RigidBody* ri = static_cast<RigidBodyHandle>(rigidBody).GetValue();
-    ri->SetTransform(*(DirectX::XMFLOAT4X4*)&transform);
+    ri->SetTransform(*(OrthogonalTransform*)&transform);
 }
 
-const htTransform4x4& hfRigidBodyGetTransform(hhRigidBody rigidBody) {
+const htTransform& hfRigidBodyGetTransform(hhRigidBody rigidBody) {
     RigidBody* ri = static_cast<RigidBodyHandle>(rigidBody).GetValue();
-    return *(htTransform4x4*)&ri->GetTransform();
+    return *(htTransform*)&ri->GetTransform();
 }
 
 void hfRigidBodyDestroy(hhRigidBody rigidBody) {
@@ -72,7 +73,7 @@ void hfRigidBodyDestroy(hhRigidBody rigidBody) {
 
 hhFlock hfFlockCreate(const char* name, const htFlockEntity &type) {
     unique_ptr<Flock> flock;
-    Flock::Create(name, *(FlockEntity*)&type, flock);
+    Flock::Create(name, ToFlockEntity(type), flock);
     return hhFlock(flock.release());
 }
 

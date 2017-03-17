@@ -2,8 +2,8 @@
 #include "Simulations\MovingObjsInRi.h"
 
 #include "Viewer\Viewport.h"
-#include "Common\Math\Transform.h"
-#include "Common\Math\Functions.h"
+#include "Common\Math\Vector\Transform.h"
+#include "Common\Math\Vector\Functions.h"
 
 using namespace Viewer;
 using namespace Common;

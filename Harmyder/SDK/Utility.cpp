@@ -1,23 +1,24 @@
 #include "stdafx.h"
-#include "SDK\Utility.h"
+#include "SDK/Utility.h"
 
 using namespace DirectX;
 using namespace std;
+using namespace Common;
 
 namespace Harmyder
 {
-    XMFLOAT3X3 CovarianceMatrix(const XMFLOAT3* vertices, uint32 verticesCount) {
-        XMVECTOR invN = XMVectorReplicate(1.f / verticesCount);
-        XMVECTOR mean = g_XMZero;
+    XMFLOAT3X3 CovarianceMatrix(const Vector3* vertices, uint32 verticesCount) {
+        Vector3 invN = XMVectorReplicate(1.f / verticesCount);
+        Vector3 mean(kZero);
         for (uint32 i = 0; i < verticesCount; ++i) {
-            mean = XMVectorAdd(mean, XMLoadFloat3(&vertices[i]));
+            mean = mean + vertices[i];
         }
         mean = XMVectorMultiply(mean, invN);
 
-        XMVECTOR diag = g_XMZero;
-        XMVECTOR upper = g_XMZero;
+        Vector3 diag(kZero);
+        Vector3 upper(kZero);
         for (uint32 i = 0; i < verticesCount; ++i) {
-            XMVECTOR rel = XMLoadFloat3(&vertices[i]) - mean;
+            Vector3 rel = vertices[i] - mean;
             diag = XMVectorMultiplyAdd(rel, rel, diag);
             upper = XMVectorMultiplyAdd(XMVectorSwizzle(rel, 0, 0, 1, 3), XMVectorSwizzle(rel, 1, 2, 2, 3), upper);
         }
@@ -115,14 +116,13 @@ namespace Harmyder
         XMStoreFloat3x3(&v, vInternal);
     }
 
-    std::pair<uint32, uint32> ExtremePointsAlongDirection(const XMFLOAT3& dir, const XMFLOAT3* vertices, uint32 verticesCount) {
+    std::pair<uint32, uint32> ExtremePointsAlongDirection(const Vector3& dir, const Vector3* vertices, uint32 verticesCount) {
         assert(verticesCount > 0);
-        XMVECTOR dirInternal = XMLoadFloat3(&dir);
         XMVECTOR minProj = XMVectorReplicate(numeric_limits<float>::max());
         XMVECTOR maxProj = XMVectorReplicate(numeric_limits<float>::lowest());
         for (uint32 i = 0; i < verticesCount; ++i) {
-            auto vertex = XMLoadFloat3(&vertices[i]);
-            auto proj = ::XMVector3Dot(dirInternal, vertex);
+            auto vertex = vertices[i];
+            auto proj = Dot(dir, vertex);
 
             XMVECTOR selectMin = XMVectorLess(proj, XMVectorSwizzle(minProj, 0, 0, 0, 0));
             XMVECTOR selectMax = XMVectorLess(XMVectorSwizzle(maxProj, 0, 0, 0, 0), proj);
@@ -134,12 +134,11 @@ namespace Harmyder
         return make_pair(*(uint32*)&min, *(uint32*)&max);
     }
 
-    void EnlargeSphereByPoints(Sphere& s, const XMFLOAT3* points, const uint32 pointsCount) {
+    void EnlargeSphereByPoints(Sphere& s, const Vector3* points, const uint32 pointsCount) {
         XMVECTOR r = XMVectorReplicate(s.radius);
         float r2 = s.radius * s.radius;
-        XMVECTOR c = XMLoadFloat3(&s.center);
         for (uint32 i = 0; i < pointsCount; ++i) {
-            XMVECTOR d = XMVectorSubtract(XMLoadFloat3(&points[i]), c);
+            XMVECTOR d = XMVectorSubtract(points[i], s.center);
             const XMVECTOR dist2 = XMVector3Dot(d, d);
             if (r2 < XMVectorGetX(dist2)) {
                 float dist = sqrt(XMVectorGetX(dist2));
@@ -147,11 +146,9 @@ namespace Harmyder
                 float k = (newRadius - s.radius) / dist;
                 s.radius = newRadius;
                 r2 = s.radius * s.radius;
-                c = XMVectorMultiplyAdd(d, XMVectorReplicate(k), c);
-                XMStoreFloat3(&s.center, c);
+                s.center = XMVectorMultiplyAdd(d, XMVectorReplicate(k), s.center);
             }
-            float dist = XMVectorGetX(XMVector3Length(XMVectorSubtract(XMLoadFloat3(&points[i]), c)));
-            assert(s.radius + 1e-5f >= dist);
+            assert(Length(points[i] - s.center) <= Scalar(s.radius + 1e-5f));
         }
     }
 }

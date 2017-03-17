@@ -28,16 +28,12 @@ namespace Utility
 
     class BufferEntryDirty {
     public:
-        BufferEntryDirty(uint32 bufferIndex) :
-            bufferIndex_(bufferIndex),
-            dirtyFramesCount_(0)
-        {}
-
         uint32 BufferIndex() const { return bufferIndex_; }
         bool IsDirty() const { return dirtyFramesCount_ != 0; }
         void DecreaseDirtyFramesCount() { --dirtyFramesCount_; }
 
     protected:
+        BufferEntryDirty(uint32 bufferIndex) : bufferIndex_(bufferIndex), dirtyFramesCount_(0) {}
         void SetAllFramesDirty();
 
     private:

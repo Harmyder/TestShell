@@ -5,12 +5,12 @@
 
 using namespace std;
 using namespace DirectX;
+using namespace Common;
 
 namespace Harmyder
 {
     RigidBody::RigidBody(const PointCloudRigid& pointCloud) :
-        pointCloud_(pointCloud)
-    {
-        XMStoreFloat4x4(&transform_, XMMatrixIdentity());
-    }
+        pointCloud_(pointCloud),
+        transform_(kIdentity)
+    {}
 }

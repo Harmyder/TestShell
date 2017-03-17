@@ -430,6 +430,12 @@ namespace Graphics
         auto instBuffer = frameResources_->GetCurrentFrameResource().instBuffer->Resource();
         commandList->SetGraphicsRootShaderResourceView(3, instBuffer->GetGPUVirtualAddress());
 
-        commandList->DrawInstanced(riwi.VerticesCount(), (UINT)riwi.GetInstances().size(), 0, 0);
+        if (riwi.HasIndexBuffer()) {
+            commandList->IASetIndexBuffer(&riwi.IndexBufferView());
+            commandList->DrawIndexedInstanced(riwi.IndicesCount(), (UINT)riwi.GetInstances().size(), 0, 0, 0);
+        }
+        else {
+            commandList->DrawInstanced(riwi.VerticesCount(), (UINT)riwi.GetInstances().size(), 0, 0);
+        }
     }
 }

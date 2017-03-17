@@ -14,8 +14,8 @@ hhMeshRigid hfMeshRigidCreate(const htPosition *vertices, uint32 verticesCount, 
 void hfMeshRigidDestroy(hhMeshRigid mesh);
 
 hhRigidBody hfRigidBodyCreate(hhPointCloudRigid pointCloud, htSphere bv);
-void hfRigidBodySetTransform(hhRigidBody rigidBody, const htTransform4x4& transform);
-const htTransform4x4& hfRigidBodyGetTransform(hhRigidBody rigidBody);
+void hfRigidBodySetTransform(hhRigidBody rigidBody, const htTransform& transform);
+const htTransform& hfRigidBodyGetTransform(hhRigidBody rigidBody);
 void hfRigidBodyDestroy(hhRigidBody rigidBody);
 
 hhFlock hfFlockCreate(const char* name, const htFlockEntity &type);

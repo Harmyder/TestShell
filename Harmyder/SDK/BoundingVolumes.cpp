@@ -7,10 +7,11 @@
 
 using namespace std;
 using namespace DirectX;
+using namespace Common;
 
 namespace Harmyder
 {
-    Sphere Compute(const XMFLOAT3 *vertices, uint32 verticesCount) {
+    Sphere Compute(const Vector3 *vertices, uint32 verticesCount) {
         auto covariance = CovarianceMatrix(vertices, verticesCount);
 
         XMFLOAT3X3 v;
@@ -26,18 +27,16 @@ namespace Harmyder
             maxDiagI = 2;
             maxE = abs(covariance(2, 2));
         }
-        const XMFLOAT3 maxV = *(XMFLOAT3*)v.m[maxDiagI];
+        const Vector3 maxV = XMLoadFloat3((XMFLOAT3*)v.m[maxDiagI]);
         
         uint32 minI, maxI;
         tie(minI, maxI) = ExtremePointsAlongDirection(maxV, vertices, verticesCount);
 
-        XMVECTOR min = XMLoadFloat3(&vertices[minI]);
-        XMVECTOR max = XMLoadFloat3(&vertices[maxI]);
+        Vector3 min = vertices[minI];
+        XMVECTOR max = vertices[maxI];
 
-        Sphere s;
-        XMVECTOR radius = XMVectorDivide(XMVectorSubtract(max, min), XMVectorReplicate(2.f));
-        s.radius = XMVectorGetX(XMVector3Length(radius));
-        XMStoreFloat3(&s.center, XMVectorAdd(min, radius));
+        Vector3 radius = (max - min) / 2.f;
+        Sphere s{ min + radius, Length(radius) };
 
         EnlargeSphereByPoints(s, vertices, verticesCount);
         return s;

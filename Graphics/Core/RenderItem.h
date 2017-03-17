@@ -64,21 +64,43 @@ namespace Graphics {
         const RenderItem& container_;
     };
 
-    class RenderItem
+    class RenderItemBase : Common::NonCopyable
     {
     public:
         enum { kIndexSize = 2 }; // Keep in sync with kIndexFormat
 
+        D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const;
+        bool HasIndexBuffer() const { return ibByteSize_ != 0; }
+        D3D12_INDEX_BUFFER_VIEW IndexBufferView() const;
+
+    protected:
+        RenderItemBase(uint32 vertexSize, uint32 verticesCount, uint32 indicesCount) :
+            vertexSize_(vertexSize),
+            vbByteSize_(vertexSize * verticesCount),
+            ibByteSize_(kIndexSize * indicesCount)
+        {}
+        GpuBuffer& VertexBuffer() { return vertexBuffer_; }
+        GpuBuffer& IndexBuffer() { return indexBuffer_; }
+
+    private:
+        enum { kIndexFormat = DXGI_FORMAT_R16_UINT };
+
+        GpuBuffer vertexBuffer_;
+        const uint32 vertexSize_;
+        const uint32 vbByteSize_;
+        GpuBuffer indexBuffer_;
+        const uint32 ibByteSize_;
+    };
+
+    class RenderItem : public RenderItemBase
+    {
+    public:
         static void Create(
             const RenderItemDesc* itemsDescs, uint32 itemsDescsCount,
             const RenderVerticesDesc* verticesDescs, uint32 verticesDescsCount,
             const uint32* itemsToVertices,
             uint32 vertexSize,
             std::unique_ptr<RenderItem>& ri);
-
-        D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const;
-        bool HasIndexBuffer() const { return ibByteSize_ != 0; }
-        D3D12_INDEX_BUFFER_VIEW IndexBufferView() const;
 
         using SubItems = std::unordered_map<std::string, RenderSubItem>;
         const SubItems::iterator GetSubItemsBegin() { return begin(subItems_); }
@@ -87,19 +109,10 @@ namespace Graphics {
 
     private:
         RenderItem(uint32 vertexSize, uint32 verticesCount, uint32 indicesCount) :
-            vertexSize_(vertexSize),
-            vbByteSize_(vertexSize * verticesCount),
-            ibByteSize_(kIndexSize * indicesCount)
+            RenderItemBase(vertexSize, verticesCount, indicesCount)
         {}
-
-        enum { kIndexFormat = DXGI_FORMAT_R16_UINT };
 
     private:
         SubItems subItems_;
-        GpuBuffer vertexBuffer_;
-        const uint32 vertexSize_;
-        const uint32 vbByteSize_;
-        GpuBuffer indexBuffer_;
-        const uint32 ibByteSize_;
     };
 }

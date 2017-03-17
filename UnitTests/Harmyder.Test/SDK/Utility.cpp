@@ -14,7 +14,7 @@ namespace HarmyderTest
 	public:
 		
 		TEST_METHOD(TestCovarianceMatrix_Simple) {
-            XMFLOAT3 vertices[3] = { {1.f, 2.f, 0.f}, {2.f, 4.f, 0.f}, {3.f, 6.f, 0.f} };
+            Vector3 vertices[3] = { {1.f, 2.f, 0.f}, {2.f, 4.f, 0.f}, {3.f, 6.f, 0.f} };
             auto cov = Harmyder::CovarianceMatrix(vertices, 3);
             const XMFLOAT3X3 expected(
                 0.6667f, 1.3333f, 0.f,
@@ -27,7 +27,7 @@ namespace HarmyderTest
         // A = [1 2 0; 2 4 0; 3 6 0; 2 4 0; 2 6 1; 3 5 7; 1 2 4];
         // cov(A, 1)
         TEST_METHOD(TestCovarianceMatrix_Complex) {
-            vector<XMFLOAT3> vertices = { 
+            vector<Vector3> vertices = { 
                 { 1.f, 2.f, 0.f },
                 { 2.f, 4.f, 0.f },
                 { 3.f, 6.f, 0.f },
@@ -80,45 +80,39 @@ namespace HarmyderTest
         }
 
         TEST_METHOD(TestEnlargeSphereByPoints_AlongAxis) {
-            Harmyder::Sphere s;
-            s.center = { 0, 0, 0 };
-            s.radius = 1;
-            XMFLOAT3 point(2, 0, 0);
+            Harmyder::Sphere s{ { 0, 0, 0 }, 1 };
+            Vector3 point(2, 0, 0);
             Harmyder::EnlargeSphereByPoints(s, &point, 1);
 
-            Assert::AreEqual(s.radius, 1.5f);
-            Assert::AreEqual(s.center, XMFLOAT3(0.5, 0, 0));
+            Assert::AreEqual(float(s.radius), 1.5f);
+            Assert::AreEqual(s.center, Vector3(0.5, 0, 0));
         }
     
         TEST_METHOD(TestEnlargeSphereByPoints_DiagonalXY) {
-            Harmyder::Sphere s;
-            s.center = { 1.f, 1.f, 0.f };
-            s.radius = sqrt(2.f);
-            XMFLOAT3 point(3.f, 3.f, 0.f);
+            Harmyder::Sphere s{ { 1.f, 1.f, 0.f }, sqrt(2.f) };
+            Vector3 point(3.f, 3.f, 0.f);
             Harmyder::EnlargeSphereByPoints(s, &point, 1);
 
             const float c = 1.5f;
             const float r = sqrt(1.5f * 1.5f * 2.f);
             Assert::IsTrue(CompareEpsilon(s.radius, r));
-            Assert::AreEqual(s.center, XMFLOAT3(c, c, 0.f));
+            Assert::AreEqual(s.center, Vector3(c, c, 0.f));
         }
 
         TEST_METHOD(TestEnlargeSphereByPoints_DiagonalXYZ) {
-            Harmyder::Sphere s;
-            s.center = { 1.f, 1.f, 1.f };
-            s.radius = sqrt(3.f);
-            XMFLOAT3 point(3.f, 3.f, 3.f);
+            Harmyder::Sphere s{ { 1.f, 1.f, 1.f }, sqrt(3.f) };
+            Vector3 point(3.f, 3.f, 3.f);
             Harmyder::EnlargeSphereByPoints(s, &point, 1);
 
             const float c = 1.5f;
             const float r = sqrt(1.5f * 1.5f * 3.f);
             Assert::IsTrue(CompareEpsilon(s.radius, r));
-            Assert::AreEqual(s.center, XMFLOAT3(c, c, c));
+            Assert::AreEqual(s.center, Vector3(c, c, c));
         }
 
         TEST_METHOD(TestExtremePointsAlongDirection_OnePoint) {
-            XMFLOAT3 point(0.f, 0.f, 0.f);
-            XMFLOAT3 dir(1.f, 2.f, 3.f);
+            Vector3 point(0.f, 0.f, 0.f);
+            Vector3 dir(1.f, 2.f, 3.f);
             int min, max;
             tie(min, max) = Harmyder::ExtremePointsAlongDirection(dir, &point, 1);
 
@@ -127,10 +121,10 @@ namespace HarmyderTest
         }
 
         TEST_METHOD(TestExtremePointsAlongDirection_X) {
-            XMFLOAT3 points[3] = { { 0.f, 0.f, 0.f },{ 0.f, 1.f, 0.f },{ 1.f, 0.f, 0.f }};
-            XMFLOAT3 dir(1.f, 0.f, 0.f);
+            Vector3 points[3] = { { 0.f, 0.f, 0.f },{ 0.f, 1.f, 0.f },{ 1.f, 0.f, 0.f }};
+            Vector3 dir(1.f, 0.f, 0.f);
             int min, max;
-            tie(min, max) = Harmyder::ExtremePointsAlongDirection(dir, points, sizeof(points) / sizeof(XMFLOAT3));
+            tie(min, max) = Harmyder::ExtremePointsAlongDirection(dir, points, sizeof(points) / sizeof(Vector3));
 
             Assert::AreEqual(min, 0);
             Assert::AreEqual(max, 2);

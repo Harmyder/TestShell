@@ -7,14 +7,14 @@ namespace Harmyder
 
     struct FlockEntity {
         const PointCloudRigid* pointCloud;
-        const Sphere* sphereBV;
+        const Sphere sphereBV;
         uint8 count[3];
         float mean;
         // float stdDevX; -- not implemented, for now all of the same size
     };
 
     struct Piece {
-        XMFLOAT4X3 transform;
+        Common::Matrix4 transform;
         //float scale; -- not implemented, all of the same size for now, use scale_ instead
     };
 
@@ -27,12 +27,13 @@ namespace Harmyder
         const Piece* GetPieces() { return pieces_.data(); }
 
     private:
-        Flock(const std::string& name, const float scale) : name_(name), scale_(scale) {}
+        Flock(const std::string& name, const PointCloudRigid* pointCloud, const Sphere& bv, const float scale) : 
+            name_(name), pointCloud_(pointCloud), sphereBV_(bv), scale_(scale) {}
 
     private:
         const std::string name_;
         const PointCloudRigid* pointCloud_;
-        const Sphere* sphereBV_;
+        const Sphere sphereBV_;
 
         const float scale_; // global scale for now
         std::vector<Piece> pieces_;

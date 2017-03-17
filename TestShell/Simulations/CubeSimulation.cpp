@@ -2,7 +2,7 @@
 #include "Simulations\CubeSimulation.h"
 
 #include "Viewer\Viewport.h"
-#include "Common\Math\Transform.h"
+#include "Common\Math\Vector\Transform.h"
 
 using namespace Viewer;
 using namespace std;

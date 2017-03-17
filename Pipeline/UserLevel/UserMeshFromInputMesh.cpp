@@ -1,7 +1,3 @@
-// **************************************************************************************
-// File: UserMeshFromInputMesh.h
-// **************************************************************************************
-
 #include "stdafx.h"
 
 #include "UserLevel/UserMeshFromInputMesh.h"
@@ -36,18 +32,19 @@ namespace Pipeline
         const auto& texCoords = inputMesh_.GetTexCoords();
 
         const auto& visualVertices = inputMesh_.GetVisualVertices();
-        mg.UniqueVertices = move(decltype(mg.UniqueVertices)(visualVertices.size()));
+        mg.UniqueVertices.clear(); mg.UniqueVertices.reserve(visualVertices.size());
         for (uint32 i = 0; i < visualVertices.size(); ++i) {
-            mg.UniqueVertices[i].Position = positions[visualVertices[i].PositionIndex];
-            mg.UniqueVertices[i].Normal = normals[visualVertices[i].NormalIndex];
-            mg.UniqueVertices[i].TexCoord = texCoords[visualVertices[i].TexCoordIndex];
+            mg.UniqueVertices.push_back({
+                positions[visualVertices[i].PositionIndex],
+                normals[visualVertices[i].NormalIndex],
+                texCoords[visualVertices[i].TexCoordIndex] });
         }
         mg.TrianglesVertices = inputMesh_.GetTrianglesVertices();
 
-        const auto& trianglesPositions = inputMesh_.GetTrianglesPositions();
-        mg.UniquePositions = move(vector<Vector3>(trianglesPositions.size(), Vector3(kInfinity)));
-        for (uint32 i = 0; i < trianglesPositions.size(); ++i) {
-
+        mg.UniquePositions.clear(); mg.UniquePositions.reserve(positions.size());
+        for (uint32 i = 0; i < positions.size(); ++i) {
+            mg.UniquePositions.push_back(XMLoadFloat3(&positions[i]));
         }
+        mg.TrianglesPositions = inputMesh_.GetTrianglesPositions();
     }
 }

@@ -31,5 +31,9 @@ using DirectX::FXMMATRIX;
 #include <vector>
 #include <tuple>
 
-#include "SDK\GeometryTypes.h"
+#include "Common/Math/Vector/Transform.h"
+#include "Common/Math/Vector/Matrix.h"
+#include "Common/Math/Vector/Functions.h"
+
+#include "SDK/GeometryTypes.h"
 

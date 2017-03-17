@@ -9,6 +9,22 @@ using namespace std;
 
 namespace Graphics
 {
+    D3D12_VERTEX_BUFFER_VIEW RenderItemBase::VertexBufferView() const {
+        D3D12_VERTEX_BUFFER_VIEW vbv;
+        vbv.BufferLocation = vertexBuffer_.GetGPUVirtualAddress();
+        vbv.StrideInBytes = vertexSize_;
+        vbv.SizeInBytes = vbByteSize_;
+        return vbv;
+    }
+
+    D3D12_INDEX_BUFFER_VIEW RenderItemBase::IndexBufferView() const {
+        D3D12_INDEX_BUFFER_VIEW ibv;
+        ibv.BufferLocation = indexBuffer_.GetGPUVirtualAddress();
+        ibv.Format = (DXGI_FORMAT)kIndexFormat;
+        ibv.SizeInBytes = ibByteSize_;
+        return ibv;
+    }
+
     RenderSubItem::RenderSubItem(uint32 baseVertexLocation,
         uint32 baseIndexLocation,
         int verticesCount,
@@ -34,22 +50,6 @@ namespace Graphics
     void RenderSubItem::SetTransform(const XMFLOAT4X3& transform) {
         transform_ = transform;
         SetAllFramesDirty();
-    }
-
-    D3D12_VERTEX_BUFFER_VIEW RenderItem::VertexBufferView() const {
-        D3D12_VERTEX_BUFFER_VIEW vbv;
-        vbv.BufferLocation = vertexBuffer_.GetGPUVirtualAddress();
-        vbv.StrideInBytes = vertexSize_;
-        vbv.SizeInBytes = vbByteSize_;
-        return vbv;
-    }
-
-    D3D12_INDEX_BUFFER_VIEW RenderItem::IndexBufferView() const {
-        D3D12_INDEX_BUFFER_VIEW ibv;
-        ibv.BufferLocation = indexBuffer_.GetGPUVirtualAddress();
-        ibv.Format = (DXGI_FORMAT)kIndexFormat;
-        ibv.SizeInBytes = ibByteSize_;
-        return ibv;
     }
 
     void RenderItem::Create(
@@ -101,7 +101,7 @@ namespace Graphics
             auto& vd = verticesDescs[i];
             vertices.insert(vertices.end(), vd.vertices, vd.vertices + vd.verticesCount * vertexSize);
         }
-        ri->vertexBuffer_.Create(L"ri_vertex", totalVerticesCount, vertexSize, vertices.data());
+        ri->VertexBuffer().Create(L"ri_vertex", totalVerticesCount, vertexSize, vertices.data());
 
         if (totalIndicesCount > 0) {
             std::vector<uint8> indices;
@@ -110,7 +110,7 @@ namespace Graphics
                 auto& vd = verticesDescs[i];
                 indices.insert(indices.end(), vd.indices, vd.indices + vd.indicesCount * kIndexSize);
             }
-            ri->indexBuffer_.Create(L"ri_index", totalIndicesCount, kIndexSize, indices.data());
+            ri->IndexBuffer().Create(L"ri_index", totalIndicesCount, kIndexSize, indices.data());
         }
     }
 }

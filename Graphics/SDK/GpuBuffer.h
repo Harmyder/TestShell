@@ -11,8 +11,7 @@ namespace Graphics
 
     class GpuBuffer : public Common::NonCopyable
     {
-        friend class RenderItem;
-        friend class RenderItemWithInstances;
+        friend class RenderItemBase;
     public:
         ~GpuBuffer();
 

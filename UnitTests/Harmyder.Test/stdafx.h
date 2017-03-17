@@ -14,3 +14,7 @@ using namespace DirectX;
 
 #include <algorithm>
 #include <string>
+
+#include "Common/Math/Vector/Functions.h"
+#include "Common/Math/Vector/Transform.h"
+using namespace Common;

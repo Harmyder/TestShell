@@ -8,7 +8,7 @@
 #include "Pipeline\UserLevel\UserSceneFactory.h"
 #include "Harmyder\Interface\HarmyderInterface.h"
 #include "Simulations\Utility.h"
-#include "Common\Math\Transform.h"
+#include "Common\Math\Vector\Transform.h"
 
 using namespace Pipeline;
 using namespace Viewer;
@@ -43,7 +43,7 @@ void FlockSimulation::Init()
     auto pointCloud = hfPointCloudRigidCreate(positions.get(), (uint32)verticesCount);
     auto sphere = hfComputeSphereBV(pointCloud);
 
-    htFlockEntity entity{ pointCloud, &sphere, {10, 5, 5}, 1.f };
+    htFlockEntity entity{ pointCloud, sphere, {10, 5, 5}, 1.f };
     auto flockHandle = hfFlockCreate("Flock", entity);
     
     const uint32 instancesCount = hfFlockGetPiecesCount(flockHandle);
@@ -52,11 +52,12 @@ void FlockSimulation::Init()
     instancesDescs.reserve(instancesCount);
     string mats[3] = { "emerald", "jade", "obsidian" };
     for (uint32 i = 0; i < instancesCount; ++i) {
-        instancesDescs.emplace_back(*(XMFLOAT4X3*)&pieces[i], mats[i % 3]);
+        instancesDescs.emplace_back(((Matrix4*)&pieces[i])->Store(), mats[i % 3]);
     }
 
     RenderItemWithInstancesDesc desc("Flock",
         (const uint8*)mg.UniqueVertices.data(), (uint32)verticesCount,
+        (const uint8*)mg.TrianglesVertices.data(), (uint32)mg.TrianglesVertices.size(),
         AffineTransform(kIdentity).Store(),
         PrimitiveTopology::kTriangleList(),
         instancesDescs.data(), instancesCount);

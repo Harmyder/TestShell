@@ -17,8 +17,7 @@ using namespace DirectX;
 SphereBvSimulation::SphereBvSimulation(Viewport& viewport, const GameInput& gameInput) : BaseSimulation("SphereBvSimulation", viewport, gameInput) {}
 SphereBvSimulation::~SphereBvSimulation() {}
 
-void SphereBvSimulation::Init()
-{
+void SphereBvSimulation::Init() {
     viewport_.CreateMaterial(Material::kEmerald(), "rigid");
     viewport_.CreateMaterial(Material::kJade(), "collider");
     viewport_.CreateMaterial(Material::kSilver(), "boundingVolume");
@@ -33,21 +32,21 @@ void SphereBvSimulation::Init()
     const auto& mesh = scene_->GetMesh(0);
     
     const auto& mg = mesh.GetGeometry();
-    const auto verticesCount = mg.UniqueVertices.size();
+    const auto verticesCount = mg.UniquePositions.size();
     unique_ptr<htPosition[]> positions(new htPosition[verticesCount]);
     for (uint_t i = 0; i < verticesCount; ++i) {
-        positions[i] = *(htPosition*)&mg.UniqueVertices[i].Position;
+        positions[i] = *(htPosition*)&mg.UniquePositions[i];
     }
     auto pointCloud = hfPointCloudRigidCreate(positions.get(), (uint32)verticesCount);
     auto sphere = hfComputeSphereBV(pointCloud);
 
     auto rigidBody = hfRigidBodyCreate(pointCloud, sphere);
-    hfRigidBodySetTransform(rigidBody, *(htTransform4x4*)&mesh.GetTransform());
+    hfRigidBodySetTransform(rigidBody, *(htTransform*)&mesh.GetTransform());
 
     vector<RenderItemTypeDesc> descsBV;
     PredefinedGeometryType type = PredefinedGeometryType::kSphere;
 
-    XMMATRIX translation = XMMatrixTranslation(sphere.center[0], sphere.center[1], sphere.center[2]);
+    XMMATRIX translation = XMMatrixTranslation(sphere.center.coordinates[0], sphere.center.coordinates[1], sphere.center.coordinates[2]);
     XMMATRIX meshT = mesh.GetTransform();
     XMMATRIX transform = XMMatrixMultiply(translation, meshT);
     XMMATRIX scale = XMMatrixScaling(sphere.radius, sphere.radius, sphere.radius);
@@ -57,13 +56,11 @@ void SphereBvSimulation::Init()
     boundingVolumeDesc_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemTransparent(descsBV));
 }
 
-void SphereBvSimulation::Step(float deltaTime)
-{
+void SphereBvSimulation::Step(float deltaTime) {
     deltaTime;
 }
 
-void SphereBvSimulation::Quit()
-{
+void SphereBvSimulation::Quit() {
     if (sceneDescsVertices_) viewport_.DestroyRenderItemOpaque(*sceneDescsVertices_);
     if (sceneDescsTypes_) viewport_.DestroyRenderItemOpaque(*sceneDescsTypes_);
     if (boundingVolumeDesc_) viewport_.DestroyRenderItemTransparent(*boundingVolumeDesc_);

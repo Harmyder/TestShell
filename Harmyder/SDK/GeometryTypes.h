@@ -9,7 +9,10 @@ namespace Harmyder
 
     struct Sphere
     {
-        float radius;
-        XMFLOAT3 center;
+        Sphere(Common::Vector3 center, Common::Scalar radius) : center(center), radius(radius) {}
+        Sphere(const Sphere& other) : center(other.center), radius(other.radius) {}
+
+        Common::Vector3 center;
+        Common::Scalar radius;
     };
 }
