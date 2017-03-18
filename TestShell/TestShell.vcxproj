@@ -91,6 +91,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Simulations\Cloth\ClothSimulation.h" />
     <ClInclude Include="Simulations\MovingObjsInRi.h" />
     <ClInclude Include="Simulations\CubeSimulation.h" />
     <ClInclude Include="Simulations\FlockSimulation.h" />
@@ -106,6 +107,7 @@
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Simulations\Cloth\ClothSimulation.cpp" />
     <ClCompile Include="Simulations\MovingObjsInRi.cpp" />
     <ClCompile Include="Simulations\CubeSimulation.cpp" />
     <ClCompile Include="Simulations\FlockSimulation.cpp" />

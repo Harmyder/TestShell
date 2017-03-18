@@ -52,7 +52,7 @@ void FlockSimulation::Init()
     instancesDescs.reserve(instancesCount);
     string mats[3] = { "emerald", "jade", "obsidian" };
     for (uint32 i = 0; i < instancesCount; ++i) {
-        instancesDescs.emplace_back(((Matrix4*)&pieces[i])->Store(), mats[i % 3]);
+        instancesDescs.emplace_back(((Matrix4*)&pieces[i])->Store4x3(), mats[i % 3]);
     }
 
     RenderItemWithInstancesDesc desc("Flock",

@@ -17,9 +17,7 @@ BaseSimulation::BaseSimulation(const char* name, Viewer::Viewport& viewport, con
     Common::NamedByCopyObject(name),
     viewport_(viewport),
     gameInput_(gameInput)
-{
-    scene_ = make_unique<UserScene>();
-}
+{}
 
 BaseSimulation::~BaseSimulation() {}
 
@@ -29,6 +27,7 @@ void BaseSimulation::ImportScene(const string& path, const string& filetitle) {
 
     InputScene *inputScene = manager.GetScene();
     UserSceneFactory factory;
+    scene_ = make_unique<UserScene>();
     factory.BuildScene(*scene_, *inputScene);
 }
 

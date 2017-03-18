@@ -4,11 +4,12 @@
 
 #include "Internal\SimulationFactory.h"
 
-#include "Simulations\FlockSimulation.h"
-#include "Simulations\SphereBvSimulation.h"
-#include "Simulations\FbxSimulation.h"
-#include "Simulations\CubeSimulation.h"
-#include "Simulations\MovingObjsInRi.h"
+#include "Simulations/FlockSimulation.h"
+#include "Simulations/SphereBvSimulation.h"
+#include "Simulations/FbxSimulation.h"
+#include "Simulations/CubeSimulation.h"
+#include "Simulations/MovingObjsInRi.h"
+#include "Simulations/Cloth/ClothSimulation.h"
 
 SimulationManager::~SimulationManager()
 {
@@ -28,11 +29,12 @@ void SimulationManager::Close()
 void SimulationManager::RegisterSimulations()
 {
     factories_ = new std::vector<BaseFactory*>;
-    RegisterFactory(new SimulationFactory<FlockSimulation>("Flock"));
+    RegisterFactory(new SimulationFactory<ClothSimulation>("Cloth"));
     RegisterFactory(new SimulationFactory<MovingObjsInRi>("Solar System"));
     RegisterFactory(new SimulationFactory<CubeSimulation>("The Cube"));
     RegisterFactory(new SimulationFactory<FbxSimulation>("Fbx Loading"));
     RegisterFactory(new SimulationFactory<SphereBvSimulation>("Sphere Bounding Volume"));
+    RegisterFactory(new SimulationFactory<FlockSimulation>("Flock"));
 }
 
 void SimulationManager::UnregisterSimulations()
