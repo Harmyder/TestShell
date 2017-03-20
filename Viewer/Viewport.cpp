@@ -47,7 +47,7 @@ namespace Viewer
 
     Viewport::Viewport(HWND hWnd) : hwnd_(hWnd),
         referenceFrame_(nullptr),
-        grid_(nullptr),
+        grating_(nullptr),
         lightKey_(nullptr), lightFill_(nullptr), lightBack_(nullptr), lightPoint_(nullptr), lightSpot_(nullptr)
     {
         grInit(hwnd_, { kSceneObjectsCountLimit, kInstancesCountLimit, kPassesCountLimit, kMaterialsCountLimit, kFrameResourcesCount });
@@ -81,13 +81,12 @@ namespace Viewer
         descs.emplace_back("Z", type, transform, "blue", PrimitiveTopology::kTriangleList());
         referenceFrame_ = CreateRenderItemInternal(descs);
 
-        vector<VertexColor> vertices;
-        GeometryGenerator::CreateGridXY(vertices, 10, 10, 1.f, 1.f);
-        DescsVertices descsGrid;
+        vector<VertexColor> vertices = GeometryGenerator::CreateGratingXY(10, 10, 1.f, 1.f);
+        DescsVertices descsGrating;
         XMFLOAT4X3 t; XMStoreFloat4x3(&t, XMMatrixRotationX(XM_PIDIV2));
-        RenderItemVerticesDesc descGrid("Grid", (uint8*)vertices.data(), (uint32)vertices.size(), nullptr, 0, t, "red", PrimitiveTopology::kLineList());
-        descsGrid.push_back(descGrid);
-        grid_ = CreateRenderItemInternal(descsGrid, sizeof(VertexColor));
+        RenderItemVerticesDesc descGrating("Grating", (uint8*)vertices.data(), (uint32)vertices.size(), nullptr, 0, t, "red", PrimitiveTopology::kLineList());
+        descsGrating.push_back(descGrating);
+        grating_ = CreateRenderItemInternal(descsGrating, sizeof(VertexColor));
     }
 
     Viewport::~Viewport() {
@@ -231,15 +230,15 @@ namespace Viewer
         }
     }
 
-    void Viewport::DrawGrid() {
-        grDrawRenderItem(grid_);
+    void Viewport::DrawGrating() {
+        grDrawRenderItem(grating_);
     }
 
     void Viewport::PrepareGeometry() {
-        GeometryGenerator::CreateCube(geometries_[(size_t)PredefinedGeometryType::kBox]);
-        GeometryGenerator::CreateSphere(geometries_[(size_t)PredefinedGeometryType::kSphere], 3);
-        GeometryGenerator::CreateCylinder(geometries_[(size_t)PredefinedGeometryType::kCylinder], 0.5f, 0.5f, 1.f, 8, 4);
-        GeometryGenerator::CreateCone(geometries_[(size_t)PredefinedGeometryType::kCone], 0.5f, 1.f, 8, 4);
+        geometries_[(size_t)PredefinedGeometryType::kBox] = move(GeometryGenerator::CreateCube(0.5f));
+        geometries_[(size_t)PredefinedGeometryType::kSphere] = move(GeometryGenerator::CreateSphere(3));
+        geometries_[(size_t)PredefinedGeometryType::kCylinder] = move(GeometryGenerator::CreateCylinder(0.5f, 0.5f, 1.f, 8, 4));
+        geometries_[(size_t)PredefinedGeometryType::kCone] = move(GeometryGenerator::CreateCone(0.5f, 1.f, 8, 4));
     }
 
     XMVECTOR Viewport::Convert2DTo3D(uint32 x, uint32 y) const {
@@ -367,7 +366,8 @@ namespace Viewer
             const auto& currentGeometry = geometries_[geometryIndex];
             if (geometriesIndices[geometryIndex] == kNoIndex) {
                 geometriesIndices[geometryIndex] = (int)vertices.size();
-                vertices.emplace_back((uint8*)(void*)currentGeometry.data(), (uint32)currentGeometry.size(), nullptr, 0);
+                vertices.emplace_back((uint8*)(void*)currentGeometry.first.data(), (uint32)currentGeometry.first.size(),
+                    (uint8*)(void*)currentGeometry.second.data(), (uint32)currentGeometry.second.size());
             }
             itemsToVertices.push_back(geometriesIndices[geometryIndex]);
             ++currentItem;

@@ -21,42 +21,42 @@ using namespace DirectX;
 
 namespace Pipeline
 {
-    static void BuildMeshes(UserScene &userScene, const InputScene &inputScene) {
+    void UserSceneFactory::BuildMeshes(UserScene &userScene, const InputScene &inputScene) {
         const uint_t meshesCount = inputScene.GetMeshesCount();
         for (uint_t i = 0; i < meshesCount; ++i) {
             const InputMesh &inputMesh = inputScene.GetMesh(i);
-            UserMesh *mesh = new UserMesh(inputMesh);
+            auto mesh = make_unique<UserMesh>(inputMesh);
             UserMeshFromInputMesh restorer(*mesh);
             restorer.Restore();
-            userScene.AddMesh(mesh);
+            userScene.AddMesh(move(mesh));
         }
     }
 
-    static void BuildColliders(UserScene &userScene, const InputScene &inputScene) {
+    void UserSceneFactory::BuildColliders(UserScene &userScene, const InputScene &inputScene) {
         const uint_t collidersCount = inputScene.GetCollidersCount();
         for (uint_t i = 0; i < collidersCount; ++i) {
             const InputCollider &inputCollider = inputScene.GetCollider(i);
 
-            UserCollider* collider = nullptr;
+            unique_ptr<UserCollider> collider;
             switch (inputCollider.GetType()) {
             case ColliderType::kBox:
             {
                 auto ibc = ((InputBoxCollider*)&inputCollider);
-                collider = new UserColliderBox(inputCollider, ibc->GetExtents());
+                collider = make_unique<UserColliderBox>(inputCollider, ibc->GetExtents());
             }
-                break;
+            break;
             case ColliderType::kSphere:
             {
                 auto isc = ((InputSphereCollider*)&inputCollider);
-                collider = new UserColliderSphere(inputCollider, isc->GetRadius());
+                collider = make_unique<UserColliderSphere>(inputCollider, isc->GetRadius());
             }
-                break;
+            break;
             case ColliderType::kCapsule:
                 throw;
                 break;
             }
             collider->SetTransform(inputCollider.GetTransform());
-            userScene.AddCollider(collider);
+            userScene.AddCollider(move(collider));
         }
 
     }

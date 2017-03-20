@@ -11,20 +11,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{95C83309-A4C8-4A72-A73F-219B2FEA4334}</ProjectGuid>
+    <ProjectGuid>{A3F9BA26-D5F0-4527-92CB-484A85BD98D8}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>TestShell</RootNamespace>
+    <RootNamespace>Exploring_Bullet</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -43,34 +43,32 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\Bin\$(ProjectName)\</OutDir>
     <IntDir>..\Temp\$(ProjectName)\$(platform)-$(Configuration)\</IntDir>
-    <TargetName>$(ProjectName)_$(platform)-$(Configuration)</TargetName>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <OutDir>..\Libs\</OutDir>
+    <TargetName>$(ProjectName)-$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\Bin\$(ProjectName)\</OutDir>
     <IntDir>..\Temp\$(ProjectName)\$(platform)-$(Configuration)\</IntDir>
-    <TargetName>$(ProjectName)_$(platform)-$(Configuration)</TargetName>
-    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <OutDir>..\Libs\</OutDir>
+    <TargetName>$(ProjectName)-$(Configuration)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;..;..\Common;..\Harmyder;..\Exploring_Bullet;..\Pipeline;</AdditionalIncludeDirectories>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;..;..\Pipeline;..\Common;C:\Yola\PhysicsEngines\bullet3-2.86.1\src;</AdditionalIncludeDirectories>
+      <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\Libs;..\Libs\Bullet;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d12.lib;dxgi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Windows</SubSystem>
     </Link>
+    <Lib>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Yola\PhysicsEngines\bullet_build\lib\Debug</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -79,62 +77,36 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;..;..\Common;..\Harmyder;..\Exploring_Bullet;..\Pipeline;</AdditionalIncludeDirectories>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;..;..\Pipeline;..\Common;C:\Yola\PhysicsEngines\bullet3-2.86.1\src;</AdditionalIncludeDirectories>
+      <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\Libs;..\Libs\Bullet;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d12.lib;dxgi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>C:\Yola\PhysicsEngines\bullet_build\lib\Release</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Internal\BlankPhysicsData.h" />
-    <ClInclude Include="Internal\ISimulation.h" />
-    <ClInclude Include="Simulations\Cloth\ClothSimulation.h" />
-    <ClInclude Include="Simulations\MovingObjsInRi.h" />
-    <ClInclude Include="Simulations\CubeSimulation.h" />
-    <ClInclude Include="Simulations\FlockSimulation.h" />
-    <ClInclude Include="Game.h" />
-    <ClInclude Include="Internal\BaseSimulation.h" />
-    <ClInclude Include="Internal\Launcher.h" />
-    <ClInclude Include="Internal\SimulationFactory.h" />
-    <ClInclude Include="Internal\SimulationManager.h" />
-    <ClInclude Include="Menu\Command.h" />
-    <ClInclude Include="Simulations\FBXSimulation.h" />
-    <ClInclude Include="Simulations\SphereBvSimulation.h" />
-    <ClInclude Include="Simulations\Utility.h" />
+    <ClInclude Include="BaseBulletSimulation.h" />
+    <ClInclude Include="BulletPhysicsData.h" />
+    <ClInclude Include="TypesConnector.h" />
+    <ClInclude Include="Simulations\FallingCube.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Simulations\Cloth\ClothSimulation.cpp" />
-    <ClCompile Include="Simulations\MovingObjsInRi.cpp" />
-    <ClCompile Include="Simulations\CubeSimulation.cpp" />
-    <ClCompile Include="Simulations\FlockSimulation.cpp" />
-    <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Internal\BaseSimulation.cpp" />
-    <ClCompile Include="Internal\Launcher.cpp" />
-    <ClCompile Include="Internal\SimulationManager.cpp" />
-    <ClCompile Include="Simulations\FBXSimulation.cpp" />
-    <ClCompile Include="Simulations\SphereBvSimulation.cpp" />
-    <ClCompile Include="Simulations\Utility.cpp" />
+    <ClCompile Include="BaseBulletSimulation.cpp" />
+    <ClCompile Include="BulletPhysicsData.cpp" />
+    <ClCompile Include="Simulations\FallingCube.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="TestShell.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Exploring_Bullet\Exploring_Bullet.vcxproj">
-      <Project>{a3f9ba26-d5f0-4527-92cb-484a85bd98d8}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\Harmyder\Harmyder.vcxproj">
-      <Project>{13e30793-5687-4af1-8b13-5c727c224337}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\Pipeline\Pipeline.vcxproj">
       <Project>{594aa245-f13b-4e5c-8503-9afdbc9fd282}</Project>
     </ProjectReference>

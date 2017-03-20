@@ -1,18 +1,20 @@
 #include "stdafx.h"
-#include "Simulations\SphereBvSimulation.h"
+#include "Simulations/SphereBvSimulation.h"
 
-#include "Viewer\Viewport.h"
-#include "Pipeline\UserLevel\UserScene.h"
-#include "Pipeline\UserLevel\UserMesh.h"
-#include "Pipeline\SceneManager\SceneManager.h"
-#include "Pipeline\UserLevel\UserSceneFactory.h"
-#include "Harmyder\Interface\HarmyderInterface.h"
-#include "Simulations\Utility.h"
+#include "Viewer/Viewport.h"
+#include "Pipeline/UserLevel/UserScene.h"
+#include "Pipeline/UserLevel/UserMesh.h"
+#include "Pipeline/SceneManager/SceneManager.h"
+#include "Pipeline/UserLevel/UserSceneFactory.h"
+#include "Harmyder/Interface/HarmyderInterface.h"
+#include "Simulations/Utility.h"
+#include "Common/Math/Vector/Transform.h"
 
 using namespace Pipeline;
 using namespace Viewer;
 using namespace std;
 using namespace DirectX;
+using namespace Common;
 
 SphereBvSimulation::SphereBvSimulation(Viewport& viewport, const GameInput& gameInput) : BaseSimulation("SphereBvSimulation", viewport, gameInput) {}
 SphereBvSimulation::~SphereBvSimulation() {}
@@ -25,6 +27,7 @@ void SphereBvSimulation::Init() {
     const string path = "..\\..\\FBX\\";
     const string filetitle = "shark";
     ImportScene(path, filetitle);
+    InitBlankPhysicsData();
     auto descs = BuildDescsFromScene(*scene_);
     if (descs.Vertices.size() > 0) sceneDescsVertices_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque(descs.Vertices, sizeof(VertexNormalTex)));
     if (descs.Types.size() > 0) sceneDescsTypes_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque(descs.Types));
@@ -46,12 +49,11 @@ void SphereBvSimulation::Init() {
     vector<RenderItemTypeDesc> descsBV;
     PredefinedGeometryType type = PredefinedGeometryType::kSphere;
 
-    XMMATRIX translation = XMMatrixTranslation(sphere.center.coordinates[0], sphere.center.coordinates[1], sphere.center.coordinates[2]);
-    XMMATRIX meshT = mesh.GetTransform();
-    XMMATRIX transform = XMMatrixMultiply(translation, meshT);
-    XMMATRIX scale = XMMatrixScaling(sphere.radius, sphere.radius, sphere.radius);
-    transform = XMMatrixMultiply(scale, transform);
-    XMFLOAT4X3 t; XMStoreFloat4x3(&t, transform);
+    const auto translation = OrthogonalTransform::MakeTranslation(sphere.center.coordinates[0], sphere.center.coordinates[1], sphere.center.coordinates[2]);
+    const auto meshT = mesh.GetTransform();
+    const auto transform = translation * meshT;
+    const auto scale = AffineTransform::MakeScale(sphere.radius);
+    XMFLOAT4X3 t = (scale * OrthoToAffine(transform)).Store();
     descsBV.emplace_back("", type, t, "boundingVolume", PrimitiveTopology::kTriangleList());
     boundingVolumeDesc_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemTransparent(descsBV));
 }

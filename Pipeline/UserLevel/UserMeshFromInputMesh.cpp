@@ -23,7 +23,7 @@ namespace Pipeline
     {
         const XMFLOAT4X4 &src = inputMesh_.GetTransform();
         assert(src._14 == 0 && src._24 == 0 && src._34 == 0 && src._44 == 1);
-        mesh_.SetTransform(Common::Matrix4(XMLoadFloat4x4(&src)));
+        // We don't set UserMesh transform here because physics component hasn't been set yet
 
         MeshGeometry &mg = mesh_.GetGeometryNonConst();
 
@@ -31,6 +31,7 @@ namespace Pipeline
         const auto& normals = inputMesh_.GetNormals();
         const auto& texCoords = inputMesh_.GetTexCoords();
 
+        // Graphics stuff
         const auto& visualVertices = inputMesh_.GetVisualVertices();
         mg.UniqueVertices.clear(); mg.UniqueVertices.reserve(visualVertices.size());
         for (uint32 i = 0; i < visualVertices.size(); ++i) {
@@ -41,6 +42,7 @@ namespace Pipeline
         }
         mg.TrianglesVertices = inputMesh_.GetTrianglesVertices();
 
+        //
         mg.UniquePositions.clear(); mg.UniquePositions.reserve(positions.size());
         for (uint32 i = 0; i < positions.size(); ++i) {
             mg.UniquePositions.push_back(XMLoadFloat3(&positions[i]));

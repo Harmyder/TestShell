@@ -30,6 +30,7 @@ namespace Common {
         XMVECTOR v_;
     };
 
+    // Beware, these operators hide similar operators from outer namespaces
     inline Scalar operator- (Scalar s) { return Scalar(XMVectorNegate(s)); }
     inline Scalar operator+ (Scalar s1, Scalar s2) { return Scalar(XMVectorAdd(s1, s2)); }
     inline Scalar operator- (Scalar s1, Scalar s2) { return Scalar(XMVectorSubtract(s1, s2)); }

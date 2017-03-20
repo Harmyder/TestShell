@@ -10,6 +10,10 @@ namespace Pipeline
     class UserSceneFactory : public Common::NonCopyable
     {
     public:
-        void BuildScene(UserScene &userScene, const InputScene &inputScene);
+        static void BuildScene(UserScene &userScene, const InputScene &inputScene);
+
+    private:
+        static void BuildMeshes(UserScene &userScene, const InputScene &inputScene);
+        static void BuildColliders(UserScene &userScene, const InputScene &inputScene);
     };
 }

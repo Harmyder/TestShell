@@ -9,14 +9,14 @@ namespace Viewer
     class GameInput;
 }
 
-class BaseSimulation;
+class ISimulation;
 
 class BaseFactory : public Common::NamedByCopyObject
 {
 public:
     BaseFactory(const char *name) : NamedByCopyObject(name) {}
 
-    virtual std::unique_ptr<BaseSimulation> Create(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) = 0;
+    virtual std::unique_ptr<ISimulation> Create(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) = 0;
     virtual ~BaseFactory() {}
 };
 
@@ -26,7 +26,7 @@ class SimulationFactory : public BaseFactory
 public:
     SimulationFactory(const char *name) : BaseFactory(name) {}
 
-    virtual std::unique_ptr<BaseSimulation> Create(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) {
+    virtual std::unique_ptr<ISimulation> Create(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) {
         return std::make_unique<T>(viewport, gameInput);
     }
 };

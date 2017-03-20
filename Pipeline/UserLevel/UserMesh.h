@@ -4,6 +4,7 @@
 #include "Common/Attribute/NamedObject.h"
 #include "Common/Math/Vector/Matrix.h"
 #include "Viewer/Vertex.h"
+#include "UserLevel/IPhysicsData.h"
 
 namespace Pipeline
 {
@@ -22,9 +23,9 @@ namespace Pipeline
     public:
         UserMesh(const InputMesh &mesh);
 
+        void InitPhysicsData(std::unique_ptr<IPhysicsData> physicsData) { assert(physicsData_ == nullptr); physicsData_ = move(physicsData); }
 
-        const auto& GetTransform() const { return transform_; }
-        void SetTransform(const Common::Matrix4& transform) { transform_ = transform; }
+        const auto GetTransform() const { return physicsData_->GetTransform(); }
 
         const MeshGeometry &GetGeometry() const { return meshGeometry_; }
         MeshGeometry &GetGeometryNonConst() { return meshGeometry_; }
@@ -38,6 +39,7 @@ namespace Pipeline
         uint_t renderItemIndex_;
 
         MeshGeometry meshGeometry_;
+        std::unique_ptr<IPhysicsData> physicsData_;
 
         Common::Matrix4 transform_;
     };

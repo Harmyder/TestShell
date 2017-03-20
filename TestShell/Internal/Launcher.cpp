@@ -2,7 +2,7 @@
 
 #include "Internal/Launcher.h"
 
-#include "Internal/BaseSimulation.h"
+#include "Internal/ISimulation.h"
 #include "Viewer/UserInteractor.h"
 
 using namespace Viewer;
@@ -13,7 +13,7 @@ Launcher::Launcher() :
 {
 }
 
-void Launcher::Init(UserInteractor *userInteractor, BaseSimulation *simulation) {
+void Launcher::Init(UserInteractor *userInteractor, ISimulation *simulation) {
     userInteractor_ = userInteractor;
     simulation_ = simulation;
     isMustStop_ = false;

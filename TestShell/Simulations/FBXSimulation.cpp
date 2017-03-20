@@ -24,6 +24,7 @@ void FbxSimulation::Init() {
     const string path = "..\\..\\FBX\\";
     const string filetitle = "rectangle";
     ImportScene(path, filetitle);
+    InitBlankPhysicsData();
     auto descs = BuildDescsFromScene(*scene_);
 
     if (descs.Vertices.size() > 0) sceneDescsVertices_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque(descs.Vertices, sizeof(VertexNormalTex)));

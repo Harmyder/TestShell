@@ -5,15 +5,14 @@
 
 #pragma once
 
-
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
-
 
 #include <Windows.h>
 
-#include <type_traits>
-#include <string>
-#include <vector>
+#include "Common\Types.h"
 
-#include "Types.h"
-#include "Consts.h"
+#include <vector>
+#include <string>
+#include <memory>
+
+#define BT_NO_SIMD_OPERATOR_OVERLOADS

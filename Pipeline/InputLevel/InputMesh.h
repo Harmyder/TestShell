@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Common\Attribute\NamedObject.h"
+#include "Common/Attribute/NamedObject.h"
+#include "Common/Geometry/GeometryGenerator.h"
 
 namespace Pipeline
 {
@@ -25,20 +26,11 @@ namespace Pipeline
         void SetTransform(const XMFLOAT4X4& transform) { transform_ = transform; }
         const XMFLOAT4X4& GetTransform() const { return transform_; }
 
-        struct Vertex
-        {
-            uint16 PositionIndex;
-            uint16 NormalIndex;
-            uint16 TexCoordIndex;
-
-            bool operator==(const Vertex& other);
-        };
-
+        using Vertex = Common::GeometryGenerator::Vertex;
+        void SetVisualVertices(std::vector<Vertex> uniqueVertices) { uniqueVertices_ = uniqueVertices; }
+        void SetTrianglesVertices(std::vector<uint16> trianglesVertices) { trianglesVertices_ = trianglesVertices; }
         const std::vector<Vertex>& GetVisualVertices() const { return uniqueVertices_; } // unique triplets
         const std::vector<uint16>& GetTrianglesVertices() const { return trianglesVertices_; } // per triangle
-
-    public:
-        void ComputeVertices();
 
     private:
         std::vector<XMFLOAT3> positions_;

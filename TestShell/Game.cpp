@@ -3,7 +3,7 @@
 #include "Game.h"
 #include "Viewer/UserInteractor.h"
 #include "Internal/Launcher.h"
-#include "Internal/BaseSimulation.h"
+#include "Internal/ISimulation.h"
 #include "Internal/SimulationManager.h"
 #include "Internal/SimulationFactory.h"
 #include "Pipeline/Importer/FBXImporter.h"

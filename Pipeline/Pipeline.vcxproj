@@ -89,6 +89,7 @@
     <ClInclude Include="InputLevel\FactoryFbx.h" />
     <ClInclude Include="InputLevel\InputMesh.h" />
     <ClInclude Include="InputLevel\InputScene.h" />
+    <ClInclude Include="UserLevel\IPhysicsData.h" />
     <ClInclude Include="UserLevel\UserCollider.h" />
     <ClInclude Include="UserLevel\UserScene.h" />
     <ClInclude Include="UserLevel\UserSceneFactory.h" />

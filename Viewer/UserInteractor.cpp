@@ -226,7 +226,7 @@ namespace Viewer
 
     void UserInteractor::Render() {
         viewport_->BeforeLine();
-        viewport_->DrawGrid();
+        viewport_->DrawGrating();
         
         viewport_->BeforeOpaque();
         viewport_->DrawRenderItemsOpaque();

@@ -5,6 +5,8 @@
 #include "Math/Vector/Quaternion.h"
 
 namespace Common {
+    class AffineTransform;
+
     // Orthogonal non-scaling transform
     XMVECTOR_ALIGNMENT class OrthogonalTransform {
     public:
@@ -26,6 +28,7 @@ namespace Common {
         static OrthogonalTransform MakeXRotation(float angle) { return OrthogonalTransform(Quaternion(Vector3(kXUnit), angle)); }
         static OrthogonalTransform MakeYRotation(float angle) { return OrthogonalTransform(Quaternion(Vector3(kYUnit), angle)); }
         static OrthogonalTransform MakeZRotation(float angle) { return OrthogonalTransform(Quaternion(Vector3(kZUnit), angle)); }
+        static OrthogonalTransform MakeTranslation(float x, float y, float z) { return OrthogonalTransform(Vector3(x, y, z)); }
         static OrthogonalTransform MakeTranslation(Vector3 translate) { return OrthogonalTransform(translate); }
 
         Vector3 operator* (Vector3 vec) const { return rotation_ * vec + translation_; }
@@ -38,6 +41,8 @@ namespace Common {
             return OrthogonalTransform(invertedRotation, invertedRotation * -translation_);
         }
     private:
+        friend AffineTransform OrthoToAffine(OrthogonalTransform ortho);
+
         Quaternion rotation_;
         Vector3 translation_;
     };
@@ -83,4 +88,6 @@ namespace Common {
         Matrix3 linear_;
         Vector3 translation_;
     };
+
+    inline AffineTransform OrthoToAffine(OrthogonalTransform ortho) { return AffineTransform(ortho.rotation_, ortho.translation_); }
 }

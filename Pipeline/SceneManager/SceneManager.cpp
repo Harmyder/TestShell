@@ -9,7 +9,9 @@
 #include "InputLevel/FactoryFbx.h"
 #include "InputLevel/InputMesh.h"
 #include "InputLevel/InputCollider.h"
-#include "Common\Print\DebugPrint.h"
+#include "Common/Print/DebugPrint.h"
+#include "Common/Geometry/GeometryGenerator.h"
+using namespace Common;
 
 #include <fstream>
 #include <sstream>
@@ -150,7 +152,9 @@ namespace Pipeline
                 const ColliderFbx* collider = GetColliderFbx(node->name);
                 if (collider == nullptr) {
                     auto inputMesh = FactoryFbx::BuildMesh(node, currentTransform, scaleFactor);
-                    inputMesh->ComputeVertices();
+                    auto v = GeometryGenerator::ComputeVertices(inputMesh->GetTrianglesPositions(), inputMesh->GetTrianglesTexCoords());
+                    inputMesh->SetVisualVertices(move(v.UniqueVertices));
+                    inputMesh->SetTrianglesVertices(move(v.TrianglesVertices));
                     scene_->AddMesh(move(inputMesh));
                 }
                 else {

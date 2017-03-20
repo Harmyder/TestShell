@@ -24,14 +24,7 @@ void FlockSimulation::Init()
     viewport_.CreateMaterial(Material::kJade(), "jade");
     viewport_.CreateMaterial(Material::kObsidian(), "obsidian");
 
-    const string path = "..\\..\\FBX\\";
-    const string filetitle = "shark";
-    SceneManager &manager = SceneManager::GetInstance();
-    manager.Load(path, filetitle);
-
-    InputScene *inputScene = manager.GetScene();
-    UserSceneFactory factory;
-    factory.BuildScene(*scene_, *inputScene);
+    ImportScene("..\\..\\FBX\\", "shark");
 
     const auto& mesh = scene_->GetMesh(0);
     const auto& mg = mesh.GetGeometry();

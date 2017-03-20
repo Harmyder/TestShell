@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Common\Attribute\NamedObject.h"
+#include "Common/Attribute/NamedObject.h"
+#include "Internal/ISimulation.h"
 
 namespace Pipeline {
     class UserScene;
@@ -11,22 +12,20 @@ namespace Viewer {
     class GameInput;
 }
 
-class BaseSimulation : Common::NamedByCopyObject
+class BaseSimulation : public ISimulation, Common::NamedByCopyObject
 {
 public:
     BaseSimulation(const char* name, Viewer::Viewport& viewport, const Viewer::GameInput& gameInput);
     ~BaseSimulation();
 
 public:
-    virtual void Init() {}
     void ImportScene(const std::string& path, const std::string& filetitle);
+    void InitBlankPhysicsData();
 
-    virtual void BeforeStep();
-    virtual void Step      (float deltaTime) = 0;
-    virtual void AfterStep();
+    void BeforeStep() override;
+    void AfterStep() override;
 
-    bool IsOngoing() { return isOngoing_; }
-    virtual void Quit() = 0;
+    bool IsOngoing() override { return isOngoing_; }
 
 protected:
     std::unique_ptr<Pipeline::UserScene> scene_;

@@ -11,6 +11,8 @@
 #include "Simulations/MovingObjsInRi.h"
 #include "Simulations/Cloth/ClothSimulation.h"
 
+#include "Exploring_Bullet/Simulations/FallingCube.h"
+
 SimulationManager::~SimulationManager()
 {
     assert(factories_ == NULL);
@@ -29,6 +31,7 @@ void SimulationManager::Close()
 void SimulationManager::RegisterSimulations()
 {
     factories_ = new std::vector<BaseFactory*>;
+    RegisterFactory(new SimulationFactory<Exploring_Bullet::FallingCube>("Bullet: Falling Cube"));
     RegisterFactory(new SimulationFactory<ClothSimulation>("Cloth"));
     RegisterFactory(new SimulationFactory<MovingObjsInRi>("Solar System"));
     RegisterFactory(new SimulationFactory<CubeSimulation>("The Cube"));

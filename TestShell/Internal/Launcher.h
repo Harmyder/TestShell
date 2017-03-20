@@ -1,6 +1,6 @@
 #pragma once
 
-class BaseSimulation;
+class ISimulation;
 
 namespace Viewer {
     class UserInteractor;
@@ -11,7 +11,7 @@ class Launcher
 public:
     Launcher();
 
-    void Init(Viewer::UserInteractor *userInteractor, BaseSimulation *simulation);
+    void Init(Viewer::UserInteractor *userInteractor, ISimulation *simulation);
     void Loop();
     void Finish();
 
@@ -19,7 +19,7 @@ public:
 
 private:
     Viewer::UserInteractor *userInteractor_;
-    BaseSimulation *simulation_;
+    ISimulation *simulation_;
 
     bool isMustStop_ = false;
 };

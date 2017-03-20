@@ -160,7 +160,7 @@ namespace Viewer
         void DrawRenderItemsTransparent();
 
         void DrawReferenceFrame();
-        void DrawGrid();
+        void DrawGrating();
 
     private:
         void PrepareGeometry();
@@ -186,7 +186,7 @@ namespace Viewer
         std::list<grRenderItem> renderItemsOpaque_;
         std::list<grRenderItem> renderItemsTransparent_;
         std::list<grRenderItemWithInstances> renderItemsWithInstances_;
-        std::array<std::vector<VertexNormalTex>, (size_t)PredefinedGeometryType::kSize> geometries_;
+        std::array<std::pair<std::vector<VertexNormalTex>, std::vector<uint16>>, (size_t)PredefinedGeometryType::kSize> geometries_;
         std::unordered_map<std::string, grMaterial> materials_;
 
         RootSignatureType currentRootSignatureType_;
@@ -195,7 +195,7 @@ namespace Viewer
         std::unordered_map<PsoType, grPipelineStateObject> psos_;
         std::unordered_map<PsoType, RootSignatureType> pso2rs_;
         grRenderItem referenceFrame_;
-        grRenderItem grid_;
+        grRenderItem grating_;
 
         grDirectionalLight lightKey_;
         grDirectionalLight lightFill_;
