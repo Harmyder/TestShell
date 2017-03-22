@@ -55,13 +55,13 @@ namespace Viewer
             strafe = -dT * kKeyboardSensitivity;
         }
         if (gameInput_.IsPressed(GameInput::Input::kKeyD)) {
-            strafe = +dT * kKeyboardSensitivity;
+            strafe = dT * kKeyboardSensitivity;
         }
         if (gameInput_.IsPressed(GameInput::Input::kKeyS)) {
-            walk = dT * kKeyboardSensitivity;
+            walk = -dT * kKeyboardSensitivity;
         }
         if (gameInput_.IsPressed(GameInput::Input::kKeyW)) {
-            walk = -dT * kKeyboardSensitivity;
+            walk = dT * kKeyboardSensitivity;
         }
         if (gameInput_.IsPressed(GameInput::Input::kKeyQ)) {
             ascent = -dT * kKeyboardSensitivity;

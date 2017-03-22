@@ -21,7 +21,7 @@ namespace Graphics
 
     void Camera::SetLookDirection(FXMVECTOR forward, FXMVECTOR up) {
         XMVECTOR right = XMVector3Cross(forward, up);
-        cameraRotation_ = XMMATRIX(right, XMVector3Cross(right, forward), forward, g_XMIdentityR3);
+        cameraRotation_ = XMMATRIX(right, XMVector3Cross(right, forward), -forward, g_XMIdentityR3);
     }
 
     void Camera::SetPosition(FXMVECTOR p) {

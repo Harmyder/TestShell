@@ -106,15 +106,13 @@ namespace Pipeline
     {
         XMMATRIX rotation;
         // We have y-up, so adjust root matrix
+        // In case you have mirrored objects you need to apply Utilities panel > Utilities rollout > Reset XForm
+        // https://forums.autodesk.com/t5/3ds-max-forum/fbx-exports-resulting-in-flipped-objects/td-p/6044272
         switch (fbxScene->upVector)
         {
-        case ::FBX::Scene::AXIS_X:
-            rotation = XMMatrixRotationZ(-XM_PIDIV2);
-            break;
+        case ::FBX::Scene::AXIS_X: assert("X can't be up axis"); break;
+        case ::FBX::Scene::AXIS_Z: assert("Z can't be up axis"); break;
         case ::FBX::Scene::AXIS_Y:
-            rotation = XMMatrixIdentity();
-            break;
-        case ::FBX::Scene::AXIS_Z:
             rotation = XMMatrixRotationX(-XM_PIDIV2);
             break;
         default:
@@ -131,7 +129,7 @@ namespace Pipeline
     {
         XMMATRIX currentTransformXM = XMLoadFloat4x4(&transform);
         const XMMATRIX localTransformXM = XMLoadFloat4x4(reinterpret_cast<const XMFLOAT4X4*>(&node->transform.p));
-        currentTransformXM = localTransformXM * currentTransformXM;
+        currentTransformXM = currentTransformXM * localTransformXM;
 
         for (uint32 i = 0; i < node->childrenCount; ++i)
         {

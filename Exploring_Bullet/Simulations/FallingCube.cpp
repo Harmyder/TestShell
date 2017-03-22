@@ -63,8 +63,8 @@ namespace Exploring_Bullet
         const Vector3 groundOrigin(0.f, -groundY, 0.f);
         btBoxShape* groundShape = new btBoxShape(Tobt(groundDims));
         collisionShapes_->push_back(groundShape);
-        OrthogonalTransform groundTransform(groundOrigin);
-        auto groundRigidBody = CreateRigidBody(dynamicsWorld_.get(), groundShape, 0, Tobt(OrthoToAffine(groundTransform)));
+        auto groundTransform = Matrix4::MakeTranslation(groundOrigin);
+        auto groundRigidBody = CreateRigidBody(dynamicsWorld_.get(), groundShape, 0, Tobt(groundTransform));
 
         auto inputMesh = make_unique<InputMesh>("ground");
         CreateBox(groundX, groundY, groundZ, inputMesh);
@@ -101,12 +101,12 @@ namespace Exploring_Bullet
 
         const float fallingX = 5.f; const float fallingY = 5.f; const float fallingZ = 5.f;
         const Vector3 fallingDims(fallingX, fallingY, fallingZ);
-        const Vector3 fallingOrigin(0.f, fallingY * 10.f, 0.f);
+        const Vector3 fallingOrigin(0.f, fallingY * 10.f, -10.f);
         btBoxShape* fallingShape = new btBoxShape(Tobt(fallingDims));
         collisionShapes_->push_back(fallingShape);
-        OrthogonalTransform fallingTransform(fallingOrigin);
+        auto fallingTransform = Matrix4::MakeTranslation(fallingOrigin);
         btScalar mass(1.f);
-        auto fallingRigidBody = CreateRigidBody(dynamicsWorld_.get(), fallingShape, mass, Tobt(OrthoToAffine(fallingTransform)));
+        auto fallingRigidBody = CreateRigidBody(dynamicsWorld_.get(), fallingShape, mass, Tobt(fallingTransform));
 
         auto inputMesh = make_unique<InputMesh>("falling");
         CreateBox(fallingX, fallingY, fallingZ, inputMesh);
@@ -127,7 +127,7 @@ namespace Exploring_Bullet
 
     void FallingCube::Step(float deltaTime) {
         dynamicsWorld_->stepSimulation(deltaTime);
-        viewport_.UpdateRenderSubitemTransform(*world_, "falling", OrthoToAffine(falling_->GetTransform()).Store());
+        viewport_.UpdateRenderSubitemTransform(*world_, "falling", falling_->GetTransform().Store4x3());
     }
 
     void FallingCube::Quit() {

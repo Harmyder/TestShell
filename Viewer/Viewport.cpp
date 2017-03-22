@@ -67,7 +67,7 @@ namespace Viewer
         lightKey_   = grCreateDirectionalLight(XMFLOAT3(.9f, .9f, .8f),  XMFLOAT3(0.f, 0.f, 1.f));
         lightBack_  = grCreateDirectionalLight(XMFLOAT3(.3f, .3f, .37f), XMFLOAT3(0.f, 0.f, -1.f));
         lightPoint_ = grCreatePointLight(XMFLOAT3(.5f, .5f, .5f), 45.f, XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(0.f, .3f, 1.f));
-        lightSpot_  = grCreateSpotLight(XMFLOAT3(.5f, .5f, .5f), 50.f, XMFLOAT3(0.f, 0.f, 0.f), 64.f, XMFLOAT3(0.f, 0.f, 1.f), XMFLOAT3(0.f, .3f, 1.f));
+        lightSpot_  = grCreateSpotLight(XMFLOAT3(1.5f, 1.5f, 1.5f), 50.f, XMFLOAT3(0.f, 0.f, 0.f), 64.f, XMFLOAT3(0.f, 0.f, 1.f), XMFLOAT3(0.f, .3f, 1.f));
 
         CreateMaterial(Material::kRed(), "red");
         CreateMaterial(Material::kGreen(), "green");
@@ -75,7 +75,7 @@ namespace Viewer
 
         vector<RenderItemTypeDesc> descs;
         const auto type = PredefinedGeometryType::kCone;
-        const auto transform = Common::AffineTransform(Common::kIdentity).Store();
+        const auto transform = Common::Matrix4(Common::kIdentity).Store4x3();
         descs.emplace_back("X", type, transform, "red", PrimitiveTopology::kTriangleList());
         descs.emplace_back("Y", type, transform, "green", PrimitiveTopology::kTriangleList());
         descs.emplace_back("Z", type, transform, "blue", PrimitiveTopology::kTriangleList());
@@ -101,7 +101,7 @@ namespace Viewer
 
         XMFLOAT3 p; XMStoreFloat3(&p, position);
         grUpdatePointLight(lightPoint_, p);
-        grUpdateSpotLight(lightSpot_, p, XMFLOAT3(transform.m[2][0], transform.m[2][1], -transform.m[2][2]));
+        grUpdateSpotLight(lightSpot_, p, XMFLOAT3(transform.m[2][0], transform.m[2][1], transform.m[2][2]));
     }
 
     void Viewport::PrepareRootSignatures() {
@@ -205,7 +205,7 @@ namespace Viewer
         XMMATRIX translation = XMMatrixTranslationFromVector(referenceFrame);
 
         XMMATRIX localTranslation = XMMatrixTranslation(length / 2.f, 0, 0);
-        XMMATRIX transform = XMMatrixRotationZ(XM_PIDIV2) * scaling * translation * localTranslation;
+        XMMATRIX transform = scaling * XMMatrixRotationZ(-XM_PIDIV2) * translation * localTranslation;
         XMFLOAT4X3 t; XMStoreFloat4x3(&t, transform);
         grUpdateRenderSubItemTransform(referenceFrame_, "X", t);
 
@@ -215,7 +215,7 @@ namespace Viewer
         grUpdateRenderSubItemTransform(referenceFrame_, "Y", t);
 
         localTranslation = XMMatrixTranslation(0, 0, length / 2.f);
-        transform = XMMatrixRotationX(-XM_PIDIV2) * scaling * translation * localTranslation;
+        transform = scaling * XMMatrixRotationX(+XM_PIDIV2) * translation * localTranslation;
         XMStoreFloat4x3(&t, transform);
         grUpdateRenderSubItemTransform(referenceFrame_, "Z", t);
 

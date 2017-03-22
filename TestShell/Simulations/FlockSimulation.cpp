@@ -51,7 +51,7 @@ void FlockSimulation::Init()
     RenderItemWithInstancesDesc desc("Flock",
         (const uint8*)mg.UniqueVertices.data(), (uint32)verticesCount,
         (const uint8*)mg.TrianglesVertices.data(), (uint32)mg.TrianglesVertices.size(),
-        AffineTransform(kIdentity).Store(),
+        Matrix4(kIdentity).Store4x3(),
         PrimitiveTopology::kTriangleList(),
         instancesDescs.data(), instancesCount);
     flock_ = make_unique<StructRenderItemWithInstancesId>(viewport_.CreateRenderItemOpaqueWithInstances(desc, sizeof(VertexNormalTex)));

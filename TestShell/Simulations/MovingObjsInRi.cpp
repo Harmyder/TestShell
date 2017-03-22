@@ -39,13 +39,13 @@ MovingObjsInRi::MovingObjsInRi(Viewer::Viewport& viewport, const Viewer::GameInp
 MovingObjsInRi::~MovingObjsInRi() {}
 
 void MovingObjsInRi::Init() {
-    viewport_.CreateMaterial(Material::kRed(), "sun");
+    viewport_.CreateMaterial(Material::kSilver(), "sun");
     viewport_.CreateMaterial(Material::kBlue(), "earth");
 
-    const auto s = AffineTransform::MakeTranslation(sun_pos) * AffineTransform::MakeScale(kSunRadius * kDistScale * kSunVisualScale);
-    const auto e = AffineTransform::MakeTranslation(earth_pos * kDistScale) * AffineTransform::MakeScale(kEarthRadius * kDistScale * kEarthVisualScale);
-    const RenderItemTypeDesc sun("Sun", PredefinedGeometryType::kSphere, s.Store(), "sun", PrimitiveTopology::kTriangleList());
-    const RenderItemTypeDesc earth("Earth", PredefinedGeometryType::kSphere, e.Store(), "earth", PrimitiveTopology::kTriangleList());
+    const auto s = Matrix4::MakeTranslation(sun_pos) * Matrix4::MakeScale(kSunRadius * kDistScale * kSunVisualScale);
+    const auto e = Matrix4::MakeTranslation(earth_pos * kDistScale) * Matrix4::MakeScale(kEarthRadius * kDistScale * kEarthVisualScale);
+    const RenderItemTypeDesc sun("Sun", PredefinedGeometryType::kSphere, s.Store4x3(), "sun", PrimitiveTopology::kTriangleList());
+    const RenderItemTypeDesc earth("Earth", PredefinedGeometryType::kSphere, e.Store4x3(), "earth", PrimitiveTopology::kTriangleList());
 
     solsys_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque({ sun, earth }));
 }
@@ -62,8 +62,8 @@ void MovingObjsInRi::Step(float deltaTime) {
         earth_pos += vel * kStep;
         velocity = Length(vel + Normalize(-(r + vel)) * acceleration(rlen));
     }
-    const auto e = AffineTransform::MakeTranslation(earth_pos * kDistScale) * AffineTransform::MakeScale(kEarthRadius * kDistScale * kEarthVisualScale);
-    viewport_.UpdateRenderSubitemTransform(*solsys_, "Earth", e.Store());
+    const auto e = Matrix4::MakeTranslation(earth_pos * kDistScale) * Matrix4::MakeScale(kEarthRadius * kDistScale * kEarthVisualScale);
+    viewport_.UpdateRenderSubitemTransform(*solsys_, "Earth", e.Store4x3());
 }
 
 void MovingObjsInRi::Quit() {

@@ -46,6 +46,7 @@ namespace Common {
         explicit Matrix4(const XMMATRIX& mat) { m_ = mat; }
         explicit Matrix4(IdentityTag) { m_ = XMMatrixIdentity(); }
         explicit Matrix4(ZeroTag) { m_.r[0] = m_.r[1] = m_.r[2] = m_.r[3] = XMVectorZero(); }
+        explicit Matrix4(InfinityTag) { m_.r[0] = m_.r[1] = m_.r[2] = m_.r[3] = Vector4(kInfinity); }
 
         Vector4 GetX() const { return Vector4(m_.r[0]); }
         Vector4 GetY() const { return Vector4(m_.r[1]); }

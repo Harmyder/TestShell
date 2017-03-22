@@ -83,6 +83,10 @@ namespace Common
         return DumpMatrix((const float*)&matrix, 3, 3, style, isEndLine);
     }
 
+    string Dump(const XMFLOAT4X3& matrix, DumpStyle style, bool isEndLine) {
+        return DumpMatrix((const float*)&matrix, 4, 3, style, isEndLine);
+    }
+
     string Dump(const XMFLOAT4X4& matrix, DumpStyle style, bool isEndLine) {
         return DumpMatrix((const float*)&matrix, 4, 4, style, isEndLine);
     }

@@ -5,7 +5,7 @@
 #include "Math\Vector\Vector.h"
 #include "Math\Vector\Functions.h"
 #include <unordered_map>
-
+#include "Print\DebugPrint.h"
 #include <DirectXMath.h>
 using namespace std;
 
@@ -58,7 +58,7 @@ namespace Common
     }
 
     vector<XMFLOAT3> ComputeNormals(const vector<XMFLOAT3>& positions, const vector<uint16>& trianglesPositions) {
-        vector<XMFLOAT3> normals(positions.size());
+        vector<Vector3> normals(positions.size(), Vector3(kZero));
         const uint32 trianglesCount = (uint32)(trianglesPositions.size() / 3);
         for (uint32 triangleIndex = 0; triangleIndex < trianglesCount; ++triangleIndex) {
             const uint32 baseVertexIndex = triangleIndex * 3;
@@ -70,11 +70,14 @@ namespace Common
             Vector3 ac = c_ - a_;
 
             Vector3 normal = Cross(ab, ac);
-            normals[trianglesPositions[baseVertexIndex]] = normals[trianglesPositions[baseVertexIndex + 1]] = normals[trianglesPositions[baseVertexIndex + 2]] = normal.Store();
+            normals[trianglesPositions[baseVertexIndex]] += normal;
+            normals[trianglesPositions[baseVertexIndex + 1]] += normal;
+            normals[trianglesPositions[baseVertexIndex + 2]] += normal;
         }
 
-        for (auto& n : normals) XMStoreFloat3(&n, XMVector3Normalize(XMLoadFloat3(&n)));
-        return normals;
+        vector<XMFLOAT3> storedNormals; storedNormals.reserve(positions.size());
+        for (auto& n : normals) storedNormals.push_back(Normalize(n).Store());
+        return storedNormals;
     }
 
     // Fold vertices into distinct vertices and indices

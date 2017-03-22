@@ -7,7 +7,7 @@ namespace Pipeline
     class IPhysicsData
     {
     public:
-        virtual Common::OrthogonalTransform GetTransform() = 0;
-        virtual void SetTransform(const Common::OrthogonalTransform&) = 0;
+        virtual Common::Matrix4 GetTransform() = 0;
+        virtual void SetTransform(const Common::Matrix4&) = 0;
     };
 }

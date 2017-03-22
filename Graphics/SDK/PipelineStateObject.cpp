@@ -89,6 +89,7 @@ namespace Graphics
         }
         psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
         psoDesc.RasterizerState.FillMode = fillMode_;
+        psoDesc.RasterizerState.FrontCounterClockwise = true;
         psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
         if (blendEnable_) {
             psoDesc.DepthStencilState.DepthEnable = false;

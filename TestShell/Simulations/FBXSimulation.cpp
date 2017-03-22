@@ -22,7 +22,7 @@ void FbxSimulation::Init() {
     viewport_.CreateMaterial(Material::kSilver(), "collider");
 
     const string path = "..\\..\\FBX\\";
-    const string filetitle = "rectangle";
+    const string filetitle = "teapot001";
     ImportScene(path, filetitle);
     InitBlankPhysicsData();
     auto descs = BuildDescsFromScene(*scene_);

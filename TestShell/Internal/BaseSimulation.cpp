@@ -37,7 +37,7 @@ void BaseSimulation::ImportScene(const string& path, const string& filetitle) {
 void BaseSimulation::InitBlankPhysicsData() {
     for (uint_t i = 0; i < scene_->GetMeshesCount(); ++i) {
         auto pd = make_unique<BlankPhysicsData>();
-        pd->SetTransform(OrthogonalTransform(XMLoadFloat4x4(&scene_->GetMesh(i).GetInput().GetTransform())));
+        pd->SetTransform(Matrix4(XMLoadFloat4x4(&scene_->GetMesh(i).GetInput().GetTransform())));
         scene_->GetMeshNonConst(i).InitPhysicsData(move(pd));
     }
 }

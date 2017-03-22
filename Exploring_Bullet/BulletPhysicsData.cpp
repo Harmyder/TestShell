@@ -11,11 +11,11 @@ namespace Exploring_Bullet
     BulletPhysicsData::BulletPhysicsData(std::unique_ptr<btRigidBody> rigidBody) : rigidBody_(move(rigidBody)) {}
     BulletPhysicsData::~BulletPhysicsData() {}
 
-    OrthogonalTransform BulletPhysicsData::GetTransform() {
-        return OrthogonalTransform(*(XMMATRIX*)&rigidBody_->getCenterOfMassTransform());
+    Matrix4 BulletPhysicsData::GetTransform() {
+        return Matrix4(*(XMMATRIX*)&rigidBody_->getCenterOfMassTransform());
     }
 
-    void BulletPhysicsData::SetTransform(const Common::OrthogonalTransform& transform) {
-        rigidBody_->setWorldTransform(Tobt(OrthoToAffine(transform)));
+    void BulletPhysicsData::SetTransform(const Common::Matrix4& transform) {
+        rigidBody_->setWorldTransform(Tobt(transform));
     }
 }

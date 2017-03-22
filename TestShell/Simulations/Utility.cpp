@@ -11,7 +11,7 @@ Viewer::RenderItemVerticesDesc BuildDescFromMesh(const Pipeline::UserMesh& mesh)
     return RenderItemVerticesDesc(mesh.GetName(),
         (uint8*)mg.UniqueVertices.data(), (uint32)mg.UniqueVertices.size(),
         (uint8*)mg.TrianglesVertices.data(), (uint32)mg.TrianglesVertices.size(),
-        OrthoToAffine(mesh.GetTransform()).Store(), "rigid", PrimitiveTopology::kTriangleList());
+        mesh.GetTransform().Store4x3(), "rigid", PrimitiveTopology::kTriangleList());
 }
 
 Viewer::RenderItemTypeDesc BuildDescFromCollider(const Pipeline::UserCollider& collider) {

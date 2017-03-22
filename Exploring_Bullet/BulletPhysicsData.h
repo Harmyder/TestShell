@@ -13,8 +13,8 @@ namespace Exploring_Bullet
         BulletPhysicsData(std::unique_ptr<btRigidBody> rigidBody);
         ~BulletPhysicsData();
 
-        Common::OrthogonalTransform GetTransform() override;
-        void SetTransform(const Common::OrthogonalTransform&) override;
+        Common::Matrix4 GetTransform() override;
+        void SetTransform(const Common::Matrix4&) override;
 
     private:
         std::unique_ptr<btRigidBody> rigidBody_;

@@ -2,7 +2,7 @@
 #include "Simulations\CubeSimulation.h"
 
 #include "Viewer\Viewport.h"
-#include "Common\Math\Vector\Transform.h"
+#include "Common\Math\Vector\all.h"
 
 using namespace Viewer;
 using namespace std;
@@ -15,7 +15,7 @@ CubeSimulation::~CubeSimulation() {}
 void CubeSimulation::Init() {
     viewport_.CreateMaterial(Material::kSilver(), "collider");
 
-    const RenderItemTypeDesc d("TheCube", PredefinedGeometryType::kBox, AffineTransform(kIdentity).Store(), "collider", PrimitiveTopology::kTriangleList());
+    const RenderItemTypeDesc d("TheCube", PredefinedGeometryType::kBox, Matrix4(kIdentity).Store4x3(), "collider", PrimitiveTopology::kTriangleList());
 
     cube_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque({d}));
 }

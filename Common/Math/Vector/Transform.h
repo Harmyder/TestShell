@@ -59,7 +59,7 @@ namespace Common {
         explicit AffineTransform(const XMMATRIX& mat) : linear_(mat), translation_(mat.r[3]) {}
 
         operator XMMATRIX() const { return (XMMATRIX&)*this; }
-        XMFLOAT4X3 Store() const { XMFLOAT4X3 t; XMStoreFloat4x3(&t, (XMMATRIX&)*this); return t; }
+//        XMFLOAT4X3 Store() const { XMFLOAT4X3 t; XMStoreFloat4x3(&t, (XMMATRIX&)*this); return t; }
 
         void SetX(Vector3 x) { linear_.SetX(x); }
         void SetY(Vector3 y) { linear_.SetY(y); }
