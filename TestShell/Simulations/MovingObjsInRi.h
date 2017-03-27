@@ -6,6 +6,7 @@
 namespace Viewer
 {
     struct StructRenderItemId;
+    class MaterialRaii;
 }
 
 class MovingObjsInRi : public BaseSimulation
@@ -26,4 +27,6 @@ public:
 
 private:
     std::unique_ptr<Viewer::StructRenderItemId> solsys_;
+    std::unique_ptr<Viewer::MaterialRaii> matSun_;
+    std::unique_ptr<Viewer::MaterialRaii> matEarth_;
 };

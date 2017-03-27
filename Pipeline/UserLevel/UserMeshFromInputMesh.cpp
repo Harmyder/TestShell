@@ -21,8 +21,6 @@ namespace Pipeline
 
     void UserMeshFromInputMesh::Restore()
     {
-        const XMFLOAT4X4 &src = inputMesh_.GetTransform();
-        assert(src._14 == 0 && src._24 == 0 && src._34 == 0 && src._44 == 1);
         // We don't set UserMesh transform here because physics component hasn't been set yet
 
         MeshGeometry &mg = mesh_.GetGeometryNonConst();

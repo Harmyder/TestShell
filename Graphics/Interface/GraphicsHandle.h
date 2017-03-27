@@ -18,6 +18,7 @@ struct grRenderItem : grHandle { grRenderItem(void *renderItem) : grHandle(rende
 struct grRenderItemWithInstances : grHandle { grRenderItemWithInstances(void *renderItem) : grHandle(renderItem) {} };
 
 struct grMaterial : grHandle { grMaterial(void *material) : grHandle(material) {} };
+extern grMaterial grcMaterialNone;
 
 struct grDirectionalLight : grHandle { grDirectionalLight(void *light) : grHandle(light) {} };
 

@@ -9,6 +9,10 @@ class btConstraintSolver;
 class btDefaultCollisionConfiguration;
 class btDiscreteDynamicsWorld;
 
+namespace Common
+{
+    class Matrix4;
+}
 namespace Pipeline
 {
     class InputScene;
@@ -17,6 +21,8 @@ namespace Pipeline
 namespace Viewer
 {
     struct StructRenderItemId;
+    struct StructRenderItemWithInstancesId;
+    class MaterialRaii;
 }
 
 namespace Exploring_Bullet
@@ -32,7 +38,7 @@ namespace Exploring_Bullet
         void Quit() override;
 
     private:
-        auto FallingCube::CreateGround();
+        auto CreateGround();
 
     private:
         std::unique_ptr<btAlignedObjectArray<btCollisionShape*>> collisionShapes_;
@@ -42,8 +48,10 @@ namespace Exploring_Bullet
         std::unique_ptr<btDefaultCollisionConfiguration> collisionConfiguration_;
         std::unique_ptr<btDiscreteDynamicsWorld> dynamicsWorld_;
 
-        std::unique_ptr<Viewer::StructRenderItemId> world_;
+        std::unique_ptr<Viewer::StructRenderItemId> ground_;
+        std::unique_ptr<Viewer::StructRenderItemWithInstancesId> falling_;
         std::unique_ptr<Pipeline::InputScene> inputScene_;
-        Pipeline::UserMesh* falling_;
+
+        std::unique_ptr<Viewer::MaterialRaii> matRigid_;
     };
 }

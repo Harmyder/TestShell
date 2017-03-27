@@ -4,6 +4,7 @@
 namespace Viewer
 {
     struct StructRenderItemWithInstancesId;
+    class MaterialRaii;
 }
 
 class FlockSimulation : public BaseSimulation
@@ -18,4 +19,5 @@ public:
 
 private:
     std::unique_ptr<Viewer::StructRenderItemWithInstancesId> flock_;
+    std::array<std::unique_ptr<Viewer::MaterialRaii>, 3> mats_;
 };

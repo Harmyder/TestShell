@@ -8,6 +8,7 @@
 
 #include <cassert>
 #include <vector>
+#include <array>
 #include <memory>
 #include <Windows.h>
 

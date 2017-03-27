@@ -88,6 +88,7 @@
     <ClInclude Include="GameInput.h" />
     <ClInclude Include="GeometryGenerator.h" />
     <ClInclude Include="ICameraControllerObserver.h" />
+    <ClInclude Include="Raii.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="UserInteractor.h" />
     <ClInclude Include="Vertex.h" />
@@ -97,6 +98,7 @@
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="GameInput.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
+    <ClCompile Include="Raii.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

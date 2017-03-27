@@ -9,6 +9,7 @@ namespace Pipeline
 namespace Viewer
 {
     struct StructRenderItemId;
+    class MaterialRaii;
 }
 
 class ClothSimulation : public BaseSimulation
@@ -24,6 +25,7 @@ public:
 
 private:
     std::unique_ptr<Viewer::StructRenderItemId> cloth_;
+    std::unique_ptr<Viewer::MaterialRaii> matDeformable_;
 
     std::unique_ptr<Pipeline::InputScene> inputScene_;
 };

@@ -12,6 +12,7 @@ namespace Viewer
 {
     class CameraController;
     class GameInput;
+    class MaterialRaii;
 
     namespace PrimitiveTopology {
         DEFINE_NAMESPACE_ENUM_TYPE(int, -1);
@@ -28,7 +29,7 @@ namespace Viewer
         kSize
     };
 
-    namespace Material {
+    namespace MaterialType {
         DEFINE_NAMESPACE_ENUM_TYPE(int, -1);
         Type kInvalid();
         Type kRed();
@@ -40,6 +41,15 @@ namespace Viewer
         Type kObsidian();
         Type kSilver();
     }
+
+    struct Material {
+        Material() : Value(grcMaterialNone) {}
+    private:
+        Material(grMaterial material) : Value(material) {}
+        friend class Viewport;
+        operator grMaterial() { return *(grMaterial*)this; }
+        grMaterial Value;
+    };
 
     using RenderItemId = std::list<grRenderItem>::const_iterator;
     struct StructRenderItemId { StructRenderItemId(RenderItemId id) : Value(id) {} RenderItemId Value; };
@@ -58,9 +68,10 @@ namespace Viewer
         const PrimitiveTopology::Type primitiveTopology;
     };
     struct RenderItemInstanceDesc {
-        RenderItemInstanceDesc(XMFLOAT4X3& transform, std::string& material) : transform(transform), material(material) {}
+        RenderItemInstanceDesc() {}
+        RenderItemInstanceDesc(XMFLOAT4X3& transform, Material material) : transform(transform), material(material) {}
         XMFLOAT4X3 transform;
-        std::string& material;
+        Material material;
     };
     struct RenderItemWithInstancesDesc : RenderItemDesc {
         RenderItemWithInstancesDesc(
@@ -71,7 +82,7 @@ namespace Viewer
             uint32 indicesCount,
             const XMFLOAT4X3& transform,
             PrimitiveTopology::Type primitiveTopology,
-            const RenderItemInstanceDesc* instances,
+            std::unique_ptr<RenderItemInstanceDesc[]> instances,
             uint32 instancesCount
             ) :
             RenderItemDesc(name, transform, primitiveTopology),
@@ -79,18 +90,18 @@ namespace Viewer
             verticesCount(verticesCount),
             indices(indices),
             indicesCount(indicesCount),
-            instances(instances),
+            instances(move(instances)),
             instancesCount(instancesCount)
         {}
         const uint8* vertices;
         const uint32 verticesCount;
         const uint8* indices;
         const uint32 indicesCount;
-        const RenderItemInstanceDesc* instances;
+        std::unique_ptr<RenderItemInstanceDesc[]> instances;
         const uint32 instancesCount;
     };
     struct RenderItemVerticesDesc : RenderItemDesc {
-        RenderItemVerticesDesc(const std::string& name, const uint8* vertices, uint32 verticesCount, uint8* indices, uint32 indicesCount, const XMFLOAT4X3& transform, const std::string& material, PrimitiveTopology::Type primitiveTopology) :
+        RenderItemVerticesDesc(const std::string& name, const uint8* vertices, uint32 verticesCount, uint8* indices, uint32 indicesCount, const XMFLOAT4X3& transform, Material material, PrimitiveTopology::Type primitiveTopology) :
             RenderItemDesc(name, transform, primitiveTopology),
             material(material),
             vertices(vertices),
@@ -99,25 +110,27 @@ namespace Viewer
             indicesCount(indicesCount)
         {}
 
-        const std::string material;
+        Material material;
         const uint8* vertices;
         const uint32 verticesCount;
         const uint8* indices;
         const uint32 indicesCount;
     };
     struct RenderItemTypeDesc : RenderItemDesc {
-        RenderItemTypeDesc(const std::string& name, const PredefinedGeometryType type, const XMFLOAT4X3& transform, const std::string& material, PrimitiveTopology::Type primitiveTopology) :
+        RenderItemTypeDesc(const std::string& name, const PredefinedGeometryType type, const XMFLOAT4X3& transform, Material material, PrimitiveTopology::Type primitiveTopology) :
             RenderItemDesc(name, transform, primitiveTopology),
             material(material),
             type(type) {}
 
-        const std::string material;
+        const Material material;
         const PredefinedGeometryType type;
-    };
+    }; 
+    using DescsInstanced = std::vector<RenderItemWithInstancesDesc>;
     using DescsVertices = std::vector<RenderItemVerticesDesc>;
     using DescsTypes = std::vector<RenderItemTypeDesc>;
     struct RenderItemsDescriptions
     {
+        DescsInstanced Instanced;
         DescsVertices Vertices;
         DescsTypes Types;
     };
@@ -134,8 +147,8 @@ namespace Viewer
         uint32 GetWidth() const { return width_; }
         uint32 GetHeight() const { return height_; }
 
-        void CreateMaterial(Material::Type material, const std::string& name);
-        void DestroyMaterial(const std::string& name);
+        Material CreateMaterial(MaterialType::Type material, const std::string& name);
+        void DestroyMaterial(Material material);
 
         RenderItemId CreateRenderItemOpaque(const DescsVertices& viewportVerticesDescs, uint32 vertexSize);
         RenderItemId CreateRenderItemOpaque(const DescsTypes& viewportTypeDescs);
@@ -147,6 +160,7 @@ namespace Viewer
         void DestroyRenderItemOpaqueWithInstances(const StructRenderItemWithInstancesId& id);
 
         void UpdateRenderSubitemTransform(const StructRenderItemId& id, const std::string& name, const XMFLOAT4X3& transform);
+        void UpdateRenderWithInstancesTransforms(const StructRenderItemWithInstancesId& id, const XMFLOAT4X3& transform, const XMFLOAT4X3* instancesTransforms);
 
         void BeforeDraw();
         void AfterDraw();
@@ -187,7 +201,6 @@ namespace Viewer
         std::list<grRenderItem> renderItemsTransparent_;
         std::list<grRenderItemWithInstances> renderItemsWithInstances_;
         std::array<std::pair<std::vector<VertexNormalTex>, std::vector<uint16>>, (size_t)PredefinedGeometryType::kSize> geometries_;
-        std::unordered_map<std::string, grMaterial> materials_;
 
         RootSignatureType currentRootSignatureType_;
         std::unordered_map<RootSignatureType, grRootSignature> rootSignatures_;
@@ -202,5 +215,10 @@ namespace Viewer
         grDirectionalLight lightBack_;
         grPointLight lightPoint_;
         grSpotLight lightSpot_;
+
+        std::unique_ptr<MaterialRaii> matRed_;
+        std::unique_ptr<MaterialRaii> matGreen_;
+        std::unique_ptr<MaterialRaii> matBlue_;
+        std::unique_ptr<MaterialRaii> matDummy_;
     };
 }

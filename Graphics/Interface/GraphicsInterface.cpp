@@ -180,10 +180,15 @@ grRenderItemWithInstances grCreateRenderItemWithInstances(const grtRenderSubItem
 }
 
 void grUpdateRenderSubItemTransform(grRenderItem renderItem, const std::string& name, const XMFLOAT4X3& transform) {
-    auto rih = static_cast<RenderItemHandle>(renderItem);
-    auto ri = rih.GetValue();
+    auto ri = static_cast<RenderItemHandle>(renderItem).GetValue();
     auto& subItem = ri->FindSubItem(name);
     subItem.SetTransform(transform);
+}
+
+void grUpdateRenderItemInstancesTransforms(grRenderItemWithInstances renderItem, const XMFLOAT4X3& transform, const XMFLOAT4X3* instancesTransforms) {
+    auto ri = static_cast<RenderItemWithInstancesHandle>(renderItem).GetValue();
+    ri->SetTransform(transform);
+    ri->SetInstancesTransforms(instancesTransforms);
 }
 
 void grDestroyRenderItem(grRenderItem renderItem) {

@@ -16,6 +16,7 @@ using namespace Common;
 using namespace Pipeline;
 
 #include "Viewer/Vertex.h"
+#include "Viewer/Raii.h"
 using namespace Viewer;
 
 #include "Simulations\Utility.h"
@@ -52,9 +53,10 @@ void ClothSimulation::Init() {
     UserSceneFactory factory;
     factory.BuildScene(*scene_, *inputScene_);
     InitBlankPhysicsData();
-    auto descs = BuildDescsFromScene(*scene_);
 
-    viewport_.CreateMaterial(Material::kTurquesa(), "rigid"); // Though it is deformable, but this comes from BuildDescsFromScene
+    matDeformable_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kTurquesa(), "rigid"));
+    auto descs = BuildDescsFromScene(*scene_, *matDeformable_, *matDeformable_);
+
     cloth_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque(descs.Vertices, sizeof(VertexNormalTex)));
 }
 
@@ -64,5 +66,4 @@ void ClothSimulation::Step(float deltaTime) {
 
 void ClothSimulation::Quit() {
     viewport_.DestroyRenderItemOpaque(*cloth_);
-    viewport_.DestroyMaterial("rigid");
 }

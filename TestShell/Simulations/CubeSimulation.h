@@ -5,6 +5,7 @@
 namespace Viewer
 {
     struct StructRenderItemId;
+    class MaterialRaii;
 }
 
 class CubeSimulation : public BaseSimulation
@@ -20,4 +21,5 @@ public:
 
 private:
     std::unique_ptr<Viewer::StructRenderItemId> cube_;
+    std::unique_ptr<Viewer::MaterialRaii> matCollider_;
 };

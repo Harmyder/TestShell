@@ -2,6 +2,7 @@
 #include "Simulations\CubeSimulation.h"
 
 #include "Viewer\Viewport.h"
+#include "Viewer\Raii.h"
 #include "Common\Math\Vector\all.h"
 
 using namespace Viewer;
@@ -13,9 +14,9 @@ CubeSimulation::CubeSimulation(Viewer::Viewport& viewport, const Viewer::GameInp
 CubeSimulation::~CubeSimulation() {}
 
 void CubeSimulation::Init() {
-    viewport_.CreateMaterial(Material::kSilver(), "collider");
+    matCollider_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kSilver(), "collider"));
 
-    const RenderItemTypeDesc d("TheCube", PredefinedGeometryType::kBox, Matrix4(kIdentity).Store4x3(), "collider", PrimitiveTopology::kTriangleList());
+    const RenderItemTypeDesc d("TheCube", PredefinedGeometryType::kBox, Matrix4(kIdentity).Store4x3(), *matCollider_, PrimitiveTopology::kTriangleList());
 
     cube_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque({d}));
 }
@@ -26,5 +27,4 @@ void CubeSimulation::Step(float deltaTime) {
 
 void CubeSimulation::Quit() {
     viewport_.DestroyRenderItemOpaque(*cube_);
-    viewport_.DestroyMaterial("collider");
 }

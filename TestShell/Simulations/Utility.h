@@ -7,9 +7,9 @@ namespace Pipeline
     class UserCollider;
     class UserScene;
 }
+namespace Viewer
+{
+    struct Material;
+}
 
-Viewer::RenderItemVerticesDesc BuildDescFromMesh(const Pipeline::UserMesh& mesh);
-
-Viewer::RenderItemTypeDesc BuildDescFromCollider(const Pipeline::UserCollider& collider);
-
-Viewer::RenderItemsDescriptions BuildDescsFromScene(const Pipeline::UserScene& scene);
+Viewer::RenderItemsDescriptions BuildDescsFromScene(const Pipeline::UserScene& scene, Viewer::Material matRigid, Viewer::Material matCollider);

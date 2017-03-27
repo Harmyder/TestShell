@@ -5,6 +5,7 @@
 namespace Viewer
 {
     struct StructRenderItemId;
+    class MaterialRaii;
 }
 
 class SphereBvSimulation : public BaseSimulation
@@ -21,5 +22,9 @@ private:
     std::unique_ptr<Viewer::StructRenderItemId> sceneDescsVertices_;
     std::unique_ptr<Viewer::StructRenderItemId> sceneDescsTypes_;
     std::unique_ptr<Viewer::StructRenderItemId> boundingVolumeDesc_;
+
+    std::unique_ptr<Viewer::MaterialRaii> matRigid_;
+    std::unique_ptr<Viewer::MaterialRaii> matCollider_;
+    std::unique_ptr<Viewer::MaterialRaii> matBv_;
 };
 

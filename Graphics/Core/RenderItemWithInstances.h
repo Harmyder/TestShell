@@ -10,7 +10,7 @@ namespace Graphics {
 
     struct RenderItemInstanceDesc
     {
-        const XMFLOAT4X3& transform;
+        XMFLOAT4X3 transform;
         Material *material;
     };
     struct RenderItemWithInstancesDesc
@@ -45,6 +45,7 @@ namespace Graphics {
 
         const XMFLOAT4X3& GetTransform() const { return transform_; }
         void SetTransform(const XMFLOAT4X3& transform);
+        void SetInstancesTransforms(const XMFLOAT4X3* tranforms);
 
         D3D12_PRIMITIVE_TOPOLOGY GetPrimitiveTopology() const { return primitiveTopology_; }
 

@@ -23,14 +23,25 @@ namespace Pipeline
         const std::vector<XMFLOAT2>& GetTexCoords() const { return texCoords_; }
         const std::vector<uint16>&   GetTrianglesTexCoords() const { return trianglesTexCoords_; }
 
-        void SetTransform(const XMFLOAT4X4& transform) { transform_ = transform; }
-        const XMFLOAT4X4& GetTransform() const { return transform_; }
+        void SetTransform(const XMFLOAT4X4& transform);
+        void SetTransforms(std::vector<XMFLOAT4X3>&& transform);
+
+        const XMFLOAT4X4& GetTransform() const { assert(isInstanced_ == InstanceOption::NotInstanced); return transform_; }
+        const std::vector<XMFLOAT4X3>& GetTransforms() const { assert(isInstanced_ == InstanceOption::Instanced); return transforms_; }
 
         using Vertex = Common::GeometryGenerator::Vertex;
         void SetVisualVertices(std::vector<Vertex> uniqueVertices) { uniqueVertices_ = uniqueVertices; }
         void SetTrianglesVertices(std::vector<uint16> trianglesVertices) { trianglesVertices_ = trianglesVertices; }
         const std::vector<Vertex>& GetVisualVertices() const { return uniqueVertices_; } // unique triplets
         const std::vector<uint16>& GetTrianglesVertices() const { return trianglesVertices_; } // per triangle
+
+        enum class InstanceOption {
+            None = 1,
+            NotInstanced = 2,
+            Instanced = 4,
+            CanBeNotInstanced = None | NotInstanced,
+            CanBeInstanced = None | Instanced,
+        };
 
     private:
         std::vector<XMFLOAT3> positions_;
@@ -39,7 +50,9 @@ namespace Pipeline
         std::vector<XMFLOAT2> texCoords_;
         std::vector<uint16>   trianglesTexCoords_;
 
+        InstanceOption isInstanced_ = InstanceOption::None;
         XMFLOAT4X4 transform_;
+        std::vector<XMFLOAT4X3> transforms_;
 
         std::vector<Vertex> uniqueVertices_;
         std::vector<uint16> trianglesVertices_;

@@ -26,6 +26,14 @@ namespace Graphics
         SetAllFramesDirty();
     }
 
+    void RenderItemWithInstances::SetInstancesTransforms(const XMFLOAT4X3* tranforms) {
+        const uint32 instancesCount = (uint32)instances_.size();
+        for (uint32 i = 0; i < instancesCount; ++i) {
+            instances_[i].transform = tranforms[i];
+        }
+        SetAllFramesDirty();
+    }
+
     void RenderItemWithInstances::Create(
         const RenderItemWithInstancesDesc& desc,
         const RenderVerticesDesc& vertices,

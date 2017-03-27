@@ -2,6 +2,7 @@
 #include "Simulations\MovingObjsInRi.h"
 
 #include "Viewer\Viewport.h"
+#include "Viewer\Raii.h"
 #include "Common\Math\Vector\Transform.h"
 #include "Common\Math\Vector\Functions.h"
 
@@ -39,13 +40,13 @@ MovingObjsInRi::MovingObjsInRi(Viewer::Viewport& viewport, const Viewer::GameInp
 MovingObjsInRi::~MovingObjsInRi() {}
 
 void MovingObjsInRi::Init() {
-    viewport_.CreateMaterial(Material::kSilver(), "sun");
-    viewport_.CreateMaterial(Material::kBlue(), "earth");
+    matSun_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kSilver(), "sun"));
+    matEarth_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kBlue(), "earth"));
 
     const auto s = Matrix4::MakeTranslation(sun_pos) * Matrix4::MakeScale(kSunRadius * kDistScale * kSunVisualScale);
     const auto e = Matrix4::MakeTranslation(earth_pos * kDistScale) * Matrix4::MakeScale(kEarthRadius * kDistScale * kEarthVisualScale);
-    const RenderItemTypeDesc sun("Sun", PredefinedGeometryType::kSphere, s.Store4x3(), "sun", PrimitiveTopology::kTriangleList());
-    const RenderItemTypeDesc earth("Earth", PredefinedGeometryType::kSphere, e.Store4x3(), "earth", PrimitiveTopology::kTriangleList());
+    const RenderItemTypeDesc sun("Sun", PredefinedGeometryType::kSphere, s.Store4x3(), *matSun_, PrimitiveTopology::kTriangleList());
+    const RenderItemTypeDesc earth("Earth", PredefinedGeometryType::kSphere, e.Store4x3(), *matEarth_, PrimitiveTopology::kTriangleList());
 
     solsys_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque({ sun, earth }));
 }
@@ -68,6 +69,4 @@ void MovingObjsInRi::Step(float deltaTime) {
 
 void MovingObjsInRi::Quit() {
     viewport_.DestroyRenderItemOpaque(*solsys_);
-    viewport_.DestroyMaterial("sun");
-    viewport_.DestroyMaterial("earth");
 }

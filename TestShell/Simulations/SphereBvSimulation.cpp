@@ -2,6 +2,7 @@
 #include "Simulations/SphereBvSimulation.h"
 
 #include "Viewer/Viewport.h"
+#include "Viewer/Raii.h"
 #include "Pipeline/UserLevel/UserScene.h"
 #include "Pipeline/UserLevel/UserMesh.h"
 #include "Pipeline/SceneManager/SceneManager.h"
@@ -20,15 +21,15 @@ SphereBvSimulation::SphereBvSimulation(Viewport& viewport, const GameInput& game
 SphereBvSimulation::~SphereBvSimulation() {}
 
 void SphereBvSimulation::Init() {
-    viewport_.CreateMaterial(Material::kEmerald(), "rigid");
-    viewport_.CreateMaterial(Material::kJade(), "collider");
-    viewport_.CreateMaterial(Material::kSilver(), "boundingVolume");
+    matRigid_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kEmerald(), "rigid"));
+    matCollider_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kJade(), "collider"));
+    matBv_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kSilver(), "boundingVolume"));
 
     const string path = "..\\..\\FBX\\";
     const string filetitle = "shark";
     ImportScene(path, filetitle);
     InitBlankPhysicsData();
-    auto descs = BuildDescsFromScene(*scene_);
+    auto descs = BuildDescsFromScene(*scene_, *matRigid_, *matCollider_);
     if (descs.Vertices.size() > 0) sceneDescsVertices_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque(descs.Vertices, sizeof(VertexNormalTex)));
     if (descs.Types.size() > 0) sceneDescsTypes_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque(descs.Types));
 
@@ -54,7 +55,7 @@ void SphereBvSimulation::Init() {
     const auto transform = meshT * translation;
     const auto scale = Matrix4::MakeScale(sphere.radius);
     XMFLOAT4X3 t = (transform * scale).Store4x3();
-    descsBV.emplace_back("", type, t, "boundingVolume", PrimitiveTopology::kTriangleList());
+    descsBV.emplace_back("", type, t, *matBv_, PrimitiveTopology::kTriangleList());
     boundingVolumeDesc_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemTransparent(descsBV));
 }
 
@@ -66,7 +67,4 @@ void SphereBvSimulation::Quit() {
     if (sceneDescsVertices_) viewport_.DestroyRenderItemOpaque(*sceneDescsVertices_);
     if (sceneDescsTypes_) viewport_.DestroyRenderItemOpaque(*sceneDescsTypes_);
     if (boundingVolumeDesc_) viewport_.DestroyRenderItemTransparent(*boundingVolumeDesc_);
-    viewport_.DestroyMaterial("rigid");
-    viewport_.DestroyMaterial("collider");
-    viewport_.DestroyMaterial("boundingVolume");
 }

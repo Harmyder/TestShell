@@ -2,6 +2,7 @@
 
 #include "Simulations\FbxSimulation.h"
 #include "Viewer\Viewport.h"
+#include "Viewer\Raii.h"
 #include "Pipeline\UserLevel\UserScene.h"
 #include "Pipeline\UserLevel\UserMesh.h"
 #include "Pipeline\SceneManager\SceneManager.h"
@@ -18,14 +19,14 @@ FbxSimulation::FbxSimulation(Viewer::Viewport& viewport, const Viewer::GameInput
 FbxSimulation::~FbxSimulation() {}
 
 void FbxSimulation::Init() {
-    viewport_.CreateMaterial(Material::kEmerald(), "rigid");
-    viewport_.CreateMaterial(Material::kSilver(), "collider");
+    matRigid_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kEmerald(), "rigid"));
+    matCollider_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kSilver(), "collider"));
 
     const string path = "..\\..\\FBX\\";
     const string filetitle = "teapot001";
     ImportScene(path, filetitle);
     InitBlankPhysicsData();
-    auto descs = BuildDescsFromScene(*scene_);
+    auto descs = BuildDescsFromScene(*scene_, *matRigid_, *matCollider_);
 
     if (descs.Vertices.size() > 0) sceneDescsVertices_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque(descs.Vertices, sizeof(VertexNormalTex)));
     if (descs.Types.size() > 0) sceneDescsTypes_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque(descs.Types));
@@ -38,6 +39,4 @@ void FbxSimulation::Step(float deltaTime) {
 void FbxSimulation::Quit() {
     if (sceneDescsVertices_) viewport_.DestroyRenderItemOpaque(*sceneDescsVertices_);
     if (sceneDescsTypes_) viewport_.DestroyRenderItemOpaque(*sceneDescsTypes_);
-    viewport_.DestroyMaterial("rigid");
-    viewport_.DestroyMaterial("collider");
 }

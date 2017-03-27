@@ -17,6 +17,7 @@ using namespace Common;
 using namespace Pipeline;
 
 #include "Viewer/Vertex.h"
+#include "Viewer/Raii.h"
 using namespace Viewer;
 
 #include "TestShell/Simulations/Utility.h"
@@ -25,19 +26,30 @@ using namespace Viewer;
 
 namespace
 {
-    void CreateBox(float x, float y, float z, unique_ptr<InputMesh>& output) {
+    void CreateBoxInternal(float x, float y, float z, InputMesh& output) {
         auto box = GeometryGenerator::CreateBox(x, y, z);
 
         auto v = GeometryGenerator::ComputeVertices(box.TrianglesPositions, box.TrianglesTexCoords);
-        output->SetVisualVertices(move(v.UniqueVertices));
-        output->SetTrianglesVertices(move(v.TrianglesVertices));
+        output.SetVisualVertices(move(v.UniqueVertices));
+        output.SetTrianglesVertices(move(v.TrianglesVertices));
 
-        output->SetPositions(box.Positions);
-        output->SetNormals(box.Normals);
-        output->SetTrianglesPositions(box.TrianglesPositions);
-        output->SetTexCoords(box.TexCoords);
-        output->SetTrianglesTexCoords(box.TrianglesTexCoords);
-        output->SetTransform(Matrix4(kIdentity).Store4x4());
+        output.SetPositions(box.Positions);
+        output.SetNormals(box.Normals);
+        output.SetTrianglesPositions(box.TrianglesPositions);
+        output.SetTexCoords(box.TexCoords);
+        output.SetTrianglesTexCoords(box.TrianglesTexCoords);
+    }
+
+    void CreateBox(float x, float y, float z, const Matrix4& transform, InputMesh& output) {
+        CreateBoxInternal(x, y, z, output);
+        output.SetTransform(transform.Store4x4());
+    }
+
+    void CreateBoxInstanced(float x, float y, float z, const vector<Matrix4>& transforms, InputMesh& output) {
+        CreateBoxInternal(x, y, z, output);
+        vector<XMFLOAT4X3> transformsInternal; transformsInternal.reserve(transforms.size());
+        for (const auto& t : transforms) transformsInternal.push_back(t.Store4x3());
+        output.SetTransforms(move(transformsInternal));
     }
 
     auto CreateRigidBody(btDiscreteDynamicsWorld* world, btCollisionShape* shape, float mass, const btTransform& startTransform) {
@@ -58,7 +70,7 @@ namespace Exploring_Bullet
     FallingCube::~FallingCube() {}
 
     auto FallingCube::CreateGround() {
-        const float groundX = 50.f; const float groundY = 50.f; const float groundZ = 50.f;
+        const float groundX = 50.f; const float groundY = 1.f; const float groundZ = 50.f;
         const Vector3 groundDims(groundX, groundY, groundZ);
         const Vector3 groundOrigin(0.f, -groundY, 0.f);
         btBoxShape* groundShape = new btBoxShape(Tobt(groundDims));
@@ -67,7 +79,7 @@ namespace Exploring_Bullet
         auto groundRigidBody = CreateRigidBody(dynamicsWorld_.get(), groundShape, 0, Tobt(groundTransform));
 
         auto inputMesh = make_unique<InputMesh>("ground");
-        CreateBox(groundX, groundY, groundZ, inputMesh);
+        CreateBox(groundX, groundY, groundZ, Matrix4(kIdentity), *inputMesh);
         inputScene_->AddMesh(move(inputMesh));
         return groundRigidBody;
     }
@@ -89,49 +101,57 @@ namespace Exploring_Bullet
         //btCollisionShape* colShape = new btSphereShape(btScalar(1.));
         collisionShapes_->push_back(colShape);
 
-        //constexpr int kSize = 5;
-        //for (int k = 0; k < kSize; k++) {
-        //    for (int i = 0; i < kSize; i++) {
-        //        for (int j = 0; j < kSize; j++) {
-        //            startTransform.setOrigin(btVector3(btScalar(0.2*i), btScalar(2 + .2*k), btScalar(0.2*j)));
-        //
-        //        }
-        //    }
-        //}
+        constexpr int kSize = 5;
+        vector<Matrix4> transforms;
+        transforms.reserve(kSize * kSize * kSize);
+        for (int k = 0; k < kSize; k++) {
+            for (int i = 0; i < kSize; i++) {
+                for (int j = 0; j < kSize; j++) {
+                    transforms.push_back(Matrix4::MakeTranslation(0.2*i, 2 + .2*k, 0.2*j));
+                }
+            }
+        }
 
-        const float fallingX = 5.f; const float fallingY = 5.f; const float fallingZ = 5.f;
-        const Vector3 fallingDims(fallingX, fallingY, fallingZ);
-        const Vector3 fallingOrigin(0.f, fallingY * 10.f, -10.f);
-        btBoxShape* fallingShape = new btBoxShape(Tobt(fallingDims));
-        collisionShapes_->push_back(fallingShape);
-        auto fallingTransform = Matrix4::MakeTranslation(fallingOrigin);
-        btScalar mass(1.f);
-        auto fallingRigidBody = CreateRigidBody(dynamicsWorld_.get(), fallingShape, mass, Tobt(fallingTransform));
+        const float fallingX = .2f; const float fallingY = .2f; const float fallingZ = .2f;
 
         auto inputMesh = make_unique<InputMesh>("falling");
-        CreateBox(fallingX, fallingY, fallingZ, inputMesh);
+        CreateBoxInstanced(fallingX, fallingY, fallingZ, transforms, *inputMesh);
         inputScene_->AddMesh(move(inputMesh));
 
         scene_ = make_unique<UserScene>();
         UserSceneFactory::BuildScene(*scene_, *inputScene_);
 
         scene_->GetMeshNonConst(scene_->SearchMesh("ground")).InitPhysicsData(make_unique<BulletPhysicsData>(move(groundRigidBody)));
-        falling_ = &scene_->GetMeshNonConst(scene_->SearchMesh("falling"));
-        falling_->InitPhysicsData(make_unique<BulletPhysicsData>(move(fallingRigidBody)));
 
-        auto descs = BuildDescsFromScene(*scene_);
+        btBoxShape* fallingShape = new btBoxShape(btVector3(fallingX, fallingY, fallingZ));
+        collisionShapes_->push_back(fallingShape);
 
-        viewport_.CreateMaterial(Material::kJade(), "rigid");
-        world_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque(descs.Vertices, sizeof(VertexNormalTex)));
+        auto fallingMesh = &scene_->GetMeshNonConst(scene_->SearchMesh("falling"));
+        auto inputTransforms = fallingMesh->GetInput().GetTransforms();
+        const btScalar mass(1.f);
+        vector<unique_ptr<BulletPhysicsData>> fallingBodies;
+        for (const auto& t : inputTransforms) {
+            auto body = CreateRigidBody(dynamicsWorld_.get(), fallingShape, mass, Tobt(Matrix4(XMLoadFloat4x3(&t))));
+            fallingBodies.push_back(make_unique<BulletPhysicsData>(move(body)));
+        }
+        fallingMesh->InitPhysicsDatas(fallingBodies);
+
+        matRigid_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kJade(), "rigid"));
+        auto descs = BuildDescsFromScene(*scene_, *matRigid_, *matRigid_);
+
+        ground_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque(descs.Vertices, sizeof(VertexNormalTex)));
+        falling_ = make_unique<StructRenderItemWithInstancesId>(viewport_.CreateRenderItemOpaqueWithInstances(descs.Instanced[0], sizeof(VertexNormalTex)));
     }
 
     void FallingCube::Step(float deltaTime) {
         dynamicsWorld_->stepSimulation(deltaTime);
-        viewport_.UpdateRenderSubitemTransform(*world_, "falling", falling_->GetTransform().Store4x3());
+        vector<XMFLOAT4X3> transforms;
+        auto& fallingMesh = scene_->GetMesh(scene_->SearchMesh("falling"));
+        for (uint32 i = 0; i < fallingMesh.GetTransformsCount(); ++i) transforms.push_back(fallingMesh.GetTransform(i).Store4x3());
+        viewport_.UpdateRenderWithInstancesTransforms(*falling_, Matrix4(kIdentity).Store4x3(), transforms.data());
     }
 
     void FallingCube::Quit() {
-        viewport_.DestroyRenderItemOpaque(*world_);
-        viewport_.DestroyMaterial("rigid");
+        viewport_.DestroyRenderItemOpaque(*ground_);
     }
 }

@@ -7,6 +7,7 @@
 #include "Common\Math\Vector\Transform.h"
 #include "Graphics\Interface\GraphicsInterface.h"
 #include "Graphics\Interface\GraphicsConsts.h"
+#include "Raii.h"
 
 using namespace std;
 using namespace DirectX;
@@ -31,7 +32,7 @@ namespace Viewer
     constexpr auto kFarClipPlane = 200.f;
     const auto kVerticalFov = DirectX::XM_PIDIV4;
 
-    namespace Material {
+    namespace MaterialType {
         CHECK_NAMESPACE_ENUM_TYPE(greLibraryMaterial);
         DEFINE_NAMESPACE_ENUM_MEMBER(greLibraryMaterial, kInvalid);
         DEFINE_NAMESPACE_ENUM_MEMBER(greLibraryMaterial, kRed);
@@ -50,6 +51,7 @@ namespace Viewer
         grating_(nullptr),
         lightKey_(nullptr), lightFill_(nullptr), lightBack_(nullptr), lightPoint_(nullptr), lightSpot_(nullptr)
     {
+        Raii::Init(this);
         grInit(hwnd_, { kSceneObjectsCountLimit, kInstancesCountLimit, kPassesCountLimit, kMaterialsCountLimit, kFrameResourcesCount });
         PrepareRootSignatures();
         PreparePsos();
@@ -67,24 +69,25 @@ namespace Viewer
         lightKey_   = grCreateDirectionalLight(XMFLOAT3(.9f, .9f, .8f),  XMFLOAT3(0.f, 0.f, 1.f));
         lightBack_  = grCreateDirectionalLight(XMFLOAT3(.3f, .3f, .37f), XMFLOAT3(0.f, 0.f, -1.f));
         lightPoint_ = grCreatePointLight(XMFLOAT3(.5f, .5f, .5f), 45.f, XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(0.f, .3f, 1.f));
-        lightSpot_  = grCreateSpotLight(XMFLOAT3(1.5f, 1.5f, 1.5f), 50.f, XMFLOAT3(0.f, 0.f, 0.f), 64.f, XMFLOAT3(0.f, 0.f, 1.f), XMFLOAT3(0.f, .3f, 1.f));
+        lightSpot_  = grCreateSpotLight(XMFLOAT3(1.f, 1.f, 1.f), 50.f, XMFLOAT3(0.f, 0.f, 0.f), 64.f, XMFLOAT3(0.f, 0.f, 1.f), XMFLOAT3(0.f, .3f, 1.f));
 
-        CreateMaterial(Material::kRed(), "red");
-        CreateMaterial(Material::kGreen(), "green");
-        CreateMaterial(Material::kBlue(), "blue");
+        matRed_ = make_unique<MaterialRaii>(CreateMaterial(MaterialType::kRed(), "red"));
+        matGreen_ = make_unique<MaterialRaii>(CreateMaterial(MaterialType::kGreen(), "green"));
+        matBlue_ = make_unique<MaterialRaii>(CreateMaterial(MaterialType::kBlue(), "blue"));
+        matDummy_ = make_unique<MaterialRaii>(CreateMaterial(MaterialType::kBlue(), "dummy"));
 
         vector<RenderItemTypeDesc> descs;
         const auto type = PredefinedGeometryType::kCone;
         const auto transform = Common::Matrix4(Common::kIdentity).Store4x3();
-        descs.emplace_back("X", type, transform, "red", PrimitiveTopology::kTriangleList());
-        descs.emplace_back("Y", type, transform, "green", PrimitiveTopology::kTriangleList());
-        descs.emplace_back("Z", type, transform, "blue", PrimitiveTopology::kTriangleList());
+        descs.emplace_back("X", type, transform, *matRed_, PrimitiveTopology::kTriangleList());
+        descs.emplace_back("Y", type, transform, *matGreen_, PrimitiveTopology::kTriangleList());
+        descs.emplace_back("Z", type, transform, *matBlue_, PrimitiveTopology::kTriangleList());
         referenceFrame_ = CreateRenderItemInternal(descs);
 
         vector<VertexColor> vertices = GeometryGenerator::CreateGratingXY(10, 10, 1.f, 1.f);
         DescsVertices descsGrating;
         XMFLOAT4X3 t; XMStoreFloat4x3(&t, XMMatrixRotationX(XM_PIDIV2));
-        RenderItemVerticesDesc descGrating("Grating", (uint8*)vertices.data(), (uint32)vertices.size(), nullptr, 0, t, "red", PrimitiveTopology::kLineList());
+        RenderItemVerticesDesc descGrating("Grating", (uint8*)vertices.data(), (uint32)vertices.size(), nullptr, 0, t, *matDummy_, PrimitiveTopology::kLineList());
         descsGrating.push_back(descGrating);
         grating_ = CreateRenderItemInternal(descsGrating, sizeof(VertexColor));
     }
@@ -140,14 +143,13 @@ namespace Viewer
         psos_.insert(make_pair(PsoType::kTransparent, grCreatePipelineStateObject(desc, rootSignatures_.at(pso2rs_[PsoType::kTransparent]))));
     }
 
-    void Viewport::CreateMaterial(Material::Type material, const string& name) {
-        materials_.insert(make_pair(name, grCreatePredefinedMaterial(Material::ToSrc(material), name)));
+    Material Viewport::CreateMaterial(MaterialType::Type material, const string& name) {
+        auto engineMaterial = grCreatePredefinedMaterial(MaterialType::ToSrc(material), name);
+        return engineMaterial;
     }
 
-    void Viewport::DestroyMaterial(const std::string& name) {
-        auto it = materials_.find(name);
-        grDestroyMaterial(it->second);
-        materials_.erase(it);
+    void Viewport::DestroyMaterial(Material material) {
+        grDestroyMaterial(material.Value);
     }
 
     void Viewport::BeforeDraw() {
@@ -311,6 +313,10 @@ namespace Viewer
         grUpdateRenderSubItemTransform(*id.Value, name, transform);
     }
 
+    void Viewport::UpdateRenderWithInstancesTransforms(const StructRenderItemWithInstancesId& id, const XMFLOAT4X3& transform, const XMFLOAT4X3* instancesTransforms) {
+        grUpdateRenderItemInstancesTransforms(*id.Value, transform, instancesTransforms);
+    }
+
     grRenderItem Viewport::CreateRenderItemInternal(const DescsVertices& viewportVerticesDescs, uint32 vertexSize) {
         vector<grtRenderSubItemDesc> descs;
         vector<grtRenderVertices> vertices;
@@ -322,7 +328,7 @@ namespace Viewer
 
         uint32 currentItem = 0;
         for (const auto& d : viewportVerticesDescs) {
-            const grtRenderSubItemDesc descEngine(d.name, d.transform, materials_.find(d.material)->second, PrimitiveTopology::ToSrc(d.primitiveTopology));
+            const grtRenderSubItemDesc descEngine(d.name, d.transform, d.material.Value, PrimitiveTopology::ToSrc(d.primitiveTopology));
             descs.push_back(descEngine);
             itemsToVertices.push_back((uint32)vertices.size());
             vertices.emplace_back(d.vertices, d.verticesCount, d.indices, d.indicesCount);
@@ -334,14 +340,9 @@ namespace Viewer
     }
 
     grRenderItemWithInstances Viewport::CreateRenderItemInternal(const RenderItemWithInstancesDesc& desc, uint32 vertexSize) {
-        vector<grtRenderSubItemInstanceDesc> engineInstancesDesc;
-        engineInstancesDesc.reserve(desc.instancesCount);
-        for (uint32 i = 0; i < desc.instancesCount; ++i) {
-            engineInstancesDesc.emplace_back(desc.instances[i].transform, materials_.at(desc.instances[i].material));
-        }
         grtRenderSubItemWithInstancesDesc engineDesc(
             desc.name, desc.transform, PrimitiveTopology::ToSrc(desc.primitiveTopology),
-            engineInstancesDesc.data(), (uint32)engineInstancesDesc.size());
+            (grtRenderSubItemInstanceDesc*)desc.instances.get(), desc.instancesCount);
         grtRenderVertices vertices(desc.vertices, desc.verticesCount, desc.indices, desc.indicesCount);
         return grCreateRenderItemWithInstances(engineDesc, vertices, vertexSize);
     }
@@ -361,7 +362,7 @@ namespace Viewer
 
         for (const auto& d : viewportTypeDescs) {
             uint_t geometryIndex = (uint_t)d.type;
-            const grtRenderSubItemDesc descEngine(d.name, d.transform, materials_.find(d.material)->second, PrimitiveTopology::ToSrc(d.primitiveTopology));
+            const grtRenderSubItemDesc descEngine(d.name, d.transform, d.material.Value, PrimitiveTopology::ToSrc(d.primitiveTopology));
             descs.push_back(descEngine);
             const auto& currentGeometry = geometries_[geometryIndex];
             if (geometriesIndices[geometryIndex] == kNoIndex) {

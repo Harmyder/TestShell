@@ -2,6 +2,7 @@
 #include "Simulations\FlockSimulation.h"
 
 #include "Viewer\Viewport.h"
+#include "Viewer\Raii.h"
 #include "Pipeline\UserLevel\UserScene.h"
 #include "Pipeline\UserLevel\UserMesh.h"
 #include "Pipeline\SceneManager\SceneManager.h"
@@ -20,9 +21,9 @@ FlockSimulation::~FlockSimulation() {}
 
 void FlockSimulation::Init()
 {
-    viewport_.CreateMaterial(Material::kEmerald(), "emerald");
-    viewport_.CreateMaterial(Material::kJade(), "jade");
-    viewport_.CreateMaterial(Material::kObsidian(), "obsidian");
+    mats_[0] = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kEmerald(), "emerald"));
+    mats_[1] = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kJade(), "jade"));
+    mats_[2] = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kObsidian(), "obsidian"));
 
     ImportScene("..\\..\\FBX\\", "shark");
 
@@ -41,11 +42,10 @@ void FlockSimulation::Init()
     
     const uint32 instancesCount = hfFlockGetPiecesCount(flockHandle);
     auto pieces = hfFlockGetPieces(flockHandle);
-    vector<RenderItemInstanceDesc> instancesDescs;
-    instancesDescs.reserve(instancesCount);
-    string mats[3] = { "emerald", "jade", "obsidian" };
+    auto instancesDescs = make_unique<RenderItemInstanceDesc[]>(instancesCount);
     for (uint32 i = 0; i < instancesCount; ++i) {
-        instancesDescs.emplace_back(((Matrix4*)&pieces[i])->Store4x3(), mats[i % 3]);
+        instancesDescs[i].transform = ((Matrix4*)&pieces[i])->Store4x3();
+        instancesDescs[i].material = *mats_[i % 3];
     }
 
     RenderItemWithInstancesDesc desc("Flock",
@@ -53,7 +53,7 @@ void FlockSimulation::Init()
         (const uint8*)mg.TrianglesVertices.data(), (uint32)mg.TrianglesVertices.size(),
         Matrix4(kIdentity).Store4x3(),
         PrimitiveTopology::kTriangleList(),
-        instancesDescs.data(), instancesCount);
+        move(instancesDescs), instancesCount);
     flock_ = make_unique<StructRenderItemWithInstancesId>(viewport_.CreateRenderItemOpaqueWithInstances(desc, sizeof(VertexNormalTex)));
 }
 
@@ -65,7 +65,4 @@ void FlockSimulation::Step(float deltaTime)
 void FlockSimulation::Quit()
 {
     if (flock_) viewport_.DestroyRenderItemOpaqueWithInstances(*flock_);
-    viewport_.DestroyMaterial("emerald");
-    viewport_.DestroyMaterial("jade");
-    viewport_.DestroyMaterial("obsidian");
 }

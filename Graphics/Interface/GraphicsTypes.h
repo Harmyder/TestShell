@@ -48,9 +48,9 @@ struct grtRenderSubItemDescBase
 };
 struct grtRenderSubItemInstanceDesc
 {
-    grtRenderSubItemInstanceDesc(const XMFLOAT4X3& transform, grMaterial material) : transform(transform), material(material) {}
+    grtRenderSubItemInstanceDesc(XMFLOAT4X3 transform, grMaterial material) : transform(transform), material(material) {}
 
-    const XMFLOAT4X3& transform;
+    XMFLOAT4X3 transform;
     grMaterial material;
 };
 struct grtRenderSubItemWithInstancesDesc : grtRenderSubItemDescBase

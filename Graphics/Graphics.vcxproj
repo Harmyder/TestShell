@@ -117,6 +117,7 @@
     <ClCompile Include="Core\Camera.cpp" />
     <ClCompile Include="Core\Lighting.cpp" />
     <ClCompile Include="Core\RenderItemWithInstances.cpp" />
+    <ClCompile Include="Interface\GraphicsHandle.cpp" />
     <ClCompile Include="Interface\GraphicsTypes.cpp" />
     <ClCompile Include="Utility\BufferStuff.cpp" />
     <ClCompile Include="Interface\GraphicsConsts.cpp" />
