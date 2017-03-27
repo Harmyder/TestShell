@@ -13,7 +13,6 @@ public:
 
     void Init(Viewer::UserInteractor *userInteractor, ISimulation *simulation);
     void Loop();
-    void Finish();
 
     bool IsMustStop() { return isMustStop_; }
 

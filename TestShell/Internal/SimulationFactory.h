@@ -26,7 +26,7 @@ class SimulationFactory : public BaseFactory
 public:
     SimulationFactory(const char *name) : BaseFactory(name) {}
 
-    virtual std::unique_ptr<ISimulation> Create(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) {
+    std::unique_ptr<ISimulation> Create(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) override {
         return std::make_unique<T>(viewport, gameInput);
     }
 };

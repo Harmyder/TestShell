@@ -21,6 +21,7 @@ namespace Utility
 
     uint32 FreeIndices::OccupyIndex() {
         const uint32 res = indices_[0];
+        assert((res < indices_.size()) && "All indices has been occupied for now");
         indices_[0] = indices_[res];
         indices_[res] = 0;
         return res - 1;

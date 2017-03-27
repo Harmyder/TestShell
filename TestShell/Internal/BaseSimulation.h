@@ -10,6 +10,11 @@ namespace Pipeline {
 namespace Viewer {
     class Viewport;
     class GameInput;
+
+    class RenderItemOpaqueRaii;
+    class RenderItemTransparentRaii;
+    class RenderItemWithInstancesRaii;
+    class MaterialRaii;
 }
 
 class BaseSimulation : public ISimulation, Common::NamedByCopyObject

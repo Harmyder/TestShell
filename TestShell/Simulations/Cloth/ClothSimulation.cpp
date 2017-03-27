@@ -4,8 +4,7 @@
 #include <vector>
 using namespace std;
 
-#include "Common/Math/Vector/Vector.h"
-#include "Common/Math/Vector/Matrix.h"
+#include "Common/Math/Vector/all.h"
 #include "Common/Geometry/GeometryGenerator.h"
 using namespace Common;
 
@@ -57,13 +56,9 @@ void ClothSimulation::Init() {
     matDeformable_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kTurquesa(), "rigid"));
     auto descs = BuildDescsFromScene(*scene_, *matDeformable_, *matDeformable_);
 
-    cloth_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque(descs.Vertices, sizeof(VertexNormalTex)));
+    cloth_ = make_unique<RenderItemOpaqueRaii>(viewport_.CreateRenderItemOpaque(descs.Vertices, sizeof(VertexNormalTex)));
 }
 
 void ClothSimulation::Step(float deltaTime) {
     deltaTime;
-}
-
-void ClothSimulation::Quit() {
-    viewport_.DestroyRenderItemOpaque(*cloth_);
 }

@@ -36,7 +36,3 @@ void Launcher::Loop() {
         userInteractor_->AfterRender();
     }
 }
-
-void Launcher::Finish() {
-    simulation_->Quit();
-}

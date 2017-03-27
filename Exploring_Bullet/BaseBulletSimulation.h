@@ -10,6 +10,10 @@ namespace Pipeline {
 namespace Viewer {
     class Viewport;
     class GameInput;
+
+    class RenderItemOpaqueRaii;
+    class RenderItemTransparentRaii;
+    class RenderItemWithInstancesRaii;
 }
 
 namespace Exploring_Bullet

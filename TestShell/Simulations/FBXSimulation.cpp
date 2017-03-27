@@ -28,15 +28,10 @@ void FbxSimulation::Init() {
     InitBlankPhysicsData();
     auto descs = BuildDescsFromScene(*scene_, *matRigid_, *matCollider_);
 
-    if (descs.Vertices.size() > 0) sceneDescsVertices_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque(descs.Vertices, sizeof(VertexNormalTex)));
-    if (descs.Types.size() > 0) sceneDescsTypes_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque(descs.Types));
+    if (descs.Vertices.size() > 0) sceneDescsVertices_ = make_unique<RenderItemOpaqueRaii>(viewport_.CreateRenderItemOpaque(descs.Vertices, sizeof(VertexNormalTex)));
+    if (descs.Types.size() > 0) sceneDescsTypes_ = make_unique<RenderItemOpaqueRaii>(viewport_.CreateRenderItemOpaque(descs.Types));
 }
 
 void FbxSimulation::Step(float deltaTime) {
     deltaTime;
-}
-
-void FbxSimulation::Quit() {
-    if (sceneDescsVertices_) viewport_.DestroyRenderItemOpaque(*sceneDescsVertices_);
-    if (sceneDescsTypes_) viewport_.DestroyRenderItemOpaque(*sceneDescsTypes_);
 }

@@ -10,5 +10,6 @@ public:
     virtual void AfterStep() = 0;
 
     virtual bool IsOngoing() = 0;
-    virtual void Quit() = 0;
+
+    virtual ~ISimulation() {}
 };

@@ -30,8 +30,8 @@ void SphereBvSimulation::Init() {
     ImportScene(path, filetitle);
     InitBlankPhysicsData();
     auto descs = BuildDescsFromScene(*scene_, *matRigid_, *matCollider_);
-    if (descs.Vertices.size() > 0) sceneDescsVertices_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque(descs.Vertices, sizeof(VertexNormalTex)));
-    if (descs.Types.size() > 0) sceneDescsTypes_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque(descs.Types));
+    if (descs.Vertices.size() > 0) sceneDescsVertices_ = make_unique<RenderItemOpaqueRaii>(viewport_.CreateRenderItemOpaque(descs.Vertices, sizeof(VertexNormalTex)));
+    if (descs.Types.size() > 0) sceneDescsTypes_ = make_unique<RenderItemOpaqueRaii>(viewport_.CreateRenderItemOpaque(descs.Types));
 
     const auto& mesh = scene_->GetMesh(0);
     
@@ -56,15 +56,9 @@ void SphereBvSimulation::Init() {
     const auto scale = Matrix4::MakeScale(sphere.radius);
     XMFLOAT4X3 t = (transform * scale).Store4x3();
     descsBV.emplace_back("", type, t, *matBv_, PrimitiveTopology::kTriangleList());
-    boundingVolumeDesc_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemTransparent(descsBV));
+    boundingVolumeDesc_ = make_unique<RenderItemTransparentRaii>(viewport_.CreateRenderItemTransparent(descsBV));
 }
 
 void SphereBvSimulation::Step(float deltaTime) {
     deltaTime;
-}
-
-void SphereBvSimulation::Quit() {
-    if (sceneDescsVertices_) viewport_.DestroyRenderItemOpaque(*sceneDescsVertices_);
-    if (sceneDescsTypes_) viewport_.DestroyRenderItemOpaque(*sceneDescsTypes_);
-    if (boundingVolumeDesc_) viewport_.DestroyRenderItemTransparent(*boundingVolumeDesc_);
 }

@@ -428,7 +428,7 @@ namespace Graphics
         commandList->SetGraphicsRootDescriptorTable(0, cbvHandleObj);
 
         auto instBuffer = frameResources_->GetCurrentFrameResource().instBuffer->Resource();
-        commandList->SetGraphicsRootShaderResourceView(3, instBuffer->GetGPUVirtualAddress());
+        commandList->SetGraphicsRootShaderResourceView(3, instBuffer->GetGPUVirtualAddress() + riwi.GetStartInstanceIndex() * sizeof(InstanceData));
 
         if (riwi.HasIndexBuffer()) {
             commandList->IASetIndexBuffer(&riwi.IndexBufferView());

@@ -35,7 +35,6 @@ namespace Exploring_Bullet
 
         void Init() override;
         void Step(float deltaTime) override;
-        void Quit() override;
 
     private:
         auto CreateGround();
@@ -48,8 +47,8 @@ namespace Exploring_Bullet
         std::unique_ptr<btDefaultCollisionConfiguration> collisionConfiguration_;
         std::unique_ptr<btDiscreteDynamicsWorld> dynamicsWorld_;
 
-        std::unique_ptr<Viewer::StructRenderItemId> ground_;
-        std::unique_ptr<Viewer::StructRenderItemWithInstancesId> falling_;
+        std::unique_ptr<Viewer::RenderItemOpaqueRaii> ground_;
+        std::unique_ptr<Viewer::RenderItemWithInstancesRaii> falling_;
         std::unique_ptr<Pipeline::InputScene> inputScene_;
 
         std::unique_ptr<Viewer::MaterialRaii> matRigid_;

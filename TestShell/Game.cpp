@@ -39,7 +39,6 @@ int Game::Run(HINSTANCE hInstance)
 
             launcher_->Init(userInteractor_.get(), simulation.get());
             launcher_->Loop();
-            launcher_->Finish();
         }
         simulationManager.Close();
     }

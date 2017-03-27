@@ -3,12 +3,6 @@
 #include "Internal\BaseSimulation.h"
 #include "Common\Math\Vector\Vector.h"
 
-namespace Viewer
-{
-    struct StructRenderItemId;
-    class MaterialRaii;
-}
-
 class MovingObjsInRi : public BaseSimulation
 {
 public:
@@ -18,7 +12,6 @@ public:
 public:
     void Init() override;
     void Step(float deltaTime) override;
-    void Quit() override;
 
     Common::Vector3 sun_pos;
     Common::Vector3 earth_pos;
@@ -26,7 +19,7 @@ public:
     float unused_time = 0.f;
 
 private:
-    std::unique_ptr<Viewer::StructRenderItemId> solsys_;
+    std::unique_ptr<Viewer::RenderItemOpaqueRaii> solsys_;
     std::unique_ptr<Viewer::MaterialRaii> matSun_;
     std::unique_ptr<Viewer::MaterialRaii> matEarth_;
 };

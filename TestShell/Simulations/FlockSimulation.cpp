@@ -9,7 +9,7 @@
 #include "Pipeline\UserLevel\UserSceneFactory.h"
 #include "Harmyder\Interface\HarmyderInterface.h"
 #include "Simulations\Utility.h"
-#include "Common\Math\Vector\Transform.h"
+#include "Common\Math\Vector\all.h"
 
 using namespace Pipeline;
 using namespace Viewer;
@@ -54,15 +54,10 @@ void FlockSimulation::Init()
         Matrix4(kIdentity).Store4x3(),
         PrimitiveTopology::kTriangleList(),
         move(instancesDescs), instancesCount);
-    flock_ = make_unique<StructRenderItemWithInstancesId>(viewport_.CreateRenderItemOpaqueWithInstances(desc, sizeof(VertexNormalTex)));
+    flock_ = make_unique<RenderItemWithInstancesRaii>(viewport_.CreateRenderItemOpaqueWithInstances(desc, sizeof(VertexNormalTex)));
 }
 
-void FlockSimulation::Step(float deltaTime)
-{
+void FlockSimulation::Step(float deltaTime) {
     deltaTime;
 }
 
-void FlockSimulation::Quit()
-{
-    if (flock_) viewport_.DestroyRenderItemOpaqueWithInstances(*flock_);
-}

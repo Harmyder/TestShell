@@ -97,7 +97,7 @@ namespace Exploring_Bullet
         collisionShapes_ = make_unique<btAlignedObjectArray<btCollisionShape*>>();
         auto groundRigidBody = CreateGround();
 
-        btBoxShape* colShape = new btBoxShape(btVector3(.1, .1, .1));
+        btBoxShape* colShape = new btBoxShape(btVector3(.1f, .1f, .1f));
         //btCollisionShape* colShape = new btSphereShape(btScalar(1.));
         collisionShapes_->push_back(colShape);
 
@@ -139,8 +139,8 @@ namespace Exploring_Bullet
         matRigid_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kJade(), "rigid"));
         auto descs = BuildDescsFromScene(*scene_, *matRigid_, *matRigid_);
 
-        ground_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque(descs.Vertices, sizeof(VertexNormalTex)));
-        falling_ = make_unique<StructRenderItemWithInstancesId>(viewport_.CreateRenderItemOpaqueWithInstances(descs.Instanced[0], sizeof(VertexNormalTex)));
+        ground_ = make_unique<RenderItemOpaqueRaii>(viewport_.CreateRenderItemOpaque(descs.Vertices, sizeof(VertexNormalTex)));
+        falling_ = make_unique<RenderItemWithInstancesRaii>(viewport_.CreateRenderItemOpaqueWithInstances(descs.Instanced[0], sizeof(VertexNormalTex)));
     }
 
     void FallingCube::Step(float deltaTime) {
@@ -149,9 +149,5 @@ namespace Exploring_Bullet
         auto& fallingMesh = scene_->GetMesh(scene_->SearchMesh("falling"));
         for (uint32 i = 0; i < fallingMesh.GetTransformsCount(); ++i) transforms.push_back(fallingMesh.GetTransform(i).Store4x3());
         viewport_.UpdateRenderWithInstancesTransforms(*falling_, Matrix4(kIdentity).Store4x3(), transforms.data());
-    }
-
-    void FallingCube::Quit() {
-        viewport_.DestroyRenderItemOpaque(*ground_);
     }
 }

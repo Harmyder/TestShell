@@ -3,8 +3,7 @@
 
 #include "Viewer\Viewport.h"
 #include "Viewer\Raii.h"
-#include "Common\Math\Vector\Transform.h"
-#include "Common\Math\Vector\Functions.h"
+#include "Common\Math\Vector\all.h"
 
 using namespace Viewer;
 using namespace Common;
@@ -48,7 +47,7 @@ void MovingObjsInRi::Init() {
     const RenderItemTypeDesc sun("Sun", PredefinedGeometryType::kSphere, s.Store4x3(), *matSun_, PrimitiveTopology::kTriangleList());
     const RenderItemTypeDesc earth("Earth", PredefinedGeometryType::kSphere, e.Store4x3(), *matEarth_, PrimitiveTopology::kTriangleList());
 
-    solsys_ = make_unique<StructRenderItemId>(viewport_.CreateRenderItemOpaque({ sun, earth }));
+    solsys_ = make_unique<RenderItemOpaqueRaii>(viewport_.CreateRenderItemOpaque({ sun, earth }));
 }
 
 void MovingObjsInRi::Step(float deltaTime) {
@@ -65,8 +64,4 @@ void MovingObjsInRi::Step(float deltaTime) {
     }
     const auto e = Matrix4::MakeTranslation(earth_pos * kDistScale) * Matrix4::MakeScale(kEarthRadius * kDistScale * kEarthVisualScale);
     viewport_.UpdateRenderSubitemTransform(*solsys_, "Earth", e.Store4x3());
-}
-
-void MovingObjsInRi::Quit() {
-    viewport_.DestroyRenderItemOpaque(*solsys_);
 }
