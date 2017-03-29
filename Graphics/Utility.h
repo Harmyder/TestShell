@@ -22,6 +22,11 @@ namespace Utility
         return AlignUpWithMask(value, alignment - 1);
     }
 
+    template <typename T> bool IsAligned(T value, size_t alignment) {
+        assert(IsPowerOfTwo(alignment));
+        return value & (alignment - 1) == 0;
+    }
+
     uint32 inline CalcConstBufSize(uint_t unalignedSize) {
         return (uint32)AlignUp(unalignedSize, 256);
     }

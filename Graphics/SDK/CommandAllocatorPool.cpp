@@ -27,11 +27,12 @@ namespace Graphics
         return ret;
     }
 
-    void CommandAllocatorPool::ReleaseAllocatorUpon(uint64 fence, ID3D12CommandAllocator* allocator) {
+    void CommandAllocatorPool::ReleaseAllocatorUpon(uint64 fence, ID3D12CommandAllocator*& allocator) {
         lock_guard<mutex> g(allocators_mutex_);
         
         auto it = find_if(begin(allocators_), end(allocators_), [&allocator](auto cp) { return cp.Get() == allocator; });
         uint_t allocatorIndex = distance(begin(allocators_), it);
         enqueued_.push(make_pair(fence, allocatorIndex));
+        allocator = nullptr;
     }
 }

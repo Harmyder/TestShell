@@ -50,9 +50,11 @@ namespace Graphics
         dsvDescriptorSize_ = g_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
         cbvSrvUavDescriptorSize_ = g_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
-        commandQueue_ = make_unique<CommandQueue>();
-        commandQueue_->Create(g_device.Get());
-        CommandContext::PreInitialize(commandQueue_.get());
+        graphicsQueue_ = make_unique<CommandQueue>();
+        graphicsQueue_->Create(g_device.Get(), D3D12_COMMAND_LIST_TYPE_DIRECT);
+        copyQueue_ = make_unique<CommandQueue>();
+        copyQueue_->Create(g_device.Get(), D3D12_COMMAND_LIST_TYPE_COPY);
+        CommandContext::PreInitialize(graphicsQueue_.get(), copyQueue_.get());
 
         CreateSwapChain();
         CreateRtvDsvHeaps();
@@ -92,7 +94,7 @@ namespace Graphics
         sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
         THROW_IF_FAILED(dxgiFactory_->CreateSwapChain(
-            commandQueue_->GetCommandQueue(),
+            graphicsQueue_->GetCommandQueue(),
             &sd,
             swapChain_.GetAddressOf()));
     }
@@ -229,7 +231,7 @@ namespace Graphics
     }
 
     void GraphicsCore::Resize() {
-        auto commandContext = CommandContext::Start();
+        auto commandContext = CommandContext::Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
         auto commandList = commandContext->GetCommandList();
 
         RECT rc;
@@ -272,7 +274,8 @@ namespace Graphics
 
     void GraphicsCore::Update() {
         auto& current = frameResources_->GetCurrentFrameResource();
-        commandQueue_->WaitForFence(current.Fence);
+        graphicsQueue_->StallForProducer(copyQueue_.get());
+        graphicsQueue_->WaitForFence(current.Fence);
 
         camera_.Update();
         UpdatePassesCBs();
@@ -326,7 +329,7 @@ namespace Graphics
     }
 
     void GraphicsCore::BeginScene() {
-        commandContext_ = CommandContext::Start();
+        commandContext_ = CommandContext::Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
         auto commandList = commandContext_->GetCommandList();
 
         commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),

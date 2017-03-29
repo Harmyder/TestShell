@@ -10,23 +10,23 @@ namespace Graphics
     CommandQueue::CommandQueue() {}
     CommandQueue::~CommandQueue() {}
 
-    void CommandQueue::Create(ID3D12Device *device) {
+    void CommandQueue::Create(ID3D12Device *device, D3D12_COMMAND_LIST_TYPE type) {
         D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-        queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+        queueDesc.Type = type;
         queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
         THROW_IF_FAILED(device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(commandQueue_.GetAddressOf())));
         commandQueue_->SetName(L"CommandQueue::commandQueue_");
 
         THROW_IF_FAILED(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_)));
 
-        commandAllocatorPool_ = make_unique<CommandAllocatorPool>(device, D3D12_COMMAND_LIST_TYPE_DIRECT);
+        commandAllocatorPool_ = make_unique<CommandAllocatorPool>(device, type);
     }
 
     ID3D12CommandAllocator* CommandQueue::AcquireAllocator() {
         return commandAllocatorPool_->AcquireAllocator(fence_->GetCompletedValue());
     }
 
-    void CommandQueue::ReleaseAllocator(ID3D12CommandAllocator* allocator) {
+    void CommandQueue::ReleaseAllocator(ID3D12CommandAllocator*& allocator) {
         commandAllocatorPool_->ReleaseAllocatorUpon(currentFence_, allocator);
     }
 
@@ -53,6 +53,9 @@ namespace Graphics
         WaitForFence(currentFence_);
     }
 
+    void CommandQueue::StallForProducer(const CommandQueue* producer) {
+        commandQueue_->Wait(producer->fence_.Get(), producer->CurrentFence());
+    }
 
     ID3D12CommandQueue* CommandQueue::GetCommandQueue() { return commandQueue_.Get(); }
 }

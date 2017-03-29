@@ -24,6 +24,7 @@ using Microsoft::WRL::ComPtr;
 #include <vector>
 #include <queue>
 #include <map>
+#include <set>
 #include <unordered_map>
 #include <string>
 #include <memory>

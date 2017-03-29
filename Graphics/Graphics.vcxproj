@@ -91,9 +91,11 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="SDK\Allocator.h" />
     <ClInclude Include="Core\Camera.h" />
     <ClInclude Include="Core\Lighting.h" />
     <ClInclude Include="Core\RenderItemWithInstances.h" />
+    <ClInclude Include="SDK\GpuResource.h" />
     <ClInclude Include="Utility\BufferStuff.h" />
     <ClInclude Include="Interface\GraphicsConsts.h" />
     <ClInclude Include="Interface\GraphicsTypes.h" />
@@ -114,6 +116,7 @@
     <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="SDK\Allocator.cpp" />
     <ClCompile Include="Core\Camera.cpp" />
     <ClCompile Include="Core\Lighting.cpp" />
     <ClCompile Include="Core\RenderItemWithInstances.cpp" />

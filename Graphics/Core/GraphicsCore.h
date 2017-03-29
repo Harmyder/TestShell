@@ -71,7 +71,7 @@ namespace Graphics
         void DrawRenderSubItem(RenderItem& ri, const std::string& name);
         void DrawRenderItemWithInstances(RenderItemWithInstances& ri);
 
-        CommandQueue* GetCommandQueue() { return commandQueue_.get(); }
+        CommandQueue* GetCommandQueue() { return graphicsQueue_.get(); }
         CommandContext* GetCommandContext() { return commandContext_; }
         Camera& GetCamera() { return camera_; }
 
@@ -105,7 +105,8 @@ namespace Graphics
         Microsoft::WRL::ComPtr<IDXGIFactory4> dxgiFactory_;
         Microsoft::WRL::ComPtr<IDXGISwapChain> swapChain_;
 
-        std::unique_ptr<CommandQueue> commandQueue_;
+        std::unique_ptr<CommandQueue> graphicsQueue_;
+        std::unique_ptr<CommandQueue> copyQueue_;
         CommandContext* commandContext_;
 
         UINT rtvDescriptorSize_;

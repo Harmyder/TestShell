@@ -9,8 +9,6 @@ namespace Graphics
 
     GpuBuffer::~GpuBuffer() {}
 
-    D3D12_GPU_VIRTUAL_ADDRESS GpuBuffer::GetGPUVirtualAddress() const { return buffer_->GetGPUVirtualAddress(); }
-
     void GpuBuffer::Create(
         const std::wstring& name,
         const uint_t elementsCount,
@@ -21,17 +19,17 @@ namespace Graphics
         elementSize_ = elementSize;
         uint_t byteSize = elementsCount * elementSize;
 
+        currentState_ = D3D12_RESOURCE_STATE_COPY_DEST;
         THROW_IF_FAILED(g_device->CreateCommittedResource(
             &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
             D3D12_HEAP_FLAG_NONE,
             &CD3DX12_RESOURCE_DESC::Buffer(byteSize),
-            D3D12_RESOURCE_STATE_COPY_DEST,
+            currentState_,
             nullptr,
-            IID_PPV_ARGS(buffer_.GetAddressOf())));
-        buffer_->SetName(name.c_str());
+            IID_PPV_ARGS(resource_.GetAddressOf())));
+        resource_->SetName(name.c_str());
 
         if (data) {
-            auto cc = CommandContext::Start();
             ComPtr<ID3D12Resource> uploadBuffer;
             THROW_IF_FAILED(g_device->CreateCommittedResource(
                 &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
@@ -47,11 +45,15 @@ namespace Graphics
             subResourceData.RowPitch = byteSize;
             subResourceData.SlicePitch = subResourceData.RowPitch;
 
+            auto cc = CommandContext::Start(D3D12_COMMAND_LIST_TYPE_COPY);
             auto commandList = cc->GetCommandList();
-            UpdateSubresources<1>(commandList, buffer_.Get(), uploadBuffer.Get(), 0, 0, 1, &subResourceData);
-            commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(buffer_.Get(),
-                D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER));
+            UpdateSubresources<1>(commandList, resource_.Get(), uploadBuffer.Get(), 0, 0, 1, &subResourceData);
             cc->Finish(true);
+
+            auto ccTransition = CommandContext::Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
+            ccTransition->TransitionResourceBegin(*this, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+            ccTransition->FlushResourceBarriers();
+            ccTransition->Finish(false);
         }
     }
 

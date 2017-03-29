@@ -10,7 +10,7 @@ namespace Graphics
         CommandAllocatorPool(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE type);
 
         ID3D12CommandAllocator* AcquireAllocator(uint64 currentFence);
-        void ReleaseAllocatorUpon(uint64 fence, ID3D12CommandAllocator* allocator);
+        void ReleaseAllocatorUpon(uint64 fence, ID3D12CommandAllocator*& allocator);
 
     private:
         std::vector<ComPtr<ID3D12CommandAllocator>> allocators_;
