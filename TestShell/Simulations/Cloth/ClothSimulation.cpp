@@ -11,6 +11,7 @@ using namespace Common;
 #include "Pipeline/InputLevel/InputMesh.h"
 #include "Pipeline/InputLevel/InputScene.h"
 #include "Pipeline/UserLevel/UserScene.h"
+#include "Pipeline/UserLevel/UserMesh.h"
 #include "Pipeline/UserLevel/UserSceneFactory.h"
 using namespace Pipeline;
 
@@ -51,6 +52,7 @@ void ClothSimulation::Init() {
     scene_ = make_unique<UserScene>();
     UserSceneFactory factory;
     factory.BuildScene(*scene_, *inputScene_);
+    clothMesh_ = &scene_->GetMeshNonConst(scene_->SearchMesh("cloth"));
     InitBlankPhysicsData();
 
     matDeformable_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kTurquesa(), "rigid"));
@@ -61,4 +63,10 @@ void ClothSimulation::Init() {
 
 void ClothSimulation::Step(float deltaTime) {
     deltaTime;
+ 
+    auto& mg = clothMesh_->GetGeometryNonConst();
+    for (auto& v : mg.UniqueVertices) {
+        v.Position.z -= 0.1f;
+    }
+    viewport_.UpdateRenderSubItemVertexData(*cloth_, "cloth", (uint8*)mg.UniqueVertices.data());
 }

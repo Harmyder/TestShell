@@ -191,6 +191,11 @@ void grUpdateRenderItemInstancesTransforms(grRenderItemWithInstances renderItem,
     ri->SetInstancesTransforms(instancesTransforms);
 }
 
+void grUpdateRenderSubItemVertexData(grRenderItem renderItem, const std::string& name, const uint8* data) {
+    auto ri = static_cast<RenderItemHandle>(renderItem).GetValue();
+    ri->SetSubItemVertexData(name, data);
+}
+
 void grDestroyRenderItem(grRenderItem renderItem) {
     GraphicsCore::GetInstance().GetCommandQueue()->WaitAllDone();
     RenderItem* ri = static_cast<RenderItemHandle>(renderItem).GetValue();

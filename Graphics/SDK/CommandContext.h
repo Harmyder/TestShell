@@ -10,6 +10,7 @@ namespace Graphics
     class RootSignature;
     class PipelineStateObject;
     class GpuResource;
+    class Allocator;
 
     class CommandContextPool;
 
@@ -21,7 +22,8 @@ namespace Graphics
         static CommandContext* Start(D3D12_COMMAND_LIST_TYPE type);
         uint64 Finish(bool wait);
 
-        CommandContext(D3D12_COMMAND_LIST_TYPE type) : type_(type) {}
+        CommandContext(D3D12_COMMAND_LIST_TYPE type);
+        ~CommandContext();
 
         void Reset();
         uint64 Flush(bool wait);
@@ -42,6 +44,7 @@ namespace Graphics
         void Initialize();
         template <class F>
         void TransitionResourceHelper(GpuResource& resource, D3D12_RESOURCE_STATES newState, F f);
+        uint64 FlushInternal(bool wait);
 
         friend class CommandContextPool;
 
@@ -52,6 +55,8 @@ namespace Graphics
 
         uint32 numbersOfBarriersToFlush_ = 0;
         std::array<D3D12_RESOURCE_BARRIER, 16> resourceBarrierBuffer_;
+
+        std::unique_ptr<Allocator> allocator_;
     };
 
     template <class F>

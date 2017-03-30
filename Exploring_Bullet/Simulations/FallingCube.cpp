@@ -107,7 +107,7 @@ namespace Exploring_Bullet
         for (int k = 0; k < kSize; k++) {
             for (int i = 0; i < kSize; i++) {
                 for (int j = 0; j < kSize; j++) {
-                    transforms.push_back(Matrix4::MakeTranslation(0.2*i, 2 + .2*k, 0.2*j));
+                    transforms.push_back(Matrix4::MakeTranslation(0.2*i, 5 + .2*k, 0.2*j));
                 }
             }
         }

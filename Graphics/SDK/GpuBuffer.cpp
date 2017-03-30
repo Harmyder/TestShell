@@ -51,7 +51,7 @@ namespace Graphics
             cc->Finish(true);
 
             auto ccTransition = CommandContext::Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
-            ccTransition->TransitionResourceBegin(*this, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+            ccTransition->TransitionResource(*this, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
             ccTransition->FlushResourceBarriers();
             ccTransition->Finish(false);
         }

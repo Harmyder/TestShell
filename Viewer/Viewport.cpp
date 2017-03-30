@@ -309,12 +309,16 @@ namespace Viewer
         renderItemsWithInstances_.erase(id.Value);
     }
 
-    void Viewport::UpdateRenderSubitemTransform(const StructRenderItemId& id, const string& name, const XMFLOAT4X3& transform) {
+    void Viewport::UpdateRenderSubItemTransform(const StructRenderItemId& id, const string& name, const XMFLOAT4X3& transform) {
         grUpdateRenderSubItemTransform(*id.Value, name, transform);
     }
 
     void Viewport::UpdateRenderWithInstancesTransforms(const StructRenderItemWithInstancesId& id, const XMFLOAT4X3& transform, const XMFLOAT4X3* instancesTransforms) {
         grUpdateRenderItemInstancesTransforms(*id.Value, transform, instancesTransforms);
+    }
+
+    void Viewport::UpdateRenderSubItemVertexData(const StructRenderItemId& id, const std::string& name, const uint8* data) {
+        grUpdateRenderSubItemVertexData(*id.Value, name, data);
     }
 
     grRenderItem Viewport::CreateRenderItemInternal(const DescsVertices& viewportVerticesDescs, uint32 vertexSize) {

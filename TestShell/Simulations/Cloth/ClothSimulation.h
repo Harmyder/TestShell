@@ -5,6 +5,7 @@
 namespace Pipeline
 {
     class InputScene;
+    class UserMesh;
 }
 
 class ClothSimulation : public BaseSimulation
@@ -22,4 +23,5 @@ private:
     std::unique_ptr<Viewer::MaterialRaii> matDeformable_;
 
     std::unique_ptr<Pipeline::InputScene> inputScene_;
+    Pipeline::UserMesh* clothMesh_;
 };

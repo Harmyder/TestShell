@@ -82,6 +82,8 @@ namespace Graphics {
         GpuBuffer& VertexBuffer() { return vertexBuffer_; }
         GpuBuffer& IndexBuffer() { return indexBuffer_; }
 
+        void SetVertexData(const uint8* data, uint32 vertexOffset, uint32 verticesCount);
+
     private:
         enum { kIndexFormat = DXGI_FORMAT_R16_UINT };
 
@@ -106,6 +108,11 @@ namespace Graphics {
         const SubItems::iterator GetSubItemsBegin() { return begin(subItems_); }
         const SubItems::iterator GetSubItemsEnd() { return end(subItems_); }
         RenderSubItem& FindSubItem(const std::string& name) { return subItems_.find(name)->second; }
+
+        void SetSubItemVertexData(const std::string& name, const uint8* data) {
+            const RenderSubItem& rsi = subItems_.at(name);
+            SetVertexData(data, rsi.BaseVertexLocation(), rsi.VerticesCount());
+        }
 
     private:
         RenderItem(uint32 vertexSize, uint32 verticesCount, uint32 indicesCount) :

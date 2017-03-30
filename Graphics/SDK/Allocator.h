@@ -22,6 +22,7 @@ namespace Graphics
 
     class AllocationPage;
 
+    // Intended to use by a single thread
     class Allocator
     {
     public:
@@ -30,14 +31,11 @@ namespace Graphics
             kLinearSubresourceCopyAlignment = 512
         };
         Allocation ReserveBuffer(uint64 currentFence, uint32 sizeInBytes, uint32 alignment);
-        void FreeBufferUpon(uint64 fence, Allocation* allocator);
+        void FreePagesUpon(uint64 fence);
 
     private:
         uint32 currentOffset_ = 0;
         AllocationPage* currentPage_ = nullptr;
-        struct CountMax { uint32 allocationsCount; uint64 maxFence; };
-        std::map<AllocationPage*, CountMax> allocationsPerPage_;
-        std::unordered_map<Allocation*, AllocationPage*> pageByAllocation_;
-        std::mutex allocations_mutex_;
+        std::vector<AllocationPage*> usedPages_;
     };
 }

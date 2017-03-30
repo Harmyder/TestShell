@@ -11,7 +11,6 @@ using namespace std;
 namespace Graphics
 {
     extern ComPtr<ID3D12Device> g_device;
-    static Allocator s_allocator;
 
     class CommandContextPool
     {
@@ -61,6 +60,9 @@ namespace Graphics
 
     CommandContextPool g_Ccp;
 
+    CommandContext::CommandContext(D3D12_COMMAND_LIST_TYPE type) : type_(type), allocator_(make_unique<Allocator>()) {}
+    CommandContext::~CommandContext() {}
+
     void CommandContext::PreInitialize(CommandQueue *graphicsQueue, CommandQueue *copyQueue) {
         g_Ccp.SetGraphicsQueue(graphicsQueue);
         g_Ccp.SetCopyQueue(copyQueue);
@@ -75,7 +77,7 @@ namespace Graphics
     }
 
     uint64 CommandContext::Finish(bool wait) {
-        const uint64 fence = Flush(wait);
+        const uint64 fence = FlushInternal(wait);
         g_Ccp.GetCommandQueue(type_)->ReleaseAllocator(currentAllocator_);
         g_Ccp.ReleaseContext(this);
         return fence;
@@ -92,8 +94,15 @@ namespace Graphics
     }
 
     uint64 CommandContext::Flush(bool wait) {
+        auto fence = FlushInternal(wait);
+        commandList_->Reset(currentAllocator_, nullptr);
+        return fence;
+    }
+
+    uint64 CommandContext::FlushInternal(bool wait) {
         FlushResourceBarriers();
         const uint64 fence = g_Ccp.GetCommandQueue(type_)->ExecuteCommandList(commandList_.Get());
+        allocator_->FreePagesUpon(fence);
         if (wait) g_Ccp.GetCommandQueue(type_)->WaitAllDone();
         return fence;
     }
@@ -113,11 +122,8 @@ namespace Graphics
     }
 
     void CommandContext::WriteBuffer(GpuResource& dest, uint32 destOffset, const void* data, uint32 sizeInBytes) {
-        auto uploadMemory = s_allocator.ReserveBuffer(g_Ccp.GetCommandQueue(type_)->CurrentFence(), sizeInBytes, Allocator::kLinearSubresourceCopyAlignment);
+        auto uploadMemory = allocator_->ReserveBuffer(g_Ccp.GetCommandQueue(type_)->CurrentFence(), sizeInBytes, Allocator::kLinearSubresourceCopyAlignment);
         memcpy(uploadMemory.DataPtr(), data, sizeInBytes);
-
-        TransitionResource(dest, D3D12_RESOURCE_STATE_COPY_DEST);
-        FlushResourceBarriers();
         commandList_->CopyBufferRegion(dest.GetResource(), destOffset, uploadMemory.Buffer().GetResource(), uploadMemory.Offset(), sizeInBytes);
     }
 

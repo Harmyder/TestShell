@@ -37,7 +37,7 @@ namespace Graphics
                     &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
                     D3D12_HEAP_FLAG_NONE,
                     &CD3DX12_RESOURCE_DESC::Buffer(kPageSize),
-                    D3D12_RESOURCE_STATE_COPY_SOURCE,
+                    D3D12_RESOURCE_STATE_GENERIC_READ,
                     nullptr,
                     IID_PPV_ARGS(&uploadBuffer)));
                 uploadBuffer->SetName(wstring(L"AllocationPage").c_str());
@@ -68,29 +68,20 @@ namespace Graphics
     Allocation Allocator::ReserveBuffer(uint64 currentFence, uint32 sizeInBytes, uint32 alignment) {
         assert(sizeInBytes < PagePool::kPageSize); // Add possibility to request large pages
         auto neededOffset = Utility::AlignUp(currentOffset_, alignment);
-        lock_guard<mutex> g(allocations_mutex_);
         uint32 offset = neededOffset;
-        if (currentPage_ == nullptr || sizeInBytes > PagePool::kPageSize - neededOffset) {
-            if (allocationsPerPage_[currentPage_].allocationsCount == 0) {
-                s_pagePool.ReleasePageUpon(currentFence, currentPage_);
-            }
-            currentPage_ = s_pagePool.AcquirePage(currentFence);
+        if (usedPages_.size() == 0 || sizeInBytes > PagePool::kPageSize - neededOffset) {
+            usedPages_.push_back(s_pagePool.AcquirePage(currentFence));
             offset = 0;
         }
         currentOffset_ = offset + sizeInBytes;
-        allocationsPerPage_[currentPage_].allocationsCount++;
-        return Allocation(*currentPage_, currentPage_->GetCpuVirtualAddress() + offset, offset, sizeInBytes);
+        return Allocation(*usedPages_.back(), usedPages_.back()->GetCpuVirtualAddress() + offset, offset, sizeInBytes);
     }
 
-    void Allocator::FreeBufferUpon(uint64 fence, Allocation* allocation) {
-        lock_guard<mutex> g(allocations_mutex_);
-        auto page = pageByAllocation_[allocation];
-        auto& countMax = allocationsPerPage_[page];
-        if (--countMax.allocationsCount == 0 && page != currentPage_) {
-            s_pagePool.ReleasePageUpon(max(countMax.maxFence, fence), page);
+    void Allocator::FreePagesUpon(uint64 fence) {
+        for (auto p : usedPages_) {
+            s_pagePool.ReleasePageUpon(fence, p);
         }
-        else {
-            countMax.maxFence = max(countMax.allocationsCount, fence);
-        }
+        usedPages_.clear();
+        currentOffset_ = 0;
     }
 }

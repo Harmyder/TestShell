@@ -159,8 +159,9 @@ namespace Viewer
         void DestroyRenderItemTransparent(const StructRenderItemId& id);
         void DestroyRenderItemOpaqueWithInstances(const StructRenderItemWithInstancesId& id);
 
-        void UpdateRenderSubitemTransform(const StructRenderItemId& id, const std::string& name, const XMFLOAT4X3& transform);
+        void UpdateRenderSubItemTransform(const StructRenderItemId& id, const std::string& name, const XMFLOAT4X3& transform);
         void UpdateRenderWithInstancesTransforms(const StructRenderItemWithInstancesId& id, const XMFLOAT4X3& transform, const XMFLOAT4X3* instancesTransforms);
+        void UpdateRenderSubItemVertexData(const StructRenderItemId& id, const std::string& name, const uint8* data);
 
         void BeforeDraw();
         void AfterDraw();

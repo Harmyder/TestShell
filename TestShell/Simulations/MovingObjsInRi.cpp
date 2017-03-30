@@ -63,5 +63,5 @@ void MovingObjsInRi::Step(float deltaTime) {
         velocity = Length(vel + Normalize(-(r + vel)) * acceleration(rlen));
     }
     const auto e = Matrix4::MakeTranslation(earth_pos * kDistScale) * Matrix4::MakeScale(kEarthRadius * kDistScale * kEarthVisualScale);
-    viewport_.UpdateRenderSubitemTransform(*solsys_, "Earth", e.Store4x3());
+    viewport_.UpdateRenderSubItemTransform(*solsys_, "Earth", e.Store4x3());
 }

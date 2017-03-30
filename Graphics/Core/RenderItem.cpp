@@ -4,6 +4,7 @@
 #include "Utility\BufferStuff.h"
 #include "Core\Lighting.h"
 #include "Core\FrameResource.h"
+#include "SDK\CommandContext.h"
 
 using namespace std;
 
@@ -112,5 +113,18 @@ namespace Graphics
             }
             ri->IndexBuffer().Create(L"ri_index", totalIndicesCount, kIndexSize, indices.data());
         }
+    }
+
+    void RenderItemBase::SetVertexData(const uint8* data, uint32 vertexOffset, uint32 verticesCount) {
+        auto ccTransition = CommandContext::Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
+        ccTransition->TransitionResource(vertexBuffer_, D3D12_RESOURCE_STATE_COPY_DEST);
+        ccTransition->Flush(true);
+
+        auto cc = CommandContext::Start(D3D12_COMMAND_LIST_TYPE_COPY);
+        cc->WriteBuffer(vertexBuffer_, vertexOffset * vertexSize_, data, vertexSize_ * verticesCount);
+        cc->Finish(true);
+
+        ccTransition->TransitionResource(vertexBuffer_, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+        ccTransition->Finish(false);
     }
 }

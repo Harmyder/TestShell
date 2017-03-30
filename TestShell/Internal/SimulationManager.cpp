@@ -31,9 +31,9 @@ void SimulationManager::Close()
 void SimulationManager::RegisterSimulations()
 {
     factories_ = new std::vector<BaseFactory*>;
+    RegisterFactory(new SimulationFactory<ClothSimulation>("Cloth"));
     RegisterFactory(new SimulationFactory<Exploring_Bullet::FallingCube>("Bullet: Falling Cube"));
     RegisterFactory(new SimulationFactory<FlockSimulation>("Flock"));
-    RegisterFactory(new SimulationFactory<ClothSimulation>("Cloth"));
     RegisterFactory(new SimulationFactory<MovingObjsInRi>("Solar System"));
     RegisterFactory(new SimulationFactory<CubeSimulation>("The Cube"));
     RegisterFactory(new SimulationFactory<FbxSimulation>("Fbx Loading"));
