@@ -4,19 +4,37 @@
 #include "Common/Attribute/NonCopyable.h"
 
 class btRigidBody;
+class btSoftBody;
 
 namespace Exploring_Bullet
 {
-    class BulletPhysicsData : public Pipeline::IPhysicsData, public Common::NonCopyable
+    class BulletRigidPhysicsData : public Pipeline::IPhysicsData, public Common::NonCopyable
     {
     public:
-        BulletPhysicsData(std::unique_ptr<btRigidBody> rigidBody);
-        ~BulletPhysicsData();
+        BulletRigidPhysicsData(std::unique_ptr<btRigidBody> rigidBody);
+        ~BulletRigidPhysicsData();
 
         Common::Matrix4 GetTransform() override;
         void SetTransform(const Common::Matrix4&) override;
 
+        void GetPositions(std::vector<Common::Vector3>& positions) override { throw "You don't need vertices from btRigidBody"; }
+
     private:
         std::unique_ptr<btRigidBody> rigidBody_;
+    };
+
+    class BulletSoftPhysicsData : public Pipeline::IPhysicsData, public Common::NonCopyable
+    {
+    public:
+        BulletSoftPhysicsData(std::unique_ptr<btSoftBody> softBody);
+        ~BulletSoftPhysicsData();
+
+        Common::Matrix4 GetTransform() override;
+        void SetTransform(const Common::Matrix4&) override;
+
+        void GetPositions(std::vector<Common::Vector3>& positions) override;
+
+    private:
+        std::unique_ptr<btSoftBody> softBody_;
     };
 }

@@ -17,7 +17,7 @@ using namespace Viewer;
 using namespace Common;
 
 BaseSimulation::BaseSimulation(const char* name, Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) :
-    Common::NamedByCopyObject(name),
+    ISimulation(name),
     viewport_(viewport),
     gameInput_(gameInput)
 {}

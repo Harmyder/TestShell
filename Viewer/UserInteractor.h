@@ -26,6 +26,8 @@ namespace Viewer
         Viewport& GetViewport() { return *viewport_; }
         GameInput& GetGameInput() { return *gameInput_; }
 
+        void SetWindowTitle(const char* name);
+
     private:
         static UserInteractor *s_Instance;
 

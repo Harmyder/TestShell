@@ -84,6 +84,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ColliderType.h" />
+    <ClInclude Include="Helpers\CreateInputMesh.h" />
     <ClInclude Include="Importer\FBXImporter.h" />
     <ClInclude Include="InputLevel\InputCollider.h" />
     <ClInclude Include="InputLevel\FactoryFbx.h" />
@@ -99,6 +100,7 @@
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Helpers\CreateInputMesh.cpp" />
     <ClCompile Include="Importer\FBXImporter.cpp" />
     <ClCompile Include="InputLevel\InputCollider.cpp" />
     <ClCompile Include="InputLevel\FactoryFbx.cpp" />

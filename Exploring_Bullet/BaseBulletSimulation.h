@@ -5,12 +5,18 @@
 
 namespace Pipeline {
     class UserScene;
+    class InputScene;
+    class UserMesh;
 }
 
 namespace Viewer {
     class Viewport;
     class GameInput;
 
+    struct StructRenderItemId;
+    struct StructRenderItemWithInstancesId;
+
+    class MaterialRaii;
     class RenderItemOpaqueRaii;
     class RenderItemTransparentRaii;
     class RenderItemWithInstancesRaii;
@@ -18,7 +24,7 @@ namespace Viewer {
 
 namespace Exploring_Bullet
 {
-    class BaseBulletSimulation : public ISimulation, Common::NamedByCopyObject
+    class BaseBulletSimulation : public ISimulation
     {
     public:
         BaseBulletSimulation(const char* name, Viewer::Viewport& viewport, const Viewer::GameInput& gameInput);

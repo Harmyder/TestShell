@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Common/Attribute/NamedObject.h"
 #include "Internal/ISimulation.h"
 
 namespace Pipeline {
@@ -17,7 +16,7 @@ namespace Viewer {
     class MaterialRaii;
 }
 
-class BaseSimulation : public ISimulation, Common::NamedByCopyObject
+class BaseSimulation : public ISimulation
 {
 public:
     BaseSimulation(const char* name, Viewer::Viewport& viewport, const Viewer::GameInput& gameInput);

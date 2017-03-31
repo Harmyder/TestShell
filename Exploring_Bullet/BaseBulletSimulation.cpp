@@ -16,7 +16,7 @@ using namespace Viewer;
 namespace Exploring_Bullet
 {
     BaseBulletSimulation::BaseBulletSimulation(const char* name, Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) :
-        Common::NamedByCopyObject(name),
+        ISimulation(name),
         viewport_(viewport),
         gameInput_(gameInput)
     {}

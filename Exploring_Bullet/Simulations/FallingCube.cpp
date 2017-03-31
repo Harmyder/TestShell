@@ -14,6 +14,7 @@ using namespace Common;
 #include "Pipeline/UserLevel/UserScene.h"
 #include "Pipeline/UserLevel/UserMesh.h"
 #include "Pipeline/UserLevel/UserSceneFactory.h"
+#include "Pipeline/Helpers/CreateInputMesh.h"
 using namespace Pipeline;
 
 #include "Viewer/Vertex.h"
@@ -26,32 +27,6 @@ using namespace Viewer;
 
 namespace
 {
-    void CreateBoxInternal(float x, float y, float z, InputMesh& output) {
-        auto box = GeometryGenerator::CreateBox(x, y, z);
-
-        auto v = GeometryGenerator::ComputeVertices(box.TrianglesPositions, box.TrianglesTexCoords);
-        output.SetVisualVertices(move(v.UniqueVertices));
-        output.SetTrianglesVertices(move(v.TrianglesVertices));
-
-        output.SetPositions(box.Positions);
-        output.SetNormals(box.Normals);
-        output.SetTrianglesPositions(box.TrianglesPositions);
-        output.SetTexCoords(box.TexCoords);
-        output.SetTrianglesTexCoords(box.TrianglesTexCoords);
-    }
-
-    void CreateBox(float x, float y, float z, const Matrix4& transform, InputMesh& output) {
-        CreateBoxInternal(x, y, z, output);
-        output.SetTransform(transform.Store4x4());
-    }
-
-    void CreateBoxInstanced(float x, float y, float z, const vector<Matrix4>& transforms, InputMesh& output) {
-        CreateBoxInternal(x, y, z, output);
-        vector<XMFLOAT4X3> transformsInternal; transformsInternal.reserve(transforms.size());
-        for (const auto& t : transforms) transformsInternal.push_back(t.Store4x3());
-        output.SetTransforms(move(transformsInternal));
-    }
-
     auto CreateRigidBody(btDiscreteDynamicsWorld* world, btCollisionShape* shape, float mass, const btTransform& startTransform) {
         bool isDynamic = (mass != 0.f);
         btVector3 localInertia(0, 0, 0);
@@ -79,7 +54,7 @@ namespace Exploring_Bullet
         auto groundRigidBody = CreateRigidBody(dynamicsWorld_.get(), groundShape, 0, Tobt(groundTransform));
 
         auto inputMesh = make_unique<InputMesh>("ground");
-        CreateBox(groundX, groundY, groundZ, Matrix4(kIdentity), *inputMesh);
+        Helpers::CreateBox(groundX, groundY, groundZ, Matrix4(kIdentity), *inputMesh);
         inputScene_->AddMesh(move(inputMesh));
         return groundRigidBody;
     }
@@ -115,13 +90,13 @@ namespace Exploring_Bullet
         const float fallingX = .2f; const float fallingY = .2f; const float fallingZ = .2f;
 
         auto inputMesh = make_unique<InputMesh>("falling");
-        CreateBoxInstanced(fallingX, fallingY, fallingZ, transforms, *inputMesh);
+        Helpers::CreateBoxInstanced(fallingX, fallingY, fallingZ, transforms, *inputMesh);
         inputScene_->AddMesh(move(inputMesh));
 
         scene_ = make_unique<UserScene>();
         UserSceneFactory::BuildScene(*scene_, *inputScene_);
 
-        scene_->GetMeshNonConst(scene_->SearchMesh("ground")).InitPhysicsData(make_unique<BulletPhysicsData>(move(groundRigidBody)));
+        scene_->GetMeshNonConst(scene_->SearchMesh("ground")).InitPhysicsData(make_unique<BulletRigidPhysicsData>(move(groundRigidBody)));
 
         btBoxShape* fallingShape = new btBoxShape(btVector3(fallingX, fallingY, fallingZ));
         collisionShapes_->push_back(fallingShape);
@@ -129,10 +104,10 @@ namespace Exploring_Bullet
         auto fallingMesh = &scene_->GetMeshNonConst(scene_->SearchMesh("falling"));
         auto inputTransforms = fallingMesh->GetInput().GetTransforms();
         const btScalar mass(1.f);
-        vector<unique_ptr<BulletPhysicsData>> fallingBodies;
+        vector<unique_ptr<BulletRigidPhysicsData>> fallingBodies;
         for (const auto& t : inputTransforms) {
             auto body = CreateRigidBody(dynamicsWorld_.get(), fallingShape, mass, Tobt(Matrix4(XMLoadFloat4x3(&t))));
-            fallingBodies.push_back(make_unique<BulletPhysicsData>(move(body)));
+            fallingBodies.push_back(make_unique<BulletRigidPhysicsData>(move(body)));
         }
         fallingMesh->InitPhysicsDatas(fallingBodies);
 

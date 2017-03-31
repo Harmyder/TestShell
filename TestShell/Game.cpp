@@ -35,6 +35,9 @@ int Game::Run(HINSTANCE hInstance)
         {
             BaseFactory *factory = simulationManager.GetFactory(nextSimulation_);
             auto simulation = factory->Create(userInteractor_->GetViewport(), userInteractor_->GetGameInput());
+
+            userInteractor_->SetWindowTitle(simulation->GetName().c_str());
+
             simulation->Init();
 
             launcher_->Init(userInteractor_.get(), simulation.get());

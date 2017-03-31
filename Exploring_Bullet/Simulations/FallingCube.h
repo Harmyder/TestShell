@@ -13,17 +13,6 @@ namespace Common
 {
     class Matrix4;
 }
-namespace Pipeline
-{
-    class InputScene;
-    class UserMesh;
-}
-namespace Viewer
-{
-    struct StructRenderItemId;
-    struct StructRenderItemWithInstancesId;
-    class MaterialRaii;
-}
 
 namespace Exploring_Bullet
 {

@@ -21,18 +21,20 @@
 
 // Bullet libs, used in Exploring_Bullet
 #if defined(_DEBUG)
-    #pragma comment(lib, "Bullet3Collision_x64_Debug.lib")
-    #pragma comment(lib, "Bullet3Dynamics_x64_Debug.lib")
-    #pragma comment(lib, "Bullet3Common_x64_Debug.lib")
-    #pragma comment(lib, "BulletCollision_x64_Debug.lib")
-    #pragma comment(lib, "BulletDynamics_x64_Debug.lib")
-    #pragma comment(lib, "LinearMath_x64_Debug.lib")
+    #pragma comment(lib, "Bullet3Collision_Debug.lib")
+    #pragma comment(lib, "Bullet3Dynamics_Debug.lib")
+    #pragma comment(lib, "Bullet3Common_Debug.lib")
+    #pragma comment(lib, "BulletCollision_Debug.lib")
+    #pragma comment(lib, "BulletDynamics_Debug.lib")
+    #pragma comment(lib, "BulletSoftBody_Debug.lib")
+    #pragma comment(lib, "LinearMath_Debug.lib")
 #else
-    #pragma comment(lib, "Bullet3Collision_x64_Release.lib")
-    #pragma comment(lib, "Bullet3Dynamics_x64_Release.lib")
-    #pragma comment(lib, "Bullet3Common_x64_Release.lib")
-    #pragma comment(lib, "BulletCollision_x64_Release.lib")
-    #pragma comment(lib, "BulletDynamics_x64_Release.lib")
-    #pragma comment(lib, "LinearMath_x64_Release.lib")
+    #pragma comment(lib, "Bullet3Collision_Release.lib")
+    #pragma comment(lib, "Bullet3Dynamics_Release.lib")
+    #pragma comment(lib, "Bullet3Common_Release.lib")
+    #pragma comment(lib, "BulletCollision_Release.lib")
+    #pragma comment(lib, "BulletDynamics_Release.lib")
+    #pragma comment(lib, "BulletSoftBody_Release.lib")
+    #pragma comment(lib, "LinearMath_Release.lib")
 #endif
 

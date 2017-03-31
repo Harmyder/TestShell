@@ -12,6 +12,7 @@
 #include "Simulations/Cloth/ClothSimulation.h"
 
 #include "Exploring_Bullet/Simulations/FallingCube.h"
+#include "Exploring_Bullet/Simulations/SimpleCloth.h"
 
 SimulationManager::~SimulationManager()
 {
@@ -31,6 +32,7 @@ void SimulationManager::Close()
 void SimulationManager::RegisterSimulations()
 {
     factories_ = new std::vector<BaseFactory*>;
+    RegisterFactory(new SimulationFactory<Exploring_Bullet::SimpleCloth>("Bullet: Simple Cloth"));
     RegisterFactory(new SimulationFactory<ClothSimulation>("Cloth"));
     RegisterFactory(new SimulationFactory<Exploring_Bullet::FallingCube>("Bullet: Falling Cube"));
     RegisterFactory(new SimulationFactory<FlockSimulation>("Flock"));

@@ -93,6 +93,7 @@
   <ItemGroup>
     <ClInclude Include="BaseBulletSimulation.h" />
     <ClInclude Include="BulletPhysicsData.h" />
+    <ClInclude Include="Simulations\SimpleCloth.h" />
     <ClInclude Include="TypesConnector.h" />
     <ClInclude Include="Simulations\FallingCube.h" />
     <ClInclude Include="stdafx.h" />
@@ -100,6 +101,7 @@
   <ItemGroup>
     <ClCompile Include="BaseBulletSimulation.cpp" />
     <ClCompile Include="BulletPhysicsData.cpp" />
+    <ClCompile Include="Simulations\SimpleCloth.cpp" />
     <ClCompile Include="Simulations\FallingCube.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

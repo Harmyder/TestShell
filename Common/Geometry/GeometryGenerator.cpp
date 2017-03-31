@@ -405,12 +405,12 @@ namespace Common
     GeometryGenerator::Geometry GeometryGenerator::CreateGridXY(uint16 xCount, uint16 yCount, float width, float height) {
         Geometry output;
         output.Positions.resize(xCount * yCount);
-        const Vector3 base(-width / 2.f, -height / 2.f, 0.f);
+        const Vector3 base(-width / 2.f, height / 2.f, 0.f);
         const float stepX = width / xCount;
         const float stepY = height / yCount;
         for (uint32 i = 0; i < xCount; ++i) {
             for (uint32 j = 0; j < yCount; ++j) {
-                output.Positions[i * yCount + j] = Vector3(base + Vector3(i * stepX, j * stepY, 0.f)).Store();
+                output.Positions[j * yCount + i] = Vector3(base + Vector3(i * stepX, j * -stepY, 0.f)).Store();
             }
         }
         // 0--h+0--2h+0

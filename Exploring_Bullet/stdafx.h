@@ -12,7 +12,10 @@
 #include "Common\Types.h"
 
 #include <vector>
+#include <set>
 #include <string>
 #include <memory>
+#include <algorithm>
+#include <numeric>
 
 #define BT_NO_SIMD_OPERATOR_OVERLOADS

@@ -40,6 +40,8 @@ namespace Pipeline
         const uint32 GetTransformsCount() const;
         const auto GetTransform(uint32 i) const { return physicsDatas_[i]->GetTransform(); }
 
+        const void GetPositions(std::vector<Common::Vector3>& positions) const { physicsData_->GetPositions(positions); }
+
         const MeshGeometry &GetGeometry() const { return meshGeometry_; }
         MeshGeometry &GetGeometryNonConst() { return meshGeometry_; }
         uint_t GetRenderItemIndex() const { return renderItemIndex_; }

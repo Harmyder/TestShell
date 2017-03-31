@@ -1,8 +1,11 @@
 #pragma once
+#include "Common/Attribute/NamedObject.h"
 
-class ISimulation
+class ISimulation : public Common::NamedByCopyObject
 {
 public:
+    using Common::NamedByCopyObject::NamedByCopyObject;
+
     virtual void Init() = 0;
 
     virtual void BeforeStep() = 0;

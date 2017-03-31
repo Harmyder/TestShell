@@ -67,6 +67,10 @@ namespace Viewer
         return wnd;
     }
 
+    void UserInteractor::SetWindowTitle(const char* name) {
+        SetWindowText(viewport_->GetHwnd(), name);
+    }
+
     LRESULT CALLBACK UserInteractor::WndProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         UserInteractor &userInteractor = UserInteractor::GetInstance();
         switch (msg)
