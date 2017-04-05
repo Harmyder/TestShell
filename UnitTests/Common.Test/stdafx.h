@@ -5,19 +5,16 @@
 
 #pragma once
 
+// Headers for CppUnitTest
+#include "CppUnitTest.h"
 
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
-
-
-#include <Windows.h>
-
-#include <type_traits>
-#include <string>
 #include <vector>
-#include <map>
-#include <stdexcept>
+#include <array>
 #include <algorithm>
+#include <numeric>
+#include <iterator>
 #include <cassert>
+#include <type_traits>
+using namespace std;
 
-#include "Types.h"
-#include "Consts.h"
+#include "Common/Types.h"

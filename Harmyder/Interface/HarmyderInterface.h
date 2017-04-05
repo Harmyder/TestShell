@@ -22,4 +22,3 @@ hhFlock hfFlockCreate(const char* name, const htFlockEntity &type);
 uint32 hfFlockGetPiecesCount(hhFlock flock);
 const htFlockPiece* hfFlockGetPieces(hhFlock flock);
 void hfFlockDestroy(hhFlock flock);
-

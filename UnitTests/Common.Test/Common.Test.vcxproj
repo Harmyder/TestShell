@@ -11,25 +11,26 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{2F76DD6A-5F4A-48C0-B377-2CCA96985032}</ProjectGuid>
+    <ProjectGuid>{4B464009-C02D-4AA2-9C72-1695628C4D5D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Pile</RootNamespace>
+    <RootNamespace>CommonTest</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
-    <ProjectName>Common</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <CharacterSet>NotSet</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>NotSet</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -44,83 +45,65 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>..\Libs\</OutDir>
-    <IntDir>..\Temp\$(ProjectName)\$(platform)-$(Configuration)\</IntDir>
-    <TargetName>$(ProjectName)_$(platform)-$(Configuration)</TargetName>
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\..\Temp\UnitTests\$(ProjectName)\$(platform)-$(Configuration)\</OutDir>
+    <IntDir>..\..\Temp\UnitTests\$(ProjectName)\$(platform)-$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>..\Libs\</OutDir>
-    <IntDir>..\Temp\$(ProjectName)\$(platform)-$(Configuration)\</IntDir>
-    <TargetName>$(ProjectName)_$(platform)-$(Configuration)</TargetName>
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\..\Temp\UnitTests\$(ProjectName)\$(platform)-$(Configuration)\</OutDir>
+    <IntDir>..\..\Temp\UnitTests\$(ProjectName)\$(platform)-$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;</AdditionalIncludeDirectories>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalIncludeDirectories>.;..\..\;..\..\Common;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <UseFullPaths>true</UseFullPaths>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;</AdditionalIncludeDirectories>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalIncludeDirectories>.;..\..\;..\..\Common;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <UseFullPaths>true</UseFullPaths>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Attribute\NamedObject.h" />
-    <ClInclude Include="Attribute\NonCopyable.h" />
-    <ClInclude Include="Consts.h" />
-    <ClInclude Include="DefineNamespaceEnumType.h" />
-    <ClInclude Include="DirectXInclude.h" />
-    <ClInclude Include="Math\Graph\bfs.h" />
-    <ClInclude Include="Math\Graph\EdmondsKarp.h" />
-    <ClInclude Include="Geometry\GeometryGenerator.h" />
-    <ClInclude Include="Math\Graph\Graph.h" />
-    <ClInclude Include="Math\Vector\all.h" />
-    <ClInclude Include="Math\Vector\Functions.h" />
-    <ClInclude Include="Math\Vector\Matrix.h" />
-    <ClInclude Include="Math\Vector\Quaternion.h" />
-    <ClInclude Include="Math\Vector\Scalar.h" />
-    <ClInclude Include="Math\Vector\Transform.h" />
-    <ClInclude Include="Math\Vector\Vector.h" />
-    <ClInclude Include="Print\DumpDirectX.h" />
-    <ClInclude Include="Pattern\Command.h" />
-    <ClInclude Include="Pattern\Singleton.h" />
-    <ClInclude Include="Print\DebugPrint.h" />
-    <ClInclude Include="Print\PrettyPrinting.h" />
-    <ClInclude Include="Math\Linear\SparseMatrix.h" />
+    <ClInclude Include="Math\Graph\__utils.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="Timer\Timer.h" />
-    <ClInclude Include="Types.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Geometry\GeometryGenerator.cpp" />
-    <ClCompile Include="Print\DumpDirectX.cpp" />
-    <ClCompile Include="Print\DebugPrint.cpp" />
-    <ClCompile Include="Print\PrettyPrinting.cpp" />
-    <ClCompile Include="Math\Linear\SparseMatrix.cpp" />
+    <ClCompile Include="Math\Graph\bfs.cpp" />
+    <ClCompile Include="Math\Graph\EdmondsKarp.cpp" />
+    <ClCompile Include="Math\Graph\Graph.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Timer\Timer.cpp" />
+    <ClCompile Include="Math\Linear\SparseMatrix.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\Common.vcxproj">
+      <Project>{2f76dd6a-5f4a-48c0-b377-2cca96985032}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -22,6 +22,32 @@ using namespace Viewer;
 
 #include "Simulations\Utility.h"
 
+enum ConstraintType {
+    kStructural = 0,
+    kSheer = 1,
+    kBending = 2,
+    kConstraintTypesCount = 3,
+};
+
+class Constraint {
+    int v1, v2;
+    float restingDist;
+};
+
+class Cloth {
+public:
+
+private:
+    std::vector<Vector3> vertices_;
+    std::array<std::vector<Constraint>, kConstraintTypesCount> constraints_;
+};
+
+class EulerianSolver {
+    void SolveAll(std::vector<Constraint> constraints) {
+
+    }
+};
+
 ClothSimulation::ClothSimulation(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) :
     BaseSimulation("Clothsimulation", viewport, gameInput) {}
 ClothSimulation::~ClothSimulation() {}
