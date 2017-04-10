@@ -46,6 +46,15 @@ namespace CommonTest
                 for (int j = 0; j < matrix[0].size(); ++j) {
                     Assert::AreEqual(matrix[i][j], sparse[i][j]);
                 }
+
+                auto pc = sparse.GetColumnsForRow(i);
+                auto pv = sparse.GetValuesForRow(i);
+                for (int j = 0; j < matrix[i].size(); ++j) {
+                    if (matrix[i][j] != 0) {
+                        Assert::AreEqual(matrix[i][j], *pv.first++);
+                        Assert::AreEqual(j, *pc.first++);
+                    }
+                }
             }
 		}
 

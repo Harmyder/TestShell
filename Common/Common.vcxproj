@@ -89,6 +89,7 @@
     <ClInclude Include="Consts.h" />
     <ClInclude Include="DefineNamespaceEnumType.h" />
     <ClInclude Include="DirectXInclude.h" />
+    <ClInclude Include="Math\Linear\IterativeBasic.h" />
     <ClInclude Include="Math\Graph\bfs.h" />
     <ClInclude Include="Math\Graph\EdmondsKarp.h" />
     <ClInclude Include="Geometry\GeometryGenerator.h" />
@@ -111,6 +112,7 @@
     <ClInclude Include="Types.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Math\Linear\IterativeBasic.cpp" />
     <ClCompile Include="Geometry\GeometryGenerator.cpp" />
     <ClCompile Include="Print\DumpDirectX.cpp" />
     <ClCompile Include="Print\DebugPrint.cpp" />

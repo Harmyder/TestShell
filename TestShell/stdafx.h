@@ -10,6 +10,7 @@
 #include <vector>
 #include <array>
 #include <memory>
+#define NOMINMAX
 #include <Windows.h>
 
 #include "Common\Types.h"

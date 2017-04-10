@@ -10,6 +10,7 @@ namespace Common
         explicit Dynvector(int size) : elems_(size, 0) {}
         explicit Dynvector(const std::vector<T>& elems) : elems_(elems) {}
         explicit Dynvector(std::vector<T>&& elems) : elems_(move(elems)) {}
+        Dynvector(int size, T value) : elems_(size, value) {}
 
         auto size() const { return elems_.size(); }
 
@@ -19,6 +20,8 @@ namespace Common
     private:
         std::vector<T> elems_;
     };
+
+    template <class T> inline T LengthSq(const Dynvector<T>& v) { T res = 0; for (int i = 0; i < (int)v.size(); ++i) res += v[i] * v[i]; return res; }
 
     template <class T>
     class SparseDynmatrix
@@ -68,7 +71,11 @@ namespace Common
             return res;
         }
 
-        auto GetColumnsForRow(int rowIndex) { return make_pair(begin(columns_) + rowOffsets_[i], begin(columns_) + rowOffsets_[i + 1]); }
+        int GetRowsCount() const { return (int)rowOffsets_.size() - 1; }
+        int GetColumnsCount() const { return (int)columns_.size(); }
+
+        auto GetColumnsForRow(int r) const { return make_pair(cbegin(columns_) + rowOffsets_[r], cbegin(columns_) + rowOffsets_[r + 1]); }
+        auto GetValuesForRow(int r) const { return make_pair(cbegin(values_) + rowOffsets_[r], cbegin(values_) + rowOffsets_[r + 1]); }
 
     private:
         std::vector<int> rowOffsets_;
@@ -84,7 +91,8 @@ namespace Common
         colsCount_ = colsCount == -1 ? *max_element(bcol, ecol) + 1 : colsCount;
 
         rowOffsets_.resize(rowsCount_ + 1, 0); // one for guard
-        for (auto i = brow; i < erow; ++i) ++rowOffsets_[*i];
+        for (auto i = brow; i < erow; ++i) ++rowOffsets_[*i]; // numbers of elements in every row
+        // From numbers of elements per row to offsets
         auto currentOffset = 0;
         for (auto i = begin(rowOffsets_); i < end(rowOffsets_) - 1; ++i) {
             auto tmp = *i;
@@ -102,6 +110,7 @@ namespace Common
         }
         std::rotate(rbegin(rowOffsets_), rbegin(rowOffsets_) + 1, rend(rowOffsets_));
 
+        // Sort columns/values for every row in case data was passed not sorted
         std::vector<std::pair<int, T>> tmp;
         for (auto r = begin(rowOffsets_); r < end(rowOffsets_) - 1; ++r) {
             auto b = begin(columns_) + *r;
