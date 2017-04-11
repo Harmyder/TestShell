@@ -89,6 +89,7 @@
     <ClInclude Include="Consts.h" />
     <ClInclude Include="DefineNamespaceEnumType.h" />
     <ClInclude Include="DirectXInclude.h" />
+    <ClInclude Include="Container\Dynarray.h" />
     <ClInclude Include="Math\Linear\IterativeBasic.h" />
     <ClInclude Include="Math\Graph\bfs.h" />
     <ClInclude Include="Math\Graph\EdmondsKarp.h" />
@@ -123,6 +124,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Timer\Timer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Visualizers.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -7,7 +7,7 @@ using namespace Common;
 
 namespace CommonTest
 {
-    TEST_CLASS(SparseMatrix)
+    TEST_CLASS(IterativeBasic_Test)
     {
         auto BuildSparseMatrix(vector<vector<float>> matrix) {
             vector<int> rows, cols;

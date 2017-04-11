@@ -7,7 +7,7 @@ using namespace Common;
 
 namespace CommonTest
 {		
-	TEST_CLASS(SparseMatrix)
+	TEST_CLASS(SparseMatrix_Test)
 	{
         template <class T>
         void build_vectors(
