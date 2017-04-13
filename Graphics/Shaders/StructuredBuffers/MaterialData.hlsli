@@ -14,4 +14,7 @@ struct MaterialData
 
 StructuredBuffer<MaterialData> gMaterialsData : register(REGISTER_SB_MATERIAL_DATA);
 
+Texture2D gDiffuseMap : register(REGISTER_TEX_DIFFUSE_MAP);
+SamplerState gSamLinear : register(REGISTER_S_SAMPLER_LINEAR);
+
 #endif

@@ -127,6 +127,14 @@ namespace Graphics
         commandList_->CopyBufferRegion(dest.GetResource(), destOffset, uploadMemory.Buffer().GetResource(), uploadMemory.Offset(), sizeInBytes);
     }
 
+    void CommandContext::InitializeTexture(GpuResource& dest, D3D12_SUBRESOURCE_DATA& data) {
+        uint32 uploadSize = (uint32)GetRequiredIntermediateSize(dest.GetResource(), 0, 1);
+        auto uploadMemory = allocator_->ReserveBuffer(g_Ccp.GetCommandQueue(type_)->CurrentFence(), uploadSize, Allocator::kLinearSubresourceCopyAlignment);
+
+        // Transition the resource to a copy target, copy and transition back
+        UpdateSubresources(commandList_.Get(), dest.GetResource(), uploadMemory.Buffer().GetResource(), 0, 0, 1, &data);
+    }
+
     void CommandContext::TransitionResource(GpuResource& resource, D3D12_RESOURCE_STATES newState) {
         const auto f = [&resource, &newState](D3D12_RESOURCE_BARRIER&) {
             resource.SetCurrentState(newState);

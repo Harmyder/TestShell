@@ -410,7 +410,7 @@ namespace Common
         const float stepY = height / yCount;
         for (uint32 i = 0; i < xCount; ++i) {
             for (uint32 j = 0; j < yCount; ++j) {
-                output.Positions[j * yCount + i] = Vector3(base + Vector3(i * stepX, j * -stepY, 0.f)).Store();
+                output.Positions[j * xCount + i] = Vector3(base + Vector3(i * stepX, j * -stepY, 0.f)).Store();
             }
         }
         // 0--h+0--2h+0
@@ -422,20 +422,21 @@ namespace Common
         uint16 cur = 0;
         for (uint16 i = 0; i < xCount - 1; ++i) {
             for (uint16 j = 0; j < yCount - 1; ++j) {
-                output.TrianglesPositions[cur++] = j + i * yCount;
-                output.TrianglesPositions[cur++] = j + (i + 1) * yCount;
-                output.TrianglesPositions[cur++] = j + (i + 1) * yCount + 1;
-                output.TrianglesPositions[cur++] = j + i * yCount;
-                output.TrianglesPositions[cur++] = j + (i + 1) * yCount + 1;
-                output.TrianglesPositions[cur++] = (j + 1) + i * yCount;
+                output.TrianglesPositions[cur++] = (j + 1) * xCount + (i + 1);
+                output.TrianglesPositions[cur++] = j * xCount + (i + 1);
+                output.TrianglesPositions[cur++] = j * xCount + i;
+
+                output.TrianglesPositions[cur++] = (j + 1) * xCount + i;
+                output.TrianglesPositions[cur++] = (j + 1) * xCount + (i + 1);
+                output.TrianglesPositions[cur++] = j * xCount + i;
             }
         }
         output.Normals.resize(output.Positions.size(), { 0.f, 0.f, 1.f });
         output.TexCoords.resize(output.Positions.size());
         for (uint16 i = 0; i < xCount; ++i) {
             for (uint16 j = 0; j < yCount; ++j) {
-                output.TexCoords[i * xCount + j].x = float(i) / xCount;
-                output.TexCoords[i * xCount + j].y = float(j) / yCount;
+                output.TexCoords[j * xCount + i].x = float(i) / xCount;
+                output.TexCoords[j * xCount + i].y = float(j) / yCount;
             }
         }
         output.TrianglesTexCoords = output.TrianglesPositions;

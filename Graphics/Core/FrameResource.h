@@ -97,7 +97,7 @@ namespace Graphics {
 
     class FrameResources {
     public:
-        FrameResources(uint32 count, uint32 passesCount, uint32 objsCount, uint32 matsCount, uint32 instsCount);
+        FrameResources(uint32 count, uint32 passesCount, uint32 objsCount, uint32 matsCount, uint32 texsCount, uint32 instsCount);
         ~FrameResources();
 
         void AdvanceFrame() { currentIndex_ = ++currentIndex_ % Count(); }
@@ -112,6 +112,7 @@ namespace Graphics {
         const uint32 PassesCountLimit;
         const uint32 ObjsCountLimit;
         const uint32 MatsCountLimit;
+        const uint32 TexsCountLimit;
         const uint32 InstancesCountLimit;
 
         uint32 AcquireInstsRange(uint32 count) {

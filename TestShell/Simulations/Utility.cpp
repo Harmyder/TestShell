@@ -16,7 +16,7 @@ RenderItemWithInstancesDesc BuildDescInstancedFromMesh(const Pipeline::UserMesh&
     }
     return RenderItemWithInstancesDesc(mesh.GetName(),
         (uint8*)mg.UniqueVertices.data(), (uint32)mg.UniqueVertices.size(),
-        (uint8*)mg.TrianglesVertices.data(), (uint32)mg.TrianglesVertices.size(),
+        (uint8*)mg.TrianglesVertices.data(), (uint32)mg.TrianglesVertices.size(), Texture(),
         Common::Matrix4(Common::kIdentity).Store4x3(), PrimitiveTopology::kTriangleList(), move(instances), mesh.GetTransformsCount());
 }
 
@@ -25,7 +25,7 @@ RenderItemVerticesDesc BuildDescFromMesh(const Pipeline::UserMesh& mesh, Materia
     return RenderItemVerticesDesc(mesh.GetName(),
         (uint8*)mg.UniqueVertices.data(), (uint32)mg.UniqueVertices.size(),
         (uint8*)mg.TrianglesVertices.data(), (uint32)mg.TrianglesVertices.size(),
-        mesh.GetTransform().Store4x3(), matRigid, PrimitiveTopology::kTriangleList());
+        mesh.GetTransform().Store4x3(), matRigid, Texture(), PrimitiveTopology::kTriangleList());
 }
 
 RenderItemTypeDesc BuildDescFromCollider(const Pipeline::UserCollider& collider, Material matCollider) {

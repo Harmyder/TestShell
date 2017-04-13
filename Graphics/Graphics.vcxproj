@@ -59,7 +59,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>.;..;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;../../DirectXTK12/inc;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -78,7 +78,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>.;..;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;../../DirectXTK12/inc;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -96,6 +96,7 @@
     <ClInclude Include="Core\Lighting.h" />
     <ClInclude Include="Core\RenderItemWithInstances.h" />
     <ClInclude Include="SDK\GpuResource.h" />
+    <ClInclude Include="Core\Texture.h" />
     <ClInclude Include="Utility\BufferStuff.h" />
     <ClInclude Include="Interface\GraphicsConsts.h" />
     <ClInclude Include="Interface\GraphicsTypes.h" />
@@ -122,6 +123,7 @@
     <ClCompile Include="Core\RenderItemWithInstances.cpp" />
     <ClCompile Include="Interface\GraphicsHandle.cpp" />
     <ClCompile Include="Interface\GraphicsTypes.cpp" />
+    <ClCompile Include="Core\Texture.cpp" />
     <ClCompile Include="Utility\BufferStuff.cpp" />
     <ClCompile Include="Interface\GraphicsConsts.cpp" />
     <ClCompile Include="SDK\PipelineStateObject.cpp" />
@@ -228,6 +230,9 @@
     <None Include="Shaders\StructuredBuffers\MaterialData.hlsli" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\DirectXTK12\DirectXTK_Desktop_2015_Win10.vcxproj">
+      <Project>{3e0e8608-cd9b-4c76-af33-29ca38f2c9f0}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Common\Common.vcxproj">
       <Project>{2f76dd6a-5f4a-48c0-b377-2cca96985032}</Project>
     </ProjectReference>

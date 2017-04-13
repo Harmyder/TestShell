@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Common\DefineNamespaceEnumType.h"
-#include "Common\Attribute\NonCopyable.h"
-#include "Graphics\Interface\GraphicsHandle.h"
-#include "Graphics\Interface\GraphicsConsts.h"
+#include "Common/DefineNamespaceEnumType.h"
+#include "Common/Attribute/NonCopyable.h"
+#include "Graphics/Interface/GraphicsHandle.h"
+#include "Graphics/Interface/GraphicsConsts.h"
 #include "Vertex.h"
+#include "Common/Container/Dynarray.h"
 #include <array>
 #include <unordered_map>
 
@@ -51,6 +52,15 @@ namespace Viewer
         grMaterial Value;
     };
 
+    struct Texture {
+        Texture() : Value(grcTextureNone) {}
+    private:
+        Texture(grTexture texture) : Value(texture) {}
+        friend class Viewport;
+        operator grTexture() { return *(grTexture*)this; }
+        grTexture Value;
+    };
+
     using RenderItemId = std::list<grRenderItem>::const_iterator;
     struct StructRenderItemId { StructRenderItemId(RenderItemId id) : Value(id) {} RenderItemId Value; };
     using RenderItemWithInstancesId = std::list<grRenderItemWithInstances>::const_iterator;
@@ -80,6 +90,7 @@ namespace Viewer
             uint32 verticesCount,
             const uint8* indices,
             uint32 indicesCount,
+            Texture texture,
             const XMFLOAT4X3& transform,
             PrimitiveTopology::Type primitiveTopology,
             std::unique_ptr<RenderItemInstanceDesc[]> instances,
@@ -90,6 +101,7 @@ namespace Viewer
             verticesCount(verticesCount),
             indices(indices),
             indicesCount(indicesCount),
+            texture(texture),
             instances(move(instances)),
             instancesCount(instancesCount)
         {}
@@ -97,13 +109,15 @@ namespace Viewer
         const uint32 verticesCount;
         const uint8* indices;
         const uint32 indicesCount;
+        Texture texture;
         std::unique_ptr<RenderItemInstanceDesc[]> instances;
         const uint32 instancesCount;
     };
     struct RenderItemVerticesDesc : RenderItemDesc {
-        RenderItemVerticesDesc(const std::string& name, const uint8* vertices, uint32 verticesCount, uint8* indices, uint32 indicesCount, const XMFLOAT4X3& transform, Material material, PrimitiveTopology::Type primitiveTopology) :
+        RenderItemVerticesDesc(const std::string& name, const uint8* vertices, uint32 verticesCount, uint8* indices, uint32 indicesCount, const XMFLOAT4X3& transform, Material material, Texture texture, PrimitiveTopology::Type primitiveTopology) :
             RenderItemDesc(name, transform, primitiveTopology),
             material(material),
+            texture(texture),
             vertices(vertices),
             verticesCount(verticesCount),
             indices(indices),
@@ -111,6 +125,7 @@ namespace Viewer
         {}
 
         Material material;
+        Texture texture;
         const uint8* vertices;
         const uint32 verticesCount;
         const uint8* indices;
@@ -123,6 +138,7 @@ namespace Viewer
             type(type) {}
 
         const Material material;
+        const Texture texture;
         const PredefinedGeometryType type;
     }; 
     using DescsInstanced = std::vector<RenderItemWithInstancesDesc>;
@@ -149,6 +165,11 @@ namespace Viewer
 
         Material CreateMaterial(MaterialType::Type material, const std::string& name);
         void DestroyMaterial(Material material);
+
+        void SetTextureRootDirectory(const std::wstring& rootDirectory);
+        Texture CreateTextureFromFile(const std::wstring& fileTitle);
+        Texture CreateTextureFromMemory(const std::wstring& title, const Common::Dynarray<uint8>& data);
+        void DestroyTexture(Texture texture);
 
         RenderItemId CreateRenderItemOpaque(const DescsVertices& viewportVerticesDescs, uint32 vertexSize);
         RenderItemId CreateRenderItemOpaque(const DescsTypes& viewportTypeDescs);

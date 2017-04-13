@@ -6,6 +6,7 @@
 namespace Graphics {
 
     class Material;
+    class Texture;
 
     struct RenderVerticesDesc
     {
@@ -20,6 +21,7 @@ namespace Graphics {
         const XMFLOAT4X3& transform;
         D3D12_PRIMITIVE_TOPOLOGY primitiveTopology;
         const Material *material;
+        const Texture *texture;
     };
 
     class RenderItem;
@@ -34,6 +36,7 @@ namespace Graphics {
             const XMFLOAT4X3& transform,
             uint32 objBufferIndex,
             const Material* material,
+            const Texture* const texture,
             D3D_PRIMITIVE_TOPOLOGY primitiveTopology,
             const RenderItem& container);
 
@@ -50,6 +53,7 @@ namespace Graphics {
         void SetTransform(const XMFLOAT4X3& transform);
 
         uint32 GetMaterialIndex() const { return materialIndex_; }
+        const Texture* GetTexture() const { return texture_; }
         D3D12_PRIMITIVE_TOPOLOGY GetPrimitiveTopology() const { return primitiveTopology_; }
 
     private:
@@ -59,6 +63,7 @@ namespace Graphics {
         uint32 indicesCount_;
         XMFLOAT4X3 transform_;
         uint32 materialIndex_;
+        const Texture* texture_;
         D3D12_PRIMITIVE_TOPOLOGY primitiveTopology_;
 
         const RenderItem& container_;

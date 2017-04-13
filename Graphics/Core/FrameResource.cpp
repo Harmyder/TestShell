@@ -42,10 +42,11 @@ namespace Graphics
 
     FrameResource::~FrameResource() {}
 
-    FrameResources::FrameResources(uint32 count, uint32 passesCount, uint32 objsCount, uint32 matsCount, uint32 instsCount) :
+    FrameResources::FrameResources(uint32 count, uint32 passesCount, uint32 objsCount, uint32 matsCount, uint32 texsCount, uint32 instsCount) :
         PassesCountLimit(passesCount),
         ObjsCountLimit(objsCount),
         MatsCountLimit(matsCount),
+        TexsCountLimit(texsCount),
         InstancesCountLimit(instsCount)
     {
         for (uint_t i = 0; i < count; ++i) {

@@ -22,7 +22,7 @@ void FbxSimulation::Init() {
     matRigid_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kEmerald(), "rigid"));
     matCollider_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kSilver(), "collider"));
 
-    const string path = "..\\..\\FBX\\";
+    const string path = "..\\..\\Assets\\FBX\\";
     const string filetitle = "teapot001";
     ImportScene(path, filetitle);
     InitBlankPhysicsData();

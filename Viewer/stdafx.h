@@ -19,6 +19,9 @@
 #include <map>
 #include <set>
 #include <cassert>
+#include <array>
+#include <unordered_map>
+#include <string>
 
 #include "Common\DirectXInclude.h"
 #include "Common\Types.h"

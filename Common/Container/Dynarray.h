@@ -26,6 +26,7 @@ namespace Common
         Dynarray(const Dynarray& d) : data_(std::make_unique<T[]>(d.size())), size_(d.size()) { memcpy(*data_, *d, size_ * sizeof(T)); }
         Dynarray(Dynarray&& d) : data_(move(d.data_)), size_(d.size()) { d.size_ = 0; }
         Dynarray(std::initializer_list<T> il) : data_(il.size()), size_(il.size()) { for (size_type i = 0; i < size_; ++i) data_[i] = *(cbegin(il) + i); }
+        Dynarray(std::unique_ptr<T[]> data, size_type size) : data_(move(data)), size_(size) {}
         Dynarray& operator=(const Dynarray&) = delete;
 
 #define CHECK_NOT_EMPTY assert(size_ > 0)
@@ -41,7 +42,7 @@ namespace Common
         const_reverse_iterator crbegin() const noexcept { return reverse_iterator(cend()); }
         reverse_iterator       rend()          noexcept { return reverse_iterator(begin()); }
         const_reverse_iterator rend()    const noexcept { return reverse_iterator(begin()); }
-        const_reverse_iterator crend()   const noexcept { return reverse_iterator(cbegin()); data_._Myptr }
+        const_reverse_iterator crend()   const noexcept { return reverse_iterator(cbegin()); }
 
         size_type size()     const noexcept { return size_; }
 
@@ -57,8 +58,8 @@ namespace Common
         reference       at(size_type n)       { if (size_ <= n) throw std::out_of_range("Index is out of range"); return data_[n]; }
 #undef CHECK_NOT_EMPTY
 
-        T*       data()       noexcept { return *data_; }
-        const T* data() const noexcept { return *data_; }
+        T*       data()       noexcept { return data_.get(); }
+        const T* data() const noexcept { return data_.get(); }
 
         void fill(const T& v) { for (size_type i = 0; i < size_; ++i) data_[i] = v; }
 

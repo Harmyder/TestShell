@@ -3,6 +3,7 @@
 #include "RenderItem.h"
 #include "Utility\BufferStuff.h"
 #include "Core\Lighting.h"
+#include "Core\Texture.h"
 #include "Core\FrameResource.h"
 #include "SDK\CommandContext.h"
 
@@ -33,6 +34,7 @@ namespace Graphics
         const XMFLOAT4X3& transform,
         uint32 objBufferIndex,
         const Material* material,
+        const Texture* texture,
         D3D_PRIMITIVE_TOPOLOGY primitiveTopology,
         const RenderItem& container) :
         BufferEntryDirty(objBufferIndex),
@@ -42,6 +44,7 @@ namespace Graphics
         indicesCount_(indicesCount),
         transform_(transform),
         materialIndex_(material->BufferIndex()),
+        texture_(texture),
         primitiveTopology_(primitiveTopology),
         container_(container)
     {
@@ -90,6 +93,7 @@ namespace Graphics
                     cur_id.transform,
                     objBufferIndices.OccupyIndex(),
                     cur_id.material,
+                    cur_id.texture,
                     cur_id.primitiveTopology,
                     *ri)
             );

@@ -18,6 +18,8 @@ namespace Graphics
 
         D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const { return resource_->GetGPUVirtualAddress(); }
 
+        void Destroy() { resource_.Reset(); }
+
     protected:
         Microsoft::WRL::ComPtr<ID3D12Resource> resource_;
         D3D12_RESOURCE_STATES currentState_ = (D3D12_RESOURCE_STATES)-1;

@@ -50,7 +50,7 @@ void FlockSimulation::Init()
 
     RenderItemWithInstancesDesc desc("Flock",
         (const uint8*)mg.UniqueVertices.data(), (uint32)verticesCount,
-        (const uint8*)mg.TrianglesVertices.data(), (uint32)mg.TrianglesVertices.size(),
+        (const uint8*)mg.TrianglesVertices.data(), (uint32)mg.TrianglesVertices.size(), Texture(),
         Matrix4(kIdentity).Store4x3(),
         PrimitiveTopology::kTriangleList(),
         move(instancesDescs), instancesCount);

@@ -25,6 +25,15 @@ namespace Viewer
         const Material material_;
     };
 
+    class TextureRaii : protected Raii {
+    public:
+        TextureRaii(Texture texture) : texture_(texture) {}
+        ~TextureRaii() { viewport_->DestroyTexture(texture_); }
+        operator Texture() const { return texture_; }
+    private:
+        const Texture texture_;
+    };
+
     class RenderItemRaii : protected Raii {
     public:
         RenderItemRaii(StructRenderItemId riid) : riid_(riid) {}

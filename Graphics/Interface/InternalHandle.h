@@ -12,6 +12,7 @@ namespace Graphics
     class DirectionalLight;
     class SpotLight;
     class PointLight;
+    class Texture;
 
     template <class C, class H>
     struct InternalHandle : H {
@@ -28,4 +29,5 @@ namespace Graphics
     struct DirectionalLightHandle       : InternalHandle<DirectionalLight, grDirectionalLight>              { using InternalHandle::InternalHandle; };
     struct SpotLightHandle              : InternalHandle<SpotLight, grSpotLight>                            { using InternalHandle::InternalHandle; };
     struct PointLightHandle             : InternalHandle<PointLight, grPointLight>                          { using InternalHandle::InternalHandle; };
+    struct TextureHandle                : InternalHandle<Texture, grTexture>                                { using InternalHandle::InternalHandle; };
 }

@@ -9,6 +9,7 @@ struct grInitParams {
     uint32 InstancesCountLimit;
     uint32 PassesCountLimit;
     uint32 MaterialsCountLimit;
+    uint32 TexturesCountLimit;
     uint32 FrameResourcesCount;
 };
 void grInit(HWND hWnd, grInitParams params);
@@ -38,6 +39,11 @@ grMaterial grCreateMaterial(const std::string& Name, const DirectX::XMFLOAT4& Am
 grMaterial grCreatePredefinedMaterial(greLibraryMaterial::Type lm, const std::string& name);
 void grUpdateMaterial(grMaterial material, const DirectX::XMFLOAT4& ambient, const DirectX::XMFLOAT4& diffuse, const DirectX::XMFLOAT4& specular, float fresnelR0, float roughness);
 void grDestroyMaterial(grMaterial material);
+
+void grSetTexturesRootDirectory(const std::wstring& rootDirectory);
+grTexture grCreateTextureFromFile(const std::wstring& name);
+grTexture grCreateTextureFromMemory(const std::wstring& name, const uint8* data, const uint32 size);
+void grDestroyTexture(grTexture material);
 
 grRenderItem grCreateRenderItem(const grtRenderItemDesc& renderItemDesc, uint32 vertexSize);
 grRenderItemWithInstances grCreateRenderItemWithInstances(const grtRenderSubItemWithInstancesDesc& desc, const grtRenderVertices& vertices, uint32 vertexSize);

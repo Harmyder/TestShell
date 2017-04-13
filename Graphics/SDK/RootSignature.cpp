@@ -17,47 +17,54 @@ namespace Graphics
     extern ComPtr<ID3D12Device> g_device;
 
     void RootSignature::Finalize() {
-        uint32 rPerObject, rPerPass, rMaterialBuf, rInstanceBuf, kParamsCount;
-        rPerObject = rPerPass = rMaterialBuf = rInstanceBuf = kParamsCount = (uint32)-1;
+        uint32 rPerObject, rPerPass, rMaterialBuf, rDiffuseTexture, rInstanceBuf, kParamsCount;
+        rPerObject = rPerPass = rMaterialBuf = rDiffuseTexture = rInstanceBuf = kParamsCount = (uint32)-1;
         switch (type_) {
         case RootSignatureType::kLighting:
-            rPerObject   = ParseRegisterIndex(STR(REGISTER_L_CB_PER_OBJECT));
-            rPerPass     = ParseRegisterIndex(STR(REGISTER_L_CB_PER_PASS));
-            rMaterialBuf = ParseRegisterIndex(STR(REGISTER_L_SB_MATERIAL_DATA));
-            kParamsCount = 3;
-            break;
-        case RootSignatureType::kLightingWithInstances:
-            rPerObject   = ParseRegisterIndex(STR(REGISTER_LI_CB_PER_OBJECT));
-            rPerPass     = ParseRegisterIndex(STR(REGISTER_LI_CB_PER_PASS));
-            rMaterialBuf = ParseRegisterIndex(STR(REGISTER_LI_SB_MATERIAL_DATA));
-            rInstanceBuf = ParseRegisterIndex(STR(REGISTER_LI_SB_INSTANCE_DATA));
+            rPerPass        = ParseRegisterIndex(STR(REGISTER_L_CB_PER_PASS));
+            rPerObject      = ParseRegisterIndex(STR(REGISTER_L_CB_PER_OBJECT));
+            rDiffuseTexture = ParseRegisterIndex(STR(REGISTER_L_TB_DIFFUSE_MAP));
+            rMaterialBuf    = ParseRegisterIndex(STR(REGISTER_L_TB_MATERIAL_DATA));
             kParamsCount = 4;
             break;
+        case RootSignatureType::kLightingWithInstances:
+            rPerPass        = ParseRegisterIndex(STR(REGISTER_LI_CB_PER_PASS));
+            rPerObject      = ParseRegisterIndex(STR(REGISTER_LI_CB_PER_OBJECT));
+            rDiffuseTexture = ParseRegisterIndex(STR(REGISTER_LI_TB_DIFFUSE_MAP));
+            rMaterialBuf    = ParseRegisterIndex(STR(REGISTER_LI_TB_MATERIAL_DATA));
+            rInstanceBuf    = ParseRegisterIndex(STR(REGISTER_LI_TB_INSTANCE_DATA));
+            kParamsCount = 5;
+            break;
         case RootSignatureType::kColor:
-            rPerObject   = ParseRegisterIndex(STR(REGISTER_C_CB_PER_OBJECT));
-            rPerPass     = ParseRegisterIndex(STR(REGISTER_C_CB_PER_PASS));
+            rPerPass        = ParseRegisterIndex(STR(REGISTER_C_CB_PER_PASS));
+            rPerObject      = ParseRegisterIndex(STR(REGISTER_C_CB_PER_OBJECT));
             kParamsCount = 2;
             break;
         default:
             throw "Unknown root signature type";
         }
 
-        CD3DX12_DESCRIPTOR_RANGE cbvTable0;
-        CD3DX12_DESCRIPTOR_RANGE cbvTable1;
-        cbvTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, rPerObject);
-        cbvTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, rPerPass);
+        CD3DX12_DESCRIPTOR_RANGE cbvTablePass(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, rPerPass);;
+        CD3DX12_DESCRIPTOR_RANGE cbvTableObj(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, rPerObject);
 
         vector<CD3DX12_ROOT_PARAMETER> slotRootParameters(kParamsCount);
-        slotRootParameters[0].InitAsDescriptorTable(1, &cbvTable0, D3D12_SHADER_VISIBILITY_ALL);
-        slotRootParameters[1].InitAsDescriptorTable(1, &cbvTable1, D3D12_SHADER_VISIBILITY_ALL);
+        slotRootParameters[0].InitAsDescriptorTable(1, &cbvTablePass, D3D12_SHADER_VISIBILITY_ALL);
+        slotRootParameters[1].InitAsDescriptorTable(1, &cbvTableObj, D3D12_SHADER_VISIBILITY_ALL);
         if (type_ == RootSignatureType::kLighting || type_ == RootSignatureType::kLightingWithInstances) {
-            slotRootParameters[2].InitAsShaderResourceView(rMaterialBuf, 0, D3D12_SHADER_VISIBILITY_PIXEL);
+            assert(rDiffuseTexture != (uint32)-1 && rMaterialBuf != (uint32)-1);
+            CD3DX12_DESCRIPTOR_RANGE texTable(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, rDiffuseTexture);
+            slotRootParameters[2].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
+            slotRootParameters[3].InitAsShaderResourceView(rMaterialBuf, 0, D3D12_SHADER_VISIBILITY_PIXEL);
             if (type_ == RootSignatureType::kLightingWithInstances) {
-                slotRootParameters[3].InitAsShaderResourceView(rInstanceBuf, 0, D3D12_SHADER_VISIBILITY_ALL);
+                assert(rInstanceBuf != (uint32)-1);
+                slotRootParameters[4].InitAsShaderResourceView(rInstanceBuf, 0, D3D12_SHADER_VISIBILITY_ALL);
             }
         }
 
-        CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(kParamsCount, slotRootParameters.data(), 0, nullptr,
+        const CD3DX12_STATIC_SAMPLER_DESC sampler(0, D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT,
+            D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_TEXTURE_ADDRESS_MODE_WRAP);
+
+        CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(kParamsCount, slotRootParameters.data(), 1, &sampler,
             D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
         ComPtr<ID3DBlob> serializedRootSig = nullptr;

@@ -4,6 +4,7 @@
 
 #include "Internal\SimulationFactory.h"
 
+#include "Simulations/TextureDemo.h"
 #include "Simulations/FlockSimulation.h"
 #include "Simulations/SphereBvSimulation.h"
 #include "Simulations/FbxSimulation.h"
@@ -32,6 +33,7 @@ void SimulationManager::Close()
 void SimulationManager::RegisterSimulations()
 {
     factories_ = new std::vector<BaseFactory*>;
+    RegisterFactory(new SimulationFactory<TextureDemo>("Texture Demo"));
     RegisterFactory(new SimulationFactory<Exploring_Bullet::SimpleCloth>("Bullet: Simple Cloth"));
     RegisterFactory(new SimulationFactory<ClothSimulation>("Cloth"));
     RegisterFactory(new SimulationFactory<Exploring_Bullet::FallingCube>("Bullet: Falling Cube"));

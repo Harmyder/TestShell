@@ -18,6 +18,7 @@ namespace Graphics {
         std::string& name;
         XMFLOAT4X3& transform;
         D3D12_PRIMITIVE_TOPOLOGY primitiveTopology;
+        Texture *texture;
 
         const RenderItemInstanceDesc* instancesDescs;
         uint32 instancesCount;
@@ -47,10 +48,12 @@ namespace Graphics {
         void SetTransform(const XMFLOAT4X3& transform);
         void SetInstancesTransforms(const XMFLOAT4X3* tranforms);
 
+        const Texture* GetTexture() const { return texture_; }
+
         D3D12_PRIMITIVE_TOPOLOGY GetPrimitiveTopology() const { return primitiveTopology_; }
 
     private:
-        RenderItemWithInstances(uint32 bufferIndex, uint32 vertexSize, uint32 verticesCount, uint32 indicesCount, uint32 instancesCount, XMFLOAT4X3 transform, D3D12_PRIMITIVE_TOPOLOGY primitiveTopology);
+        RenderItemWithInstances(uint32 bufferIndex, uint32 vertexSize, uint32 verticesCount, uint32 indicesCount, uint32 instancesCount, XMFLOAT4X3 transform, D3D12_PRIMITIVE_TOPOLOGY primitiveTopology, const Texture* texture);
 
     private:
         std::string name_;
@@ -58,6 +61,7 @@ namespace Graphics {
         uint32 indicesCount_;
         XMFLOAT4X3 transform_;
         const D3D12_PRIMITIVE_TOPOLOGY primitiveTopology_;
+        const Texture* texture_;
         
         const uint32 frInstsStart_;
         std::vector<RenderItemInstance> instances_;

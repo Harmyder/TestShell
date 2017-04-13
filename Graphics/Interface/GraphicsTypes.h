@@ -56,24 +56,28 @@ struct grtRenderSubItemInstanceDesc
 struct grtRenderSubItemWithInstancesDesc : grtRenderSubItemDescBase
 {
     grtRenderSubItemWithInstancesDesc(
-        const std::string& name, const XMFLOAT4X3& transform, grePrimitiveTopology::Type primitiveTopology,
+        const std::string& name, const XMFLOAT4X3& transform, grePrimitiveTopology::Type primitiveTopology, grTexture texture,
         const grtRenderSubItemInstanceDesc* instancesDescs, uint32 instancesCount) :
         grtRenderSubItemDescBase(name, transform, primitiveTopology),
+        texture(texture),
         instancesDescs(instancesDescs),
         instancesCount(instancesCount)
     {}
 
+    grTexture texture;
     const grtRenderSubItemInstanceDesc* instancesDescs;
     uint32 instancesCount;
 };
 struct grtRenderSubItemDesc : grtRenderSubItemDescBase
 {
-    grtRenderSubItemDesc(const std::string& name, const XMFLOAT4X3& transform, grMaterial material, grePrimitiveTopology::Type primitiveTopology) :
+    grtRenderSubItemDesc(const std::string& name, const XMFLOAT4X3& transform, grMaterial material, grTexture texture, grePrimitiveTopology::Type primitiveTopology) :
         grtRenderSubItemDescBase(name, transform, primitiveTopology),
-        material(material)
+        material(material),
+        texture(texture)
     {}
 
     grMaterial material;
+    grTexture texture;
 };
 struct grtRenderItemDesc {
     const grtRenderVertices* renderVertices;

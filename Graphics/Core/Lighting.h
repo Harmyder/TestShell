@@ -1,8 +1,9 @@
 #pragma once
 #include <DirectXMath.h>
 #include <string>
-#include "Shaders\consts.shared.h"
-#include "Utility\BufferStuff.h"
+#include "Shaders/consts.shared.h"
+#include "Utility/BufferStuff.h"
+#include "Common/Container/Dynarray.h"
 
 namespace Graphics
 {
@@ -237,8 +238,6 @@ namespace Graphics
         void AssertCompatibility(const Me& other) { if (&container_ != &other.container_) throw "Iterators are not compatible."; }
     };
 
-    namespace Utility { class FreeIndices; }
-
     class MaterialsBuffer
     {
         friend MaterialsBufferIterator;
@@ -259,6 +258,6 @@ namespace Graphics
 
     private:
         std::unique_ptr<Utility::FreeIndices> freeIndices_;
-        std::vector<std::unique_ptr<Material>> materials_;
+        Common::Dynarray<std::unique_ptr<Material>> materials_;
     };
 }

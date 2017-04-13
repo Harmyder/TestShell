@@ -117,9 +117,8 @@ namespace Graphics
         return clone;
     }
 
-    MaterialsBuffer::MaterialsBuffer(uint32 materialsCountLimit) {
+    MaterialsBuffer::MaterialsBuffer(uint32 materialsCountLimit) : materials_(materialsCountLimit) {
         freeIndices_ = make_unique<Utility::FreeIndices>(materialsCountLimit);
-        materials_.resize(materialsCountLimit);
     }
 
     Material* MaterialsBuffer::Create(
@@ -147,5 +146,4 @@ namespace Graphics
         materials_[index].reset();
         freeIndices_->FreeIndex(index);
     }
-
 }

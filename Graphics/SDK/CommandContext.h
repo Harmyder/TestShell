@@ -34,6 +34,7 @@ namespace Graphics
         ID3D12GraphicsCommandList* GetCommandList() { return commandList_.Get(); }
 
         void WriteBuffer(GpuResource& dest, uint32 destOffset, const void* data, uint32 sizeInBytes);
+        void InitializeTexture(GpuResource& Dest, D3D12_SUBRESOURCE_DATA& data);
 
         void TransitionResource(GpuResource& resource, D3D12_RESOURCE_STATES newState);
         void TransitionResourceBegin(GpuResource& resource, D3D12_RESOURCE_STATES newState);

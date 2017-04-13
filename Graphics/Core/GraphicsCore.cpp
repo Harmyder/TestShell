@@ -1,17 +1,18 @@
 #include "stdafx.h"
-#include "Core\GraphicsCore.h"
+#include "Core/GraphicsCore.h"
 
 #include <DirectXColors.h>
 
-#include "SDK\CommandQueue.h"
-#include "Core\FrameResource.h"
-#include "SDK\UploadBuffer.h"
-#include "SDK\CommandContext.h"
-#include "SDK\RootSignature.h"
-#include "Core\RenderItem.h"
-#include "Core\RenderItemWithInstances.h"
-#include "Core\Lighting.h"
-#include "Utility\BufferStuff.h"
+#include "SDK/CommandQueue.h"
+#include "Core/FrameResource.h"
+#include "SDK/UploadBuffer.h"
+#include "SDK/CommandContext.h"
+#include "SDK/RootSignature.h"
+#include "Core/RenderItem.h"
+#include "Core/RenderItemWithInstances.h"
+#include "Core/Lighting.h"
+#include "Core/Texture.h"
+#include "Utility/BufferStuff.h"
 
 using namespace std;
 using namespace DirectX;
@@ -64,11 +65,13 @@ namespace Graphics
             ip.PassesCountLimit,
             ip.SceneObjectsCountLimit,
             ip.MaterialsCountLimit,
+            ip.TexturesCountLimit,
             ip.InstancesCountLimit);
         materialsBuffer_ = make_unique<MaterialsBuffer>(ip.MaterialsCountLimit);
         lightsHolder_ = make_unique<LightsHolder>();
 
         CreateCbvDescriptorHeap();
+        CreateTexturesStuff();
         CreateConstantBufferViews();
     }
 
@@ -101,6 +104,7 @@ namespace Graphics
 
     void GraphicsCore::Shutdown() {
         CommandContext::DestroyAllInstances();
+        TextureCache::Shutdown();
 
 #if defined(_DEBUG)
         ID3D12DebugDevice* debugInterface;
@@ -179,9 +183,10 @@ namespace Graphics
     }
 
     void GraphicsCore::CreateCbvDescriptorHeap() {
-        UINT numDescriptors = (frameResources_->ObjsCountLimit + frameResources_->PassesCountLimit) * frameResources_->Count();
+        UINT numDescriptors = (frameResources_->ObjsCountLimit + frameResources_->TexsCountLimit + frameResources_->PassesCountLimit) * frameResources_->Count();
 
-        passCbvOffset_ = frameResources_->ObjsCountLimit * frameResources_->Count();
+        texsCbvOffset_ = frameResources_->ObjsCountLimit * frameResources_->Count();
+        passCbvOffset_ = texsCbvOffset_ + frameResources_->TexsCountLimit;
 
         D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
         cbvHeapDesc.NumDescriptors = numDescriptors;
@@ -189,6 +194,18 @@ namespace Graphics
         cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
         cbvHeapDesc.NodeMask = 0;
         THROW_IF_FAILED(g_device->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(cbvHeap_.GetAddressOf())));
+    }
+
+    void GraphicsCore::CreateTexturesStuff() {
+        auto handleCpu = CD3DX12_CPU_DESCRIPTOR_HANDLE(cbvHeap_->GetCPUDescriptorHandleForHeapStart());
+        auto handleGpu = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
+        texturesBuffer_ = make_unique<TexturesBuffer>(frameResources_->TexsCountLimit, 
+            handleCpu.Offset(texsCbvOffset_ * cbvSrvUavDescriptorSize_),
+            handleGpu.Offset(texsCbvOffset_ * cbvSrvUavDescriptorSize_),
+            cbvSrvUavDescriptorSize_);
+
+        uint32 white = 0xFFFFFFFF;
+        dummyDiffuseTex_ = texturesBuffer_->CreateFromHandmadeData(L"WhiteTexture", 1, 1, DXGI_FORMAT_R8G8B8A8_UNORM, &white, false);
     }
 
     void GraphicsCore::CreateConstantBufferViews() {
@@ -315,16 +332,17 @@ namespace Graphics
     }
 
     void GraphicsCore::SetGraphicsRoot(RootSignatureType type) {
+        currentRootSignatureType_ = type;
         auto commandList = commandContext_->GetCommandList();
 
         int passCbvIndex = passCbvOffset_ + frameResources_->GetCurrentIndex();
         auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
         passCbvHandle.Offset(passCbvIndex, cbvSrvUavDescriptorSize_);
-        commandList->SetGraphicsRootDescriptorTable(1, passCbvHandle);
+        commandList->SetGraphicsRootDescriptorTable(0, passCbvHandle);
 
         if (type != RootSignatureType::kColor) {
             auto matBuffer = frameResources_->GetCurrentFrameResource().matBuffer->Resource();
-            commandList->SetGraphicsRootShaderResourceView(2, matBuffer->GetGPUVirtualAddress());
+            commandList->SetGraphicsRootShaderResourceView(3, matBuffer->GetGPUVirtualAddress());
         }
     }
 
@@ -385,7 +403,10 @@ namespace Graphics
         auto cbHandleIndex = rsi.BufferIndex() + frameResources_->GetCurrentIndex() * frameResources_->ObjsCountLimit;
         auto cbvHandleObj = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
         cbvHandleObj.Offset(cbHandleIndex, cbvSrvUavDescriptorSize_);
-        commandList->SetGraphicsRootDescriptorTable(0, cbvHandleObj);
+        commandList->SetGraphicsRootDescriptorTable(1, cbvHandleObj);
+        if (currentRootSignatureType_ != RootSignatureType::kColor) {
+            commandList->SetGraphicsRootDescriptorTable(2, texturesBuffer_->GetTextureSRV(rsi.GetTexture() == nullptr ? dummyDiffuseTex_ : rsi.GetTexture()));
+        }
 
         if (ri.HasIndexBuffer()) {
             commandList->IASetIndexBuffer(&ri.IndexBufferView());
@@ -428,10 +449,13 @@ namespace Graphics
         auto cbHandleIndex = riwi.BufferIndex() + frameResources_->GetCurrentIndex() * frameResources_->ObjsCountLimit;
         auto cbvHandleObj = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
         cbvHandleObj.Offset(cbHandleIndex, cbvSrvUavDescriptorSize_);
-        commandList->SetGraphicsRootDescriptorTable(0, cbvHandleObj);
+        commandList->SetGraphicsRootDescriptorTable(1, cbvHandleObj);
+        if (currentRootSignatureType_ != RootSignatureType::kColor) {
+            commandList->SetGraphicsRootDescriptorTable(2, texturesBuffer_->GetTextureSRV(riwi.GetTexture() == nullptr ? dummyDiffuseTex_ : riwi.GetTexture()));
+        }
 
         auto instBuffer = frameResources_->GetCurrentFrameResource().instBuffer->Resource();
-        commandList->SetGraphicsRootShaderResourceView(3, instBuffer->GetGPUVirtualAddress() + riwi.GetStartInstanceIndex() * sizeof(InstanceData));
+        commandList->SetGraphicsRootShaderResourceView(4, instBuffer->GetGPUVirtualAddress() + riwi.GetStartInstanceIndex() * sizeof(InstanceData));
 
         if (riwi.HasIndexBuffer()) {
             commandList->IASetIndexBuffer(&riwi.IndexBufferView());

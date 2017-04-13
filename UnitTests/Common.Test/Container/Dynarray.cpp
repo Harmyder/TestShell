@@ -55,5 +55,19 @@ namespace CommonTest
             Assert::ExpectException<out_of_range>([&]() { d.at(kItemsCount); });
         }
 
+        TEST_METHOD(TestDynarray_data) {
+            Dynarray<uint8>::size_type kItemsCount = 10;
+            Dynarray<uint8> d(kItemsCount);
+            iota(begin(d), end(d), 0);
+            uint8* data = d.data();
+            for (int i = 0; i < (int)kItemsCount; ++i) Assert::AreEqual(d[i], data[i]);
+        }
+
+        TEST_METHOD(TestDynarray_move) {
+            Dynarray<uint8>::size_type kItemsCount = 10;
+            Dynarray<uint8> to(Dynarray<uint8>(kItemsCount, 5));
+            for (int i = 0; i < (int)kItemsCount; ++i) Assert::AreEqual(to[i], (uint8)5);
+        }
+
     };
 }

@@ -7,6 +7,7 @@
 #include "Core\RenderItem.h"
 #include "Core\RenderItemWithInstances.h"
 #include "Core\Lighting.h"
+#include "Core\Texture.h"
 #include "SDK\PipelineStateObject.h"
 #include "SDK\RootSignature.h"
 #include "SDK\CommandContext.h"
@@ -27,6 +28,7 @@ void grInit(HWND hWnd, grInitParams params) {
         params.InstancesCountLimit,
         params.PassesCountLimit,
         params.MaterialsCountLimit,
+        params.TexturesCountLimit,
         params.FrameResourcesCount);
     GraphicsCore::GetInstance().Initialize(hWnd, ip);
 }
@@ -92,6 +94,29 @@ void grDestroyMaterial(grMaterial material) {
     auto& mb = GraphicsCore::GetInstance().GetMaterialsBuffer();
     mb.Destroy(m);
     GraphicsCore::GetInstance().GetCommandQueue()->WaitAllDone();
+}
+
+void grSetTexturesRootDirectory(const std::wstring& rootDirectory) {
+    TextureCache::Initialize(rootDirectory);
+}
+
+grTexture grCreateTextureFromFile(const std::wstring& name) {
+    auto& tb = GraphicsCore::GetInstance().GetTexturesBuffer();
+    auto t = tb.CreateFromFile(name);
+    return grTexture(t);
+}
+
+grTexture grCreateTextureFromMemory(const std::wstring& name, const uint8* data, const uint32 size) {
+    auto& tb = GraphicsCore::GetInstance().GetTexturesBuffer();
+    auto t = tb.CreateFromMemory(name, data, size);
+    return grTexture(t);
+}
+
+void grDestroyTexture(grTexture texture) {
+    Texture* t = static_cast<TextureHandle>(texture).GetValue();
+    auto& tb = GraphicsCore::GetInstance().GetTexturesBuffer();
+    GraphicsCore::GetInstance().GetCommandQueue()->WaitAllDone();
+    tb.Destroy(t);
 }
 
 void grDrawRenderItem(grRenderItem ri) {

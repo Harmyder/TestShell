@@ -26,6 +26,7 @@ namespace Viewer
     constexpr uint32 kInstancesCountLimit = 1000;
     constexpr uint32 kPassesCountLimit = 1;
     constexpr uint32 kMaterialsCountLimit = 10;
+    constexpr uint32 kTexturesCountLimit = 20;
     constexpr uint32 kFrameResourcesCount = 3;
 
     constexpr auto kNearClipPlane = .3f;
@@ -52,7 +53,7 @@ namespace Viewer
         lightKey_(nullptr), lightFill_(nullptr), lightBack_(nullptr), lightPoint_(nullptr), lightSpot_(nullptr)
     {
         Raii::Init(this);
-        grInit(hwnd_, { kSceneObjectsCountLimit, kInstancesCountLimit, kPassesCountLimit, kMaterialsCountLimit, kFrameResourcesCount });
+        grInit(hwnd_, { kSceneObjectsCountLimit, kInstancesCountLimit, kPassesCountLimit, kMaterialsCountLimit, kTexturesCountLimit, kFrameResourcesCount });
         PrepareRootSignatures();
         PreparePsos();
 
@@ -87,7 +88,7 @@ namespace Viewer
         vector<VertexColor> vertices = GeometryGenerator::CreateGratingXY(10, 10, 1.f, 1.f);
         DescsVertices descsGrating;
         XMFLOAT4X3 t; XMStoreFloat4x3(&t, XMMatrixRotationX(XM_PIDIV2));
-        RenderItemVerticesDesc descGrating("Grating", (uint8*)vertices.data(), (uint32)vertices.size(), nullptr, 0, t, *matDummy_, PrimitiveTopology::kLineList());
+        RenderItemVerticesDesc descGrating("Grating", (uint8*)vertices.data(), (uint32)vertices.size(), nullptr, 0, t, *matDummy_, Texture(), PrimitiveTopology::kLineList());
         descsGrating.push_back(descGrating);
         grating_ = CreateRenderItemInternal(descsGrating, sizeof(VertexColor));
     }
@@ -150,6 +151,22 @@ namespace Viewer
 
     void Viewport::DestroyMaterial(Material material) {
         grDestroyMaterial(material.Value);
+    }
+
+    void Viewport::SetTextureRootDirectory(const wstring& rootDirectory) {
+        grSetTexturesRootDirectory(rootDirectory);
+    }
+
+    Texture Viewport::CreateTextureFromFile(const wstring& fileTitle) {
+        return grCreateTextureFromFile(fileTitle);
+    }
+
+    Texture Viewport::CreateTextureFromMemory(const wstring& title, const Common::Dynarray<uint8>& data) {
+        return grCreateTextureFromMemory(title, data.data(), (uint32)data.size());
+    }
+
+    void Viewport::DestroyTexture(Texture texture) {
+        grDestroyTexture(texture.Value);
     }
 
     void Viewport::BeforeDraw() {
@@ -332,7 +349,7 @@ namespace Viewer
 
         uint32 currentItem = 0;
         for (const auto& d : viewportVerticesDescs) {
-            const grtRenderSubItemDesc descEngine(d.name, d.transform, d.material.Value, PrimitiveTopology::ToSrc(d.primitiveTopology));
+            const grtRenderSubItemDesc descEngine(d.name, d.transform, d.material.Value, d.texture.Value, PrimitiveTopology::ToSrc(d.primitiveTopology));
             descs.push_back(descEngine);
             itemsToVertices.push_back((uint32)vertices.size());
             vertices.emplace_back(d.vertices, d.verticesCount, d.indices, d.indicesCount);
@@ -345,7 +362,7 @@ namespace Viewer
 
     grRenderItemWithInstances Viewport::CreateRenderItemInternal(const RenderItemWithInstancesDesc& desc, uint32 vertexSize) {
         grtRenderSubItemWithInstancesDesc engineDesc(
-            desc.name, desc.transform, PrimitiveTopology::ToSrc(desc.primitiveTopology),
+            desc.name, desc.transform, PrimitiveTopology::ToSrc(desc.primitiveTopology), desc.texture.Value,
             (grtRenderSubItemInstanceDesc*)desc.instances.get(), desc.instancesCount);
         grtRenderVertices vertices(desc.vertices, desc.verticesCount, desc.indices, desc.indicesCount);
         return grCreateRenderItemWithInstances(engineDesc, vertices, vertexSize);
@@ -366,7 +383,7 @@ namespace Viewer
 
         for (const auto& d : viewportTypeDescs) {
             uint_t geometryIndex = (uint_t)d.type;
-            const grtRenderSubItemDesc descEngine(d.name, d.transform, d.material.Value, PrimitiveTopology::ToSrc(d.primitiveTopology));
+            const grtRenderSubItemDesc descEngine(d.name, d.transform, d.material.Value, d.texture.Value, PrimitiveTopology::ToSrc(d.primitiveTopology));
             descs.push_back(descEngine);
             const auto& currentGeometry = geometries_[geometryIndex];
             if (geometriesIndices[geometryIndex] == kNoIndex) {

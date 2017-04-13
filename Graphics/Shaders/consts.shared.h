@@ -5,16 +5,23 @@
     #define MAX_PNT_LIGHTS_COUNT 3
     #define MAX_SPT_LIGHTS_COUNT 3
 
-    #define REGISTER_C_CB_PER_OBJECT    b0
-    #define REGISTER_C_CB_PER_PASS      b1
+    // Colored
+#    define REGISTER_C_CB_PER_PASS      b0
+#    define REGISTER_C_CB_PER_OBJECT    b1
 
-    #define REGISTER_L_CB_PER_OBJECT    b0
-    #define REGISTER_L_CB_PER_PASS      b1
-    #define REGISTER_L_SB_MATERIAL_DATA t0
+    // Lighting
+#    define REGISTER_L_CB_PER_PASS      b0
+#    define REGISTER_L_CB_PER_OBJECT    b1
+#    define REGISTER_L_TB_DIFFUSE_MAP   t0
+#    define REGISTER_L_TB_MATERIAL_DATA t1
+#    define REGISTER_L_S_SAMPLER_LINEAR s0
 
-    #define REGISTER_LI_CB_PER_OBJECT    b0
-    #define REGISTER_LI_CB_PER_PASS      b1
-    #define REGISTER_LI_SB_MATERIAL_DATA t0
-    #define REGISTER_LI_SB_INSTANCE_DATA t1
+    // Lighting instanced
+#    define REGISTER_LI_CB_PER_PASS      b0
+#    define REGISTER_LI_CB_PER_OBJECT    b1
+#    define REGISTER_LI_TB_DIFFUSE_MAP   t0
+#    define REGISTER_LI_TB_MATERIAL_DATA t1
+#    define REGISTER_LI_TB_INSTANCE_DATA t2
+#    define REGISTER_LI_S_SAMPLER_LINEAR s0
 
 #endif // __CONSTS_SHARED__

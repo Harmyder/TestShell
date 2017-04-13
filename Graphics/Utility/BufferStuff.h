@@ -26,21 +26,33 @@ namespace Utility
         std::vector<uint32> indices_;
     };
 
-    class BufferEntryDirty {
+    class BufferEntry {
     public:
-        uint32 BufferIndex() const { return bufferIndex_; }
-        bool IsDirty() const { return dirtyFramesCount_ != 0; }
-        void DecreaseDirtyFramesCount() { --dirtyFramesCount_; }
+        BufferEntry() {}
+        BufferEntry(uint32 bufferIndex) : bufferIndex_(bufferIndex) {}
 
-    protected:
-        BufferEntryDirty(uint32 bufferIndex) : bufferIndex_(bufferIndex), dirtyFramesCount_(0) {}
-        void SetAllFramesDirty();
+        void InitBufferIndex(uint32 bufferIndex) { assert(bufferIndex_ == kNoIndex); bufferIndex_ = bufferIndex; }
+        uint32 BufferIndex() const { return bufferIndex_; }
+        bool HasIndex() const { return bufferIndex_ != kNoIndex; }
 
     private:
         friend class LightsHolder;
 
-        uint32 bufferIndex_;
-        uint32 dirtyFramesCount_;
+        static constexpr uint32 kNoIndex = (uint32)-1;
+        uint32 bufferIndex_ = kNoIndex;
+    };
+
+    class BufferEntryDirty : public BufferEntry {
+    public:
+        using BufferEntry::BufferEntry;
+
+        bool IsDirty() const { return dirtyFramesCount_ != 0; }
+        void DecreaseDirtyFramesCount() { --dirtyFramesCount_; }
+
+        void SetAllFramesDirty();
+
+    private:
+        uint32 dirtyFramesCount_ = 0;
     };
 }
 }
