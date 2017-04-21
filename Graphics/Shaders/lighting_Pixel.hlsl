@@ -1,8 +1,8 @@
 #include "consts.shared.h"
 #include "lighting.hlsli"
 
-#define REGISTER_CB_PER_PASS      b0
-#define REGISTER_CB_PER_OBJECT    b1
+#define REGISTER_CB_PER_OBJECT    b0
+#define REGISTER_CB_PER_PASS      b1
 #define REGISTER_TEX_DIFFUSE_MAP  t0
 #define REGISTER_SB_MATERIAL_DATA t1
 #define REGISTER_S_SAMPLER_LINEAR s0

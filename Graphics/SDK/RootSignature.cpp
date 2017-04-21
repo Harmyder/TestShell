@@ -21,15 +21,15 @@ namespace Graphics
         rPerObject = rPerPass = rMaterialBuf = rDiffuseTexture = rInstanceBuf = kParamsCount = (uint32)-1;
         switch (type_) {
         case RootSignatureType::kLighting:
-            rPerPass        = ParseRegisterIndex(STR(REGISTER_L_CB_PER_PASS));
             rPerObject      = ParseRegisterIndex(STR(REGISTER_L_CB_PER_OBJECT));
+            rPerPass        = ParseRegisterIndex(STR(REGISTER_L_CB_PER_PASS));
             rDiffuseTexture = ParseRegisterIndex(STR(REGISTER_L_TB_DIFFUSE_MAP));
             rMaterialBuf    = ParseRegisterIndex(STR(REGISTER_L_TB_MATERIAL_DATA));
             kParamsCount = 4;
             break;
         case RootSignatureType::kLightingWithInstances:
-            rPerPass        = ParseRegisterIndex(STR(REGISTER_LI_CB_PER_PASS));
             rPerObject      = ParseRegisterIndex(STR(REGISTER_LI_CB_PER_OBJECT));
+            rPerPass        = ParseRegisterIndex(STR(REGISTER_LI_CB_PER_PASS));
             rDiffuseTexture = ParseRegisterIndex(STR(REGISTER_LI_TB_DIFFUSE_MAP));
             rMaterialBuf    = ParseRegisterIndex(STR(REGISTER_LI_TB_MATERIAL_DATA));
             rInstanceBuf    = ParseRegisterIndex(STR(REGISTER_LI_TB_INSTANCE_DATA));
@@ -48,8 +48,8 @@ namespace Graphics
         CD3DX12_DESCRIPTOR_RANGE cbvTableObj(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, rPerObject);
 
         vector<CD3DX12_ROOT_PARAMETER> slotRootParameters(kParamsCount);
-        slotRootParameters[0].InitAsDescriptorTable(1, &cbvTablePass, D3D12_SHADER_VISIBILITY_ALL);
-        slotRootParameters[1].InitAsDescriptorTable(1, &cbvTableObj, D3D12_SHADER_VISIBILITY_ALL);
+        slotRootParameters[0].InitAsDescriptorTable(1, &cbvTableObj, D3D12_SHADER_VISIBILITY_ALL);
+        slotRootParameters[1].InitAsDescriptorTable(1, &cbvTablePass, D3D12_SHADER_VISIBILITY_ALL);
         if (type_ == RootSignatureType::kLighting || type_ == RootSignatureType::kLightingWithInstances) {
             assert(rDiffuseTexture != (uint32)-1 && rMaterialBuf != (uint32)-1);
             CD3DX12_DESCRIPTOR_RANGE texTable(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, rDiffuseTexture);

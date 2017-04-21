@@ -34,9 +34,7 @@ namespace Pipeline {
             output.SetTransforms(move(transformsInternal));
         }
 
-        void CreateGridXY(uint16 xCount, uint16 yCount, float width, float height, InputMesh& output) {
-            auto grid = GeometryGenerator::CreateGridXY(xCount, yCount, width, height);
-
+        void CreateGridXyInternal(GeometryGenerator::Geometry& grid, InputMesh& output) {
             auto v = GeometryGenerator::ComputeVertices(grid.TrianglesPositions, grid.TrianglesTexCoords);
             output.SetVisualVertices(move(v.UniqueVertices));
             output.SetTrianglesVertices(move(v.TrianglesVertices));

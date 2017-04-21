@@ -25,7 +25,7 @@ void FlockSimulation::Init()
     mats_[1] = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kJade(), "jade"));
     mats_[2] = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kObsidian(), "obsidian"));
 
-    ImportScene("..\\..\\FBX\\", "shark");
+    ImportScene("..\\..\\Assets\\FBX\\", "shark");
 
     const auto& mesh = scene_->GetMesh(0);
     const auto& mg = mesh.GetGeometry();

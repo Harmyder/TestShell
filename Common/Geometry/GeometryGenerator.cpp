@@ -2,10 +2,9 @@
 
 #include "GeometryGenerator.h"
 
-#include "Math\Vector\Vector.h"
-#include "Math\Vector\Functions.h"
+#include "Container/Dynarray.h"
+#include "Math/Vector/all.h"
 #include <unordered_map>
-#include "Print\DebugPrint.h"
 #include <DirectXMath.h>
 using namespace std;
 
@@ -402,21 +401,23 @@ namespace Common
         return CreateCylinder(bottomRadius, 0.0f, height, slicesCount, stacksCount);
     }
 
-    GeometryGenerator::Geometry GeometryGenerator::CreateGridXY(uint16 xCount, uint16 yCount, float width, float height) {
+    GeometryGenerator::Geometry GeometryGenerator::CreateGridXY(uint16 xCount, uint16 yCount, float width, float height, const std::function<float(int)>& getHeight) {
         Geometry output;
         output.Positions.resize(xCount * yCount);
         const Vector3 base(-width / 2.f, height / 2.f, 0.f);
         const float stepX = width / xCount;
         const float stepY = height / yCount;
-        for (uint32 i = 0; i < xCount; ++i) {
-            for (uint32 j = 0; j < yCount; ++j) {
-                output.Positions[j * xCount + i] = Vector3(base + Vector3(i * stepX, j * -stepY, 0.f)).Store();
+        for (uint32 j = 0; j < yCount; ++j) {
+            for (uint32 i = 0; i < xCount; ++i) {
+                output.Positions[j * xCount + i] = Vector3(base + Vector3(i * stepX, j * -stepY, getHeight(j * xCount + i))).Store();
             }
         }
+
         // 0--h+0--2h+0
         // |\ |  \ |
         // | \|   \|
         // 1--h+1--2h+1
+        assert(uint16(-1) / 2 / (xCount - 1) >= yCount - 1);
         const uint16 trianglesCount = 2 * (xCount - 1) * (yCount - 1);
         output.TrianglesPositions.resize(trianglesCount * 3);
         uint16 cur = 0;

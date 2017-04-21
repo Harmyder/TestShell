@@ -112,6 +112,12 @@ grTexture grCreateTextureFromMemory(const std::wstring& name, const uint8* data,
     return grTexture(t);
 }
 
+grTexture grCreateTextureFromHandmadeData(const std::wstring& name, uint32 width, uint32 height, greResourceFormat::Type format, const void* data, bool forceRecreation) {
+    auto& tb = GraphicsCore::GetInstance().GetTexturesBuffer();
+    auto t = tb.CreateFromHandmadeData(name, width, height, *(DXGI_FORMAT*)&format, data, forceRecreation);
+    return grTexture(t);
+}
+
 void grDestroyTexture(grTexture texture) {
     Texture* t = static_cast<TextureHandle>(texture).GetValue();
     auto& tb = GraphicsCore::GetInstance().GetTexturesBuffer();

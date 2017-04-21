@@ -1,6 +1,7 @@
 #pragma once
 
 #include <DirectXMath.h>
+#include <functional>
 
 namespace Common
 {
@@ -38,6 +39,7 @@ namespace Common
         // Cylinder is aligned along y-axis
         static Geometry CreateCylinder(float bottomRadius, float topRadius, float height, uint32 slicesCount, uint32 stacksCount);
         static Geometry CreateCone(float bottomRadius, float height, uint32 slicesCount, uint32 stacksCount);
-        static Geometry CreateGridXY(uint16 xCount, uint16 yCount, float width, float height);
+        // heights exepected to be row-major
+        static Geometry CreateGridXY(uint16 xCount, uint16 yCount, float width, float height, const std::function<float(int)>& getHeight = [](int) { return 0.f; });
     };
 }

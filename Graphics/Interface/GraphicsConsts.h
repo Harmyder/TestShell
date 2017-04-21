@@ -58,3 +58,9 @@ namespace greLibraryMaterial {
     extern const Type kObsidian;
     extern const Type kSilver;
 }
+
+namespace greResourceFormat {
+    DEFINE_NAMESPACE_ENUM_TYPE(int, -1);
+    extern const Type kInvalid;
+    extern const Type kR8G8B8A8_UNORM;
+}

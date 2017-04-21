@@ -43,6 +43,12 @@ namespace Viewer
         Type kSilver();
     }
 
+    namespace ResourceFormat {
+        DEFINE_NAMESPACE_ENUM_TYPE(int, -1);
+        Type kInvalid();
+        Type kR8G8B8A8_UNORM();
+    }
+
     struct Material {
         Material() : Value(grcMaterialNone) {}
     private:
@@ -169,6 +175,7 @@ namespace Viewer
         void SetTextureRootDirectory(const std::wstring& rootDirectory);
         Texture CreateTextureFromFile(const std::wstring& fileTitle);
         Texture CreateTextureFromMemory(const std::wstring& title, const Common::Dynarray<uint8>& data);
+        Texture CreateTextureFromHandmadeData(const std::wstring& title, uint32 width, uint32 height, ResourceFormat::Type format, const void* data, bool forceRecreation);
         void DestroyTexture(Texture texture);
 
         RenderItemId CreateRenderItemOpaque(const DescsVertices& viewportVerticesDescs, uint32 vertexSize);

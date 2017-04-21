@@ -167,7 +167,7 @@ namespace Graphics
         ComPtr<ID3D12Resource> textureResource;
         THROW_IF_FAILED(g_device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &texDesc,
             D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(textureResource.GetAddressOf())));
-        textureResource->SetName(L"HandmadeTexture");
+        textureResource->SetName((L"Texture:" + title).c_str());
 
         D3D12_SUBRESOURCE_DATA subresourceData;
         subresourceData.pData = data;

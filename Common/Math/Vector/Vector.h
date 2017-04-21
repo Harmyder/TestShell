@@ -7,6 +7,7 @@ namespace Common {
     XMVECTOR_ALIGNMENT class Vector3
     {
     public:
+        Vector3() {}
         Vector3(float x, float y, float z) { v_ = XMVectorSet(x, y, z, w); }
         Vector3(Scalar s) { v_ = s; }
         Vector3(FXMVECTOR v) { v_ = v; }

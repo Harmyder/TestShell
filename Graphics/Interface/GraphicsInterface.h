@@ -43,6 +43,7 @@ void grDestroyMaterial(grMaterial material);
 void grSetTexturesRootDirectory(const std::wstring& rootDirectory);
 grTexture grCreateTextureFromFile(const std::wstring& name);
 grTexture grCreateTextureFromMemory(const std::wstring& name, const uint8* data, const uint32 size);
+grTexture grCreateTextureFromHandmadeData(const std::wstring& name, uint32 width, uint32 height, greResourceFormat::Type format, const void* data, bool forceRecreation);
 void grDestroyTexture(grTexture material);
 
 grRenderItem grCreateRenderItem(const grtRenderItemDesc& renderItemDesc, uint32 vertexSize);

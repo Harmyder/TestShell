@@ -85,7 +85,7 @@ namespace Exploring_Bullet
     void SimpleCloth::Init() {
         auto inputMesh = make_unique<InputMesh>("cloth");
         const int sizeX = 50; const int sizeY = 50;
-        Helpers::CreateGridXY(sizeX, sizeY, .5f, .5f, *inputMesh);
+        Helpers::CreateGridXy(sizeX, sizeY, .5f, .5f, *inputMesh);
         inputScene_ = make_unique<InputScene>();
         inputScene_->AddMesh(move(inputMesh));
 

@@ -69,3 +69,10 @@ namespace greLibraryMaterial {
     extern const Type kObsidian((Type::UnderlyingType)Material::Type::kObsidian);
     extern const Type kSilver  ((Type::UnderlyingType)Material::Type::kSilver);
 }
+
+namespace greResourceFormat {
+    static_assert(std::is_same<Type::UnderlyingType, std::underlying_type_t<DXGI_FORMAT>>::value,
+        "Underlying type of DXGI_FORMAT is different from greLibraryMaterial::UnderlyingType");
+    extern const Type kInvalid = Type();
+    extern const Type kR8G8B8A8_UNORM(DXGI_FORMAT_R8G8B8A8_UNORM);
+}

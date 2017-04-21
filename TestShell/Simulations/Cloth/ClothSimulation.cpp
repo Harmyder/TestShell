@@ -54,7 +54,7 @@ ClothSimulation::~ClothSimulation() {}
 
 void ClothSimulation::Init() {
     auto inputMesh = make_unique<InputMesh>("cloth");
-    Helpers::CreateGridXY(25, 25, .5f, .5f, *inputMesh);
+    Helpers::CreateGridXy(25, 25, .5f, .5f, *inputMesh);
     inputScene_ = make_unique<InputScene>();
     inputScene_->AddMesh(move(inputMesh));
 

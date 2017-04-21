@@ -338,7 +338,7 @@ namespace Graphics
         int passCbvIndex = passCbvOffset_ + frameResources_->GetCurrentIndex();
         auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
         passCbvHandle.Offset(passCbvIndex, cbvSrvUavDescriptorSize_);
-        commandList->SetGraphicsRootDescriptorTable(0, passCbvHandle);
+        commandList->SetGraphicsRootDescriptorTable(1, passCbvHandle);
 
         if (type != RootSignatureType::kColor) {
             auto matBuffer = frameResources_->GetCurrentFrameResource().matBuffer->Resource();
@@ -403,7 +403,7 @@ namespace Graphics
         auto cbHandleIndex = rsi.BufferIndex() + frameResources_->GetCurrentIndex() * frameResources_->ObjsCountLimit;
         auto cbvHandleObj = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
         cbvHandleObj.Offset(cbHandleIndex, cbvSrvUavDescriptorSize_);
-        commandList->SetGraphicsRootDescriptorTable(1, cbvHandleObj);
+        commandList->SetGraphicsRootDescriptorTable(0, cbvHandleObj);
         if (currentRootSignatureType_ != RootSignatureType::kColor) {
             commandList->SetGraphicsRootDescriptorTable(2, texturesBuffer_->GetTextureSRV(rsi.GetTexture() == nullptr ? dummyDiffuseTex_ : rsi.GetTexture()));
         }
@@ -449,7 +449,7 @@ namespace Graphics
         auto cbHandleIndex = riwi.BufferIndex() + frameResources_->GetCurrentIndex() * frameResources_->ObjsCountLimit;
         auto cbvHandleObj = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
         cbvHandleObj.Offset(cbHandleIndex, cbvSrvUavDescriptorSize_);
-        commandList->SetGraphicsRootDescriptorTable(1, cbvHandleObj);
+        commandList->SetGraphicsRootDescriptorTable(0, cbvHandleObj);
         if (currentRootSignatureType_ != RootSignatureType::kColor) {
             commandList->SetGraphicsRootDescriptorTable(2, texturesBuffer_->GetTextureSRV(riwi.GetTexture() == nullptr ? dummyDiffuseTex_ : riwi.GetTexture()));
         }

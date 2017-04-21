@@ -25,7 +25,7 @@ void SphereBvSimulation::Init() {
     matCollider_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kJade(), "collider"));
     matBv_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kSilver(), "boundingVolume"));
 
-    const string path = "..\\..\\FBX\\";
+    const string path = "..\\..\\Assets\\FBX\\";
     const string filetitle = "shark";
     ImportScene(path, filetitle);
     InitBlankPhysicsData();

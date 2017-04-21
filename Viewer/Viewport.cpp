@@ -47,6 +47,14 @@ namespace Viewer
         DEFINE_NAMESPACE_ENUM_TOSRC(greLibraryMaterial);
     }
 
+    namespace ResourceFormat {
+        CHECK_NAMESPACE_ENUM_TYPE(greResourceFormat);
+        DEFINE_NAMESPACE_ENUM_MEMBER(greResourceFormat, kInvalid);
+        DEFINE_NAMESPACE_ENUM_MEMBER(greResourceFormat, kR8G8B8A8_UNORM);
+        DEFINE_NAMESPACE_ENUM_TOSRC(greResourceFormat);
+    }
+    
+
     Viewport::Viewport(HWND hWnd) : hwnd_(hWnd),
         referenceFrame_(nullptr),
         grating_(nullptr),
@@ -163,6 +171,10 @@ namespace Viewer
 
     Texture Viewport::CreateTextureFromMemory(const wstring& title, const Common::Dynarray<uint8>& data) {
         return grCreateTextureFromMemory(title, data.data(), (uint32)data.size());
+    }
+
+    Texture Viewport::CreateTextureFromHandmadeData(const wstring& title, uint32 width, uint32 height, ResourceFormat::Type format, const void* data, bool forceRecreation) {
+        return grCreateTextureFromHandmadeData(title, width, height, ResourceFormat::ToSrc(format), data, forceRecreation);
     }
 
     void Viewport::DestroyTexture(Texture texture) {
