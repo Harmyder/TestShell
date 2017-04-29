@@ -42,6 +42,13 @@ namespace Graphics
             fresnelR0 = CalcFresnelR0(1.61f);
             roughness = 0.95f;
             break;
+        case Type::kWhite:
+            ambient = XMFLOAT4(1.f, 1.f, 1.f, 1.f);
+            diffuse = XMFLOAT4(1.f, 1.f, 1.f, 1.f);
+            specular = XMFLOAT4(1.f, 1.f, 1.f, 1.f);
+            fresnelR0 = CalcFresnelR0(1.61f);
+            roughness = 0.95f;
+            break;
         case Type::kTurquesa:
             ambient = XMFLOAT4(0.1f, 0.18725f, 0.1745f, 1.f);
             diffuse = XMFLOAT4(0.396f, 0.74151f, 0.69102f, 1.f);

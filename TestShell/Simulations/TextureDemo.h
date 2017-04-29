@@ -2,11 +2,6 @@
 
 #include "Internal\BaseSimulation.h"
 
-namespace Pipeline
-{
-    class InputScene;
-}
-
 class TextureDemo : public BaseSimulation
 {
 public:

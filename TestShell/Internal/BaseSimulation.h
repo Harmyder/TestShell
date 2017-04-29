@@ -3,6 +3,7 @@
 #include "Internal/ISimulation.h"
 
 namespace Pipeline {
+    class InputScene;
     class UserScene;
 }
 

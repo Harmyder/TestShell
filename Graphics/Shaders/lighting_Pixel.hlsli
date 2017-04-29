@@ -22,7 +22,8 @@ float4 main(VertexOut pin) : SV_Target
     ComputeLights(mat, gDl, gPl, gSl, gDirLightsCount, gPntLightsCount, gSptLightsCount, pin.PosW, pin.NormalW, toEye, ambient, diffuse, specular);
 
     float4 color;
-    color.rgb = mat.Diffuse.a * (ambient + diffuse * gDiffuseMap.Sample(gSamLinear, pin.TexC).rgb) + specular;
+    float3 texDiffuse = gDiffuseMap.Sample(gSamLinear, pin.TexC).rgb;
+    color.rgb = mat.Diffuse.a * ((ambient + diffuse) * texDiffuse) + specular;
     color.a = mat.Diffuse.a;
     return color;
 }

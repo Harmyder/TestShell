@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Simulations/TextureDemo.h"
 
-#include <vector>
 using namespace std;
 
 #include "Common/Math/Vector/all.h"
@@ -24,6 +23,7 @@ using namespace Viewer;
 
 namespace Spline
 {
+    // B-spline base functions calculation
     // Efficient version with memoization and exploiting of triangular structure for nonzero basis elements
     class BSplineBaseFuncs
     {
@@ -206,7 +206,7 @@ void TextureDemo::Init() {
         for (int i = 0; i < (int)vertices.size(); ++i) heights[i] = vertices[i].GetZ();
 
         auto inputMesh = make_unique<InputMesh>("splineSurface");
-        Helpers::CreateGridXy(surfaceWidth, surfaceHeight, 2.f, 2.f, *inputMesh, [&heights](int i) { return heights[i]; });
+        Helpers::CreateGridXy(surfaceWidth, surfaceHeight, 2.f, 2.f, *inputMesh, [&heights, surfaceWidth](int i, int j) { return heights[j * surfaceWidth + i]; });
         inputScene_->AddMesh(move(inputMesh));
 
         const auto maxHeight = *max_element(cbegin(heights), cend(heights));

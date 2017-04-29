@@ -63,6 +63,7 @@ namespace greLibraryMaterial {
     extern const Type kRed     ((Type::UnderlyingType)Material::Type::kRed);
     extern const Type kGreen   ((Type::UnderlyingType)Material::Type::kGreen);
     extern const Type kBlue    ((Type::UnderlyingType)Material::Type::kBlue);
+    extern const Type kWhite   ((Type::UnderlyingType)Material::Type::kWhite);
     extern const Type kTurquesa((Type::UnderlyingType)Material::Type::kTurquesa);
     extern const Type kEmerald ((Type::UnderlyingType)Material::Type::kEmerald);
     extern const Type kJade    ((Type::UnderlyingType)Material::Type::kJade);

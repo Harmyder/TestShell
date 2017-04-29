@@ -70,6 +70,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\Libs;..\Libs\Bullet;</AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d12.lib;dxgi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/time /verbose:incr %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -90,9 +91,11 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\Libs;..\Libs\Bullet;</AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d12.lib;dxgi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/time %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Simulations\HeatEquation2d.h" />
     <ClInclude Include="Internal\BlankPhysicsData.h" />
     <ClInclude Include="Internal\ISimulation.h" />
     <ClInclude Include="Simulations\Cloth\ClothSimulation.h" />
@@ -112,6 +115,7 @@
     <ClInclude Include="Simulations\TextureDemo.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Simulations\HeatEquation2d.cpp" />
     <ClCompile Include="Simulations\Cloth\ClothSimulation.cpp" />
     <ClCompile Include="Simulations\MovingObjsInRi.cpp" />
     <ClCompile Include="Simulations\CubeSimulation.cpp" />

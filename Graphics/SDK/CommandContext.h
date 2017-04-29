@@ -36,7 +36,7 @@ namespace Graphics
         void WriteBuffer(GpuResource& dest, uint32 destOffset, const void* data, uint32 sizeInBytes);
         void InitializeTexture(GpuResource& Dest, D3D12_SUBRESOURCE_DATA& data);
 
-        void TransitionResource(GpuResource& resource, D3D12_RESOURCE_STATES newState);
+        void TransitionResource(GpuResource& resource, D3D12_RESOURCE_STATES newState, bool flushImmediate = false);
         void TransitionResourceBegin(GpuResource& resource, D3D12_RESOURCE_STATES newState);
         void TransitionResourceEnd(GpuResource& resource);
         void FlushResourceBarriers();
@@ -44,7 +44,7 @@ namespace Graphics
     private:
         void Initialize();
         template <class F>
-        void TransitionResourceHelper(GpuResource& resource, D3D12_RESOURCE_STATES newState, F f);
+        void TransitionResourceHelper(GpuResource& resource, D3D12_RESOURCE_STATES newState, F f, bool flushImmediate);
         uint64 FlushInternal(bool wait);
 
         friend class CommandContextPool;
@@ -61,7 +61,7 @@ namespace Graphics
     };
 
     template <class F>
-    inline void CommandContext::TransitionResourceHelper(GpuResource& resource, D3D12_RESOURCE_STATES newState, F f) {
+    inline void CommandContext::TransitionResourceHelper(GpuResource& resource, D3D12_RESOURCE_STATES newState, F f, bool flushImmediate) {
         const auto currentState = resource.GetCurrentState();
         
         if (currentState != newState) {
@@ -75,7 +75,7 @@ namespace Graphics
 
             f(barrier);
 
-            if (numbersOfBarriersToFlush_ == resourceBarrierBuffer_.size()) FlushResourceBarriers();
+            if (flushImmediate || numbersOfBarriersToFlush_ == resourceBarrierBuffer_.size()) FlushResourceBarriers();
         }
     }
 }

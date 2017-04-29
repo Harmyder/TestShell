@@ -36,6 +36,7 @@ namespace Viewer
         Type kRed();
         Type kGreen();
         Type kBlue();
+        Type kWhite();
         Type kTurquesa();
         Type kEmerald();
         Type kJade();

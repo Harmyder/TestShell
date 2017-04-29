@@ -40,6 +40,6 @@ namespace Common
         static Geometry CreateCylinder(float bottomRadius, float topRadius, float height, uint32 slicesCount, uint32 stacksCount);
         static Geometry CreateCone(float bottomRadius, float height, uint32 slicesCount, uint32 stacksCount);
         // heights exepected to be row-major
-        static Geometry CreateGridXY(uint16 xCount, uint16 yCount, float width, float height, const std::function<float(int)>& getHeight = [](int) { return 0.f; });
+        static Geometry CreateGridXY(uint16 xCount, uint16 yCount, float width, float height, const std::function<float(int, int)>& getHeight = [](int, int) { return 0.f; });
     };
 }

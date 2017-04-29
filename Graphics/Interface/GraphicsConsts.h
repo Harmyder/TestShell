@@ -52,6 +52,7 @@ namespace greLibraryMaterial {
     extern const Type kRed;
     extern const Type kGreen;
     extern const Type kBlue;
+    extern const Type kWhite;
     extern const Type kTurquesa;
     extern const Type kEmerald;
     extern const Type kJade;

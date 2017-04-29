@@ -135,11 +135,11 @@ namespace Graphics
         UpdateSubresources(commandList_.Get(), dest.GetResource(), uploadMemory.Buffer().GetResource(), 0, 0, 1, &data);
     }
 
-    void CommandContext::TransitionResource(GpuResource& resource, D3D12_RESOURCE_STATES newState) {
+    void CommandContext::TransitionResource(GpuResource& resource, D3D12_RESOURCE_STATES newState, bool flushImmediate) {
         const auto f = [&resource, &newState](D3D12_RESOURCE_BARRIER&) {
             resource.SetCurrentState(newState);
         };
-        TransitionResourceHelper(resource, newState, f);
+        TransitionResourceHelper(resource, newState, f, flushImmediate);
     }
 
     void CommandContext::TransitionResourceBegin(GpuResource& resource, D3D12_RESOURCE_STATES newState) {
@@ -149,7 +149,7 @@ namespace Graphics
             barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY;
             resource.SetTransitionState(newState);
         };
-        TransitionResourceHelper(resource, newState, f);
+        TransitionResourceHelper(resource, newState, f, false);
     }
 
     void CommandContext::TransitionResourceEnd(GpuResource& resource) {
@@ -158,7 +158,7 @@ namespace Graphics
         const auto f = [&resource](D3D12_RESOURCE_BARRIER& barrier) {
             barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_END_ONLY;
         };
-        TransitionResourceHelper(resource, resource.GetTransitionState(), f);
+        TransitionResourceHelper(resource, resource.GetTransitionState(), f, false);
     }
 
     void CommandContext::FlushResourceBarriers() {

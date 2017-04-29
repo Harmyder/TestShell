@@ -401,7 +401,7 @@ namespace Common
         return CreateCylinder(bottomRadius, 0.0f, height, slicesCount, stacksCount);
     }
 
-    GeometryGenerator::Geometry GeometryGenerator::CreateGridXY(uint16 xCount, uint16 yCount, float width, float height, const std::function<float(int)>& getHeight) {
+    GeometryGenerator::Geometry GeometryGenerator::CreateGridXY(uint16 xCount, uint16 yCount, float width, float height, const std::function<float(int, int)>& getHeight) {
         Geometry output;
         output.Positions.resize(xCount * yCount);
         const Vector3 base(-width / 2.f, height / 2.f, 0.f);
@@ -409,7 +409,7 @@ namespace Common
         const float stepY = height / yCount;
         for (uint32 j = 0; j < yCount; ++j) {
             for (uint32 i = 0; i < xCount; ++i) {
-                output.Positions[j * xCount + i] = Vector3(base + Vector3(i * stepX, j * -stepY, getHeight(j * xCount + i))).Store();
+                output.Positions[j * xCount + i] = Vector3(base + Vector3(i * stepX, j * -stepY, getHeight(i, j))).Store();
             }
         }
 

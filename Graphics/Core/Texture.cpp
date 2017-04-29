@@ -44,6 +44,7 @@ namespace Graphics
             Texture* texture)
         {
             auto cc = CommandContext::Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
+            cc->TransitionResource(*texture, D3D12_RESOURCE_STATE_COPY_DEST, true);
             cc->InitializeTexture(*texture, subresourceData);
             cc->TransitionResource(*texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
             cc->Finish(true);
@@ -143,43 +144,51 @@ namespace Graphics
         auto p = TextureCache::FindTexture(title);
         auto texture = p.second.get().get();
         if (p.first && !forceRecreation) return texture;
-        if (forceRecreation) texture->Destroy();
+        if (forceRecreation) {
+            D3D12_SUBRESOURCE_DATA subresourceData;
+            subresourceData.pData = data;
+            subresourceData.RowPitch = width * DirectX::LoaderHelpers::BitsPerPixel(format) / 8;
+            subresourceData.SlicePitch = subresourceData.RowPitch * height;
 
-        D3D12_RESOURCE_DESC texDesc = {};
-        texDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-        texDesc.Width = width;
-        texDesc.Height = height;
-        texDesc.DepthOrArraySize = 1;
-        texDesc.MipLevels = 1;
-        texDesc.Format = format;
-        texDesc.SampleDesc.Count = 1;
-        texDesc.SampleDesc.Quality = 0;
-        texDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-        texDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+            TextureCache::InitializeTexture(subresourceData, texture);
+        }
+        else {
+            D3D12_RESOURCE_DESC texDesc = {};
+            texDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+            texDesc.Width = width;
+            texDesc.Height = height;
+            texDesc.DepthOrArraySize = 1;
+            texDesc.MipLevels = 1;
+            texDesc.Format = format;
+            texDesc.SampleDesc.Count = 1;
+            texDesc.SampleDesc.Quality = 0;
+            texDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+            texDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-        D3D12_HEAP_PROPERTIES heapProps;
-        heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
-        heapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-        heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-        heapProps.CreationNodeMask = 1;
-        heapProps.VisibleNodeMask = 1;
+            D3D12_HEAP_PROPERTIES heapProps;
+            heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
+            heapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+            heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+            heapProps.CreationNodeMask = 1;
+            heapProps.VisibleNodeMask = 1;
 
-        ComPtr<ID3D12Resource> textureResource;
-        THROW_IF_FAILED(g_device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &texDesc,
-            D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(textureResource.GetAddressOf())));
-        textureResource->SetName((L"Texture:" + title).c_str());
+            ComPtr<ID3D12Resource> textureResource;
+            THROW_IF_FAILED(g_device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &texDesc,
+                D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(textureResource.GetAddressOf())));
+            textureResource->SetName((L"Texture:" + title).c_str());
 
-        D3D12_SUBRESOURCE_DATA subresourceData;
-        subresourceData.pData = data;
-        subresourceData.RowPitch = width * DirectX::LoaderHelpers::BitsPerPixel(format) / 8;
-        subresourceData.SlicePitch = subresourceData.RowPitch * height;
+            D3D12_SUBRESOURCE_DATA subresourceData;
+            subresourceData.pData = data;
+            subresourceData.RowPitch = width * DirectX::LoaderHelpers::BitsPerPixel(format) / 8;
+            subresourceData.SlicePitch = subresourceData.RowPitch * height;
 
-        texture->InitResource(move(textureResource));
-        texture->SetCurrentState(D3D12_RESOURCE_STATE_COPY_DEST);
-        TextureCache::InitializeTexture(subresourceData, texture);
+            texture->InitResource(move(textureResource));
+            texture->SetCurrentState(D3D12_RESOURCE_STATE_COPY_DEST);
+            TextureCache::InitializeTexture(subresourceData, texture);
 
-        AssignIndex(texture);
-        CreateSRV(texture);
+            AssignIndex(texture);
+            CreateSRV(texture);
+        }
         return texture;
     }
 

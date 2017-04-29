@@ -69,5 +69,15 @@ namespace CommonTest
             for (int i = 0; i < (int)kItemsCount; ++i) Assert::AreEqual(to[i], (uint8)5);
         }
 
+        TEST_METHOD(TestDynarray_copyNoReallocationOnEqualSizes) {
+            Dynarray<uint8>::size_type kItemsCount = 10;
+            const Dynarray<uint8> from(kItemsCount, 5);
+            Dynarray<uint8> to(kItemsCount, 1);
+            const auto data = to.data();
+            to = from;
+            for (int i = 0; i < (int)kItemsCount; ++i) Assert::AreEqual(from[i], to[i]);
+            Assert::AreEqual(data, to.data());
+        }
+
     };
 }

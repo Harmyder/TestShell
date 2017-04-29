@@ -4,6 +4,7 @@
 
 #include "Internal\SimulationFactory.h"
 
+#include "Simulations/HeatEquation2d.h"
 #include "Simulations/TextureDemo.h"
 #include "Simulations/FlockSimulation.h"
 #include "Simulations/SphereBvSimulation.h"
@@ -33,6 +34,7 @@ void SimulationManager::Close()
 void SimulationManager::RegisterSimulations()
 {
     factories_ = new std::vector<BaseFactory*>;
+    RegisterFactory(new SimulationFactory<HeatEquation2d>("Heat diffusion over plate"));
     RegisterFactory(new SimulationFactory<TextureDemo>("Texture Demo"));
     RegisterFactory(new SimulationFactory<FlockSimulation>("Flock"));
     RegisterFactory(new SimulationFactory<Exploring_Bullet::SimpleCloth>("Bullet: Simple Cloth"));

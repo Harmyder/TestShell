@@ -39,6 +39,7 @@ namespace Viewer
         DEFINE_NAMESPACE_ENUM_MEMBER(greLibraryMaterial, kRed);
         DEFINE_NAMESPACE_ENUM_MEMBER(greLibraryMaterial, kGreen);
         DEFINE_NAMESPACE_ENUM_MEMBER(greLibraryMaterial, kBlue);
+        DEFINE_NAMESPACE_ENUM_MEMBER(greLibraryMaterial, kWhite);
         DEFINE_NAMESPACE_ENUM_MEMBER(greLibraryMaterial, kTurquesa);
         DEFINE_NAMESPACE_ENUM_MEMBER(greLibraryMaterial, kEmerald);
         DEFINE_NAMESPACE_ENUM_MEMBER(greLibraryMaterial, kJade);
@@ -262,7 +263,7 @@ namespace Viewer
     }
 
     void Viewport::DrawGrating() {
-        grDrawRenderItem(grating_);
+//        grDrawRenderItem(grating_);
     }
 
     void Viewport::PrepareGeometry() {
