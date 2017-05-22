@@ -11,6 +11,8 @@
 #include <array>
 #include <memory>
 #include <algorithm>
+#include <functional>
+
 #define NOMINMAX
 #include <Windows.h>
 

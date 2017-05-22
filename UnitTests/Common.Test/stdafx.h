@@ -15,6 +15,9 @@
 #include <iterator>
 #include <cassert>
 #include <type_traits>
+#include <iterator>
+#include <functional>
+#include <stdexcept>
 using namespace std;
 
 #include "Common/Types.h"

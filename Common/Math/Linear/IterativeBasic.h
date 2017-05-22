@@ -1,5 +1,9 @@
 #pragma once
 // Implementation of symmetric Gauss-Seidel iteration
+// Convergence of Gauss-Seidel only ensured if matrix is diagonally dominant i.e.
+//     |a_{i,i}| >= \sum_{j=1,i=\=j}^n |a_{i,j}|, for all i
+//     and inequality is strict for at least one i
+// otherwise convergence isn't guaranteed
 
 #include "Math/Linear/SparseMatrix.h"
 

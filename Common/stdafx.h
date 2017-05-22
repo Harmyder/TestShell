@@ -19,6 +19,8 @@
 #include <stdexcept>
 #include <algorithm>
 #include <cassert>
+#include <iterator>
+#include <functional>
 
 #include "Types.h"
 #include "Consts.h"
