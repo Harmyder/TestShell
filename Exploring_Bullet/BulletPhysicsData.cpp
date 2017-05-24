@@ -13,11 +13,11 @@ namespace Exploring_Bullet
     BulletRigidPhysicsData::BulletRigidPhysicsData(unique_ptr<btRigidBody> rigidBody) : rigidBody_(move(rigidBody)) {}
     BulletRigidPhysicsData::~BulletRigidPhysicsData() {}
 
-    Matrix4 BulletRigidPhysicsData::GetTransform() {
-        return Matrix4(*(XMMATRIX*)&rigidBody_->getCenterOfMassTransform());
+    OrthogonalTransform BulletRigidPhysicsData::GetTransform() {
+        return OrthogonalTransform(*(XMMATRIX*)&rigidBody_->getCenterOfMassTransform());
     }
 
-    void BulletRigidPhysicsData::SetTransform(const Common::Matrix4& transform) {
+    void BulletRigidPhysicsData::SetTransform(const OrthogonalTransform& transform) {
         rigidBody_->setWorldTransform(Tobt(transform));
     }
 
@@ -25,11 +25,11 @@ namespace Exploring_Bullet
     BulletSoftPhysicsData::BulletSoftPhysicsData(unique_ptr<btSoftBody> softBody) : softBody_(move(softBody)) {}
     BulletSoftPhysicsData::~BulletSoftPhysicsData() {}
 
-    Matrix4 BulletSoftPhysicsData::GetTransform() {
-        return Matrix4(*(XMMATRIX*)&softBody_->getWorldTransform());
+    OrthogonalTransform BulletSoftPhysicsData::GetTransform() {
+        return OrthogonalTransform(*(XMMATRIX*)&softBody_->getWorldTransform());
     }
 
-    void BulletSoftPhysicsData::SetTransform(const Common::Matrix4& transform) {
+    void BulletSoftPhysicsData::SetTransform(const OrthogonalTransform& transform) {
         softBody_->setWorldTransform(Tobt(transform));
     }
 

@@ -50,11 +50,12 @@ void SphereBvSimulation::Init() {
     vector<RenderItemTypeDesc> descsBV;
     PredefinedGeometryType type = PredefinedGeometryType::kSphere;
 
-    const auto translation = Matrix4::MakeTranslation(sphere.center.coordinates[0], sphere.center.coordinates[1], sphere.center.coordinates[2]);
+    const auto translation = OrthogonalTransform::MakeTranslation(sphere.center.coordinates[0], sphere.center.coordinates[1], sphere.center.coordinates[2]);
     const auto meshT = mesh.GetTransform();
     const auto transform = meshT * translation;
     const auto scale = Matrix4::MakeScale(sphere.radius);
-    XMFLOAT4X3 t = (transform * scale).Store4x3();
+    Matrix4 m(OrthoToAffine(transform));
+    XMFLOAT4X3 t = (m * scale).Store4x3();
     descsBV.emplace_back("", type, t, *matBv_, PrimitiveTopology::kTriangleList());
     boundingVolumeDesc_ = make_unique<RenderItemTransparentRaii>(viewport_.CreateRenderItemTransparent(descsBV));
 }

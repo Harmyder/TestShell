@@ -212,10 +212,10 @@ namespace Viewer
         void PreparePsos();
         XMVECTOR Convert2DTo3D(uint32 x, uint32 y) const;
 
-        enum class RootSignatureType { kLighting, kLightingWithInstances, kColor, kSize };
+        enum class RootSignatureType { kLighting, kLightingWithInstances, kColor, kParticles, kSize };
         void SetRootSignature(RootSignatureType type);
 
-        enum class PsoType { kOpaque, kOpaqueWithInstances, kTransparent, kLine, kSize };
+        enum class PsoType { kOpaque, kOpaqueWithInstances, kTransparent, kLine, kParticles, kSize };
         void SetPso(PsoType type);
 
         grRenderItem CreateRenderItemInternal(const DescsVertices& descs, uint32 vertexSize);

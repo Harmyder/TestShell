@@ -11,6 +11,7 @@
 #include "InputLevel/InputCollider.h"
 #include "Common/Print/DebugPrint.h"
 #include "Common/Geometry/GeometryGenerator.h"
+#include "Common/Math/Vector/all.h"
 using namespace Common;
 
 #include <fstream>
@@ -23,34 +24,57 @@ using namespace FBX;
 
 namespace Pipeline
 {
+    namespace
+    {
+        XMMATRIX UpAxisRotation(::FBX::Scene::Axis upVector, int upVectorSign) {
+            XMMATRIX rotation;
+            // We have y-up, so adjust root matrix
+            // In case you have mirrored objects you need to apply Utilities panel > Utilities rollout > Reset XForm
+            // https://forums.autodesk.com/t5/3ds-max-forum/fbx-exports-resulting-in-flipped-objects/td-p/6044272
+            switch (upVector)
+            {
+            case ::FBX::Scene::AXIS_X: assert("X can't be up axis"); break;
+            case ::FBX::Scene::AXIS_Z:
+                rotation = XMMatrixRotationX(-XM_PIDIV2);
+                break;
+            case ::FBX::Scene::AXIS_Y:
+                rotation = XMMatrixIdentity();
+                break;
+            default:
+                assert("Unknown Up Vector");
+            }
+            const float upVectorSignNormalized = upVectorSign > 0 ? 1.f : -1.f;
+            rotation *= XMMatrixScaling(upVectorSignNormalized, upVectorSignNormalized, upVectorSignNormalized);
+            return rotation;
+        }
+
+    }
+
     DEFINE_SINGLETON(SceneManager);
     constexpr const char fbx_ext[] = "fbx";
     constexpr const char hrm_ext[] = "hrm";
 
     SceneManager::~SceneManager() {}
 
-    void SceneManager::Init()
-    {
+    void SceneManager::Init() {
     }
 
-    void SceneManager::Close()
-    {
+    void SceneManager::Close() {
         scene_.reset();
     }
 
-    void SceneManager::Load(const string& path, const string& filetitle)
-    {
+    void SceneManager::Load(const string& path, const string& filetitle) {
         const ::FBX::Scene *fbxScene = FbxImporter::GetInstance().GetScene((path + filetitle + "." + fbx_ext).c_str());
         const float scaleFactor = fbxScene->scaleFactor;
 
-        colliders_ = move(LoadColliders((path + filetitle + "." + hrm_ext).c_str()));
+        colliders_ = move(LoadColliders((path + filetitle + "." + hrm_ext).c_str(), Matrix3(UpAxisRotation(fbxScene->upVector, fbxScene->upVectorSign))));
 
         scene_ = make_unique<InputScene>();
 
         ConvertScene(fbxScene, scaleFactor);
     }
 
-    SceneManager::CollidersFbx SceneManager::LoadColliders(const std::string& filename) {
+    SceneManager::CollidersFbx SceneManager::LoadColliders(const std::string& filename, const Matrix3& upAxisRotation) {
         ifstream fs(filename, std::ios::in);
         if (fs.fail()) {
             char buf[256];
@@ -60,9 +84,8 @@ namespace Pipeline
 
         const char* kName = "-name";
         const char* kType = "-type";
-        const char* kX = "-x";
-        const char* kY = "-y";
-        const char* kZ = "-z";
+        const char* kWidth = "-width";
+        const char* kLength = "-length";
         const char* kHeight = "-height";
         const char* kRadius = "-radius";
         const char* kTypeBox = "Box";
@@ -78,9 +101,8 @@ namespace Pipeline
                 ColliderFbx curr;
                 while (iss >> name >> value) {
                     if (!strcmp(name, kName)) curr.name = value;
-                    else if (!strcmp(name, kX)) curr.x = stof(value);
-                    else if (!strcmp(name, kY)) curr.y = stof(value);
-                    else if (!strcmp(name, kZ)) curr.z = stof(value);
+                    else if (!strcmp(name, kWidth)) curr.width = stof(value);
+                    else if (!strcmp(name, kLength)) curr.length = stof(value);
                     else if (!strcmp(name, kHeight)) curr.height = stof(value);
                     else if (!strcmp(name, kRadius)) curr.radius = stof(value);
                     else if (!strcmp(name, kType)) {
@@ -91,72 +113,64 @@ namespace Pipeline
                     }
                     else throw "Can't parse hrm file";
                 }
+                if (curr.type == ColliderType::kBox) {
+                    Vector3 extents(curr.width, curr.height, curr.length);
+                    extents = upAxisRotation * extents;
+                    XMFLOAT3 e = extents.Store();
+                    // e has the same coordinates as the box in 3ds max, namely if in 3ds max we have z-up, so height is in z-component
+                    curr.width = abs(e.x); // Not to flip faces
+                    curr.height = abs(e.y);
+                    curr.length = abs(e.z);
+                }
                 colliders.push_back(curr);
             }
         }
         return colliders;
     }
 
-    InputScene *SceneManager::GetScene()
-    {
+    InputScene *SceneManager::GetScene() {
         return scene_.get();
     }
 
-    void SceneManager::ConvertScene(const ::FBX::Scene *fbxScene, float scaleFactor)
-    {
-        XMMATRIX rotation;
-        // We have y-up, so adjust root matrix
-        // In case you have mirrored objects you need to apply Utilities panel > Utilities rollout > Reset XForm
-        // https://forums.autodesk.com/t5/3ds-max-forum/fbx-exports-resulting-in-flipped-objects/td-p/6044272
-        switch (fbxScene->upVector)
-        {
-        case ::FBX::Scene::AXIS_X: assert("X can't be up axis"); break;
-        case ::FBX::Scene::AXIS_Z: assert("Z can't be up axis"); break;
-        case ::FBX::Scene::AXIS_Y:
-            rotation = XMMatrixRotationX(-XM_PIDIV2);
-            break;
-        default:
-            assert("Unknown Up Vector");
-        }
-        const float upVectorSign = fbxScene->upVectorSign > 0 ? 1.f : -1.f;
-        rotation *= XMMatrixScaling(upVectorSign, upVectorSign, upVectorSign);
-        XMFLOAT4X4 r;
-        XMStoreFloat4x4(&r, rotation);
-        FillSceneFromNode(fbxScene->rootNode, r, scaleFactor);
+    void SceneManager::ConvertScene(const ::FBX::Scene *fbxScene, float scaleFactor) {
+        FillSceneFromNode(fbxScene->rootNode, OrthogonalTransform(UpAxisRotation(fbxScene->upVector, fbxScene->upVectorSign)), scaleFactor);
     }
 
-    void SceneManager::FillSceneFromNode(const ::FBX::Node *node, const XMFLOAT4X4 &transform, float scaleFactor)
-    {
-        XMMATRIX currentTransformXM = XMLoadFloat4x4(&transform);
-        const XMMATRIX localTransformXM = XMLoadFloat4x4(reinterpret_cast<const XMFLOAT4X4*>(&node->transform.p));
-        currentTransformXM = currentTransformXM * localTransformXM;
+    bool IsOrthogonalMatrix(const Matrix3& m) {
+        XMVECTOR scale, rot, trans;
+        XMMatrixDecompose(&scale, &rot, &trans, m);
+        return XMVector3NearEqual(g_XMOne, scale, XMVectorSet(0.001f, 0.001f, 0.001f, 0.001f));
+    }
 
-        for (uint32 i = 0; i < node->childrenCount; ++i)
-        {
-            XMFLOAT4X4 t;
-            XMStoreFloat4x4(&t, currentTransformXM);
-            FillSceneFromNode(node->childrenList[i], t, scaleFactor);
+    void SceneManager::FillSceneFromNode(const ::FBX::Node *node, const OrthogonalTransform &parent, float scaleFactor) {
+        // It's not allowed to have scaled objects
+        assert(IsOrthogonalMatrix(Matrix3(XMLoadFloat4x4(reinterpret_cast<const XMFLOAT4X4*>(&node->transform.p)))) && "Scaling isn't allowed");
+
+        OrthogonalTransform local(XMLoadFloat4x4(reinterpret_cast<const XMFLOAT4X4*>(&node->transform.p)));
+        local.SetTranslation(local.GetTranslation() * scaleFactor);
+
+        for (uint32 i = 0; i < node->childrenCount; ++i) {
+            FillSceneFromNode(node->childrenList[i], parent * local, scaleFactor);
         }
 
-        XMFLOAT4X4 currentTransform;
-        XMStoreFloat4x4(&currentTransform, currentTransformXM);
-        currentTransform._41 *= scaleFactor;
-        currentTransform._42 *= scaleFactor;
-        currentTransform._43 *= scaleFactor;
-        if (node->element)
-        {
-            if (node->element->m_Type == ::FBX::Element::MESH)
-            {
+        if (node->element) {
+            if (node->element->m_Type == ::FBX::Element::MESH) {
                 const ColliderFbx* collider = GetColliderFbx(node->name);
                 if (collider == nullptr) {
-                    auto inputMesh = FactoryFbx::BuildMesh(node, currentTransform, scaleFactor);
+                    const auto xp = OrthoToAffine(parent).Store4x4();
+                    const auto xl = OrthoToAffine(local).Store4x4();
+                    Matrix4 mp(XMLoadFloat4x4(&xp));
+                    Matrix4 ml(XMLoadFloat4x4(&xl));
+                    Matrix4 mg = mp * ml;
+                    const auto xg = OrthoToAffine(parent * local).Store4x4();
+                    auto inputMesh = FactoryFbx::BuildMesh(node, parent * local, scaleFactor);
                     auto v = GeometryGenerator::ComputeVertices(inputMesh->GetTrianglesPositions(), inputMesh->GetTrianglesTexCoords());
                     inputMesh->SetVisualVertices(move(v.UniqueVertices));
                     inputMesh->SetTrianglesVertices(move(v.TrianglesVertices));
                     scene_->AddMesh(move(inputMesh));
                 }
                 else {
-                    auto inputCollider = FactoryFbx::BuildCollider(node, currentTransform, scaleFactor, *collider);
+                    auto inputCollider = FactoryFbx::BuildCollider(node, parent, local, scaleFactor, *collider);
                     scene_->AddCollider(move(inputCollider));
                 }
             }

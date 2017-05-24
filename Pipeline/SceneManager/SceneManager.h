@@ -15,6 +15,11 @@ namespace DirectX {
     struct XMFLOAT3;
 }
 
+namespace Common {
+    class Matrix3;
+    class OrthogonalTransform;
+}
+
 namespace Pipeline
 {
     class InputScene;
@@ -36,9 +41,9 @@ namespace Pipeline
 
     private:
         using CollidersFbx = std::vector<ColliderFbx>;
-        CollidersFbx LoadColliders(const std::string& filename);
+        CollidersFbx LoadColliders(const std::string& filename, const Common::Matrix3& upAxisRotation);
         void ConvertScene(const ::FBX::Scene *fbxScene, float scaleFactor);
-        void FillSceneFromNode(const ::FBX::Node *fbxNode, const DirectX::XMFLOAT4X4 &transform, float scaleFactor);
+        void FillSceneFromNode(const ::FBX::Node *fbxNode, const Common::OrthogonalTransform &transform, float scaleFactor);
         const ColliderFbx* GetColliderFbx(const char* name) const;
 
     private:

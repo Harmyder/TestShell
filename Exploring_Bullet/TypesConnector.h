@@ -12,6 +12,8 @@ namespace Exploring_Bullet
     inline btTransform& Tobt(Common::Matrix4& t) { return *(btTransform*)&t; }
     inline const btTransform& Tobt(const Common::Matrix4& t) { return *(btTransform*)&t; }
 
+    inline const btTransform& Tobt(const Common::OrthogonalTransform& t) { return *(btTransform*)&OrthoToAffine(t); }
+
     inline Common::Vector3& ToCommon(btVector3& t) { return *(Common::Vector3*)&t; }
     inline const Common::Vector3& ToCommon(const btVector3& t) { return *(Common::Vector3*)&t; }
 

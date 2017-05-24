@@ -6,12 +6,14 @@ namespace Graphics
     enum class VertexType {
         kNormalTex,
         kColor,
+        kParticles,
     };
 
     enum class ShaderType {
         kLighting,
         kLightingWithInstances,
-        kColor
+        kColor,
+        kParticles,
     };
 
     class RootSignature;

@@ -183,7 +183,7 @@ void TextureDemo::Init() {
     {
         auto inputMesh = make_unique<InputMesh>("cartman");
         Helpers::CreateGridXy(50, 25, 1.f, .5f, *inputMesh);
-        inputMesh->SetTransform(Matrix4::MakeTranslation(Vector3(0.f, 2.f, 0.f)).Store4x4());
+        inputMesh->SetTransform(OrthogonalTransform::MakeTranslation(Vector3(0.f, 2.f, 0.f)));
         inputScene_->AddMesh(move(inputMesh));
 
         const wstring path = L"..\\..\\Assets\\Textures\\";

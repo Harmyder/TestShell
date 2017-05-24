@@ -2,10 +2,11 @@
 
 #include "InputLevel/InputMesh.h"
 using namespace std;
+using namespace Common;
 
 namespace Pipeline
 {
-    void InputMesh::SetTransform(const XMFLOAT4X4& transform) {
+    void InputMesh::SetTransform(const OrthogonalTransform& transform) {
         assert((int)isInstanced_ & (int)InstanceOption::CanBeNotInstanced);
         isInstanced_ = InstanceOption::NotInstanced;
         transform_ = transform;

@@ -23,7 +23,7 @@ void FbxSimulation::Init() {
     matCollider_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kSilver(), "collider"));
 
     const string path = "..\\..\\Assets\\FBX\\";
-    const string filetitle = "teapot";
+    const string filetitle = "teapot001";
     ImportScene(path, filetitle);
     InitBlankPhysicsData();
     auto descs = BuildDescsFromScene(*scene_, *matRigid_, *matCollider_);

@@ -9,6 +9,9 @@
 #include "Shaders\Compiled\lightingInstanced_Vertex.h"
 #include "Shaders\Compiled\color_Pixel.h"
 #include "Shaders\Compiled\color_Vertex.h"
+#include "Shaders\Compiled\particles_Geometry.h"
+#include "Shaders\Compiled\particles_Vertex.h"
+#include "Shaders\Compiled\particles_Pixel.h"
 
 using namespace std;
 using namespace DirectX;
@@ -31,6 +34,8 @@ namespace Graphics
                 return 32;
             case VertexType::kColor:
                 return 28;
+            case VertexType::kParticles:
+                return 12;
             default:
                 throw "Unknown vertex type";
             }
@@ -55,6 +60,10 @@ namespace Graphics
             il.reserve(2);
             il.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
             il.push_back({ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
+            break;
+        case VertexType::kParticles:
+            il.reserve(2);
+            il.push_back({ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
             break;
         default:
             throw "Unknown vertex type";
@@ -83,6 +92,11 @@ namespace Graphics
         case ShaderType::kLightingWithInstances:
             psoDesc.VS = { gsh_lightingInstanced_Vertex, sizeof(gsh_lightingInstanced_Vertex) };
             psoDesc.PS = { gsh_lightingInstanced_Pixel, sizeof(gsh_lightingInstanced_Pixel) };
+            break;
+        case ShaderType::kParticles:
+            psoDesc.VS = { gsh_particles_Vertex, sizeof(gsh_particles_Vertex) };
+            psoDesc.GS = { gsh_particles_Geometry, sizeof(gsh_particles_Geometry) };
+            psoDesc.PS = { gsh_particles_Pixel, sizeof(gsh_particles_Pixel) };
             break;
         default:
             throw "Unknown vertex type";

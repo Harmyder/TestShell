@@ -18,7 +18,7 @@ namespace Common
         Quaternion operator~ (void) const { return Quaternion(XMQuaternionConjugate(q_)); }
         Quaternion operator- (void) const { return Quaternion(XMVectorNegate(q_)); }
 
-        Quaternion operator* (Quaternion rhs) const { return Quaternion(XMQuaternionMultiply(rhs, q_)); }
+        Quaternion operator* (Quaternion rhs) const { return Quaternion(XMQuaternionMultiply(rhs.q_, q_)); }
         Vector3 operator* (Vector3 rhs) const { return Vector3(XMVector3Rotate(rhs, q_)); }
 
         Quaternion& operator= (Quaternion rhs) { q_ = rhs; return *this; }

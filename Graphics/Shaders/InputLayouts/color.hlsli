@@ -1,5 +1,5 @@
-#ifndef __COLOR__
-#define __COLOR__
+#ifndef __COLOR_IL__
+#define __COLOR_IL__
 
 struct VertexIn
 {

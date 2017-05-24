@@ -6,6 +6,7 @@ namespace Graphics
         kLighting = 1,
         kLightingWithInstances = 2,
         kColor = 4,
+        kParticles = 8,
     };
 
     class RootSignature

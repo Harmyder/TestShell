@@ -11,6 +11,7 @@ struct grtPipelineStateDesc {
     greFillMode::Type FillMode;
 };
 
+// TODO: do i need this types here?
 struct grtVertexNormalTex {
     float Position[3];
     float Normal[3];
@@ -19,6 +20,9 @@ struct grtVertexNormalTex {
 struct grtVertexColor {
     float Position[3];
     float Color[4];
+};
+struct grtVertexParticles {
+    float Position[3];
 };
 struct grtRenderVertices {
     grtRenderVertices(const uint8* vertices, const uint32 verticesCount, const uint8* indices, const uint32 indicesCount) :

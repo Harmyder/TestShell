@@ -22,4 +22,12 @@ namespace Viewer
         XMFLOAT3 Position;
         XMFLOAT4 Color;
     };
+
+    struct VertexParticles
+    {
+        VertexParticles() {}
+        VertexParticles(const XMFLOAT3& position) : Position(position) {}
+
+        XMFLOAT3 Position;
+    };
 }

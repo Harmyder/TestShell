@@ -12,6 +12,7 @@ namespace greVertexType {
     extern const Type kInvalid = Type();
     extern const Type kNormalTex((Type::UnderlyingType)VertexType::kNormalTex);
     extern const Type kColor    ((Type::UnderlyingType)VertexType::kColor);
+    extern const Type kParticles((Type::UnderlyingType)VertexType::kParticles);
 };
 
 namespace greShaderType {
@@ -21,6 +22,7 @@ namespace greShaderType {
     extern const Type kLighting             ((Type::UnderlyingType)ShaderType::kLighting);
     extern const Type kLightingWithInstances((Type::UnderlyingType)ShaderType::kLightingWithInstances);
     extern const Type kColor                ((Type::UnderlyingType)ShaderType::kColor);
+    extern const Type kParticles            ((Type::UnderlyingType)ShaderType::kParticles);
 };
 
 namespace greRootSignature {
@@ -30,6 +32,7 @@ namespace greRootSignature {
     extern const Type kLighting             ((Type::UnderlyingType)RootSignatureType::kLighting);
     extern const Type kLightingWithInstances((Type::UnderlyingType)RootSignatureType::kLightingWithInstances);
     extern const Type kColor                ((Type::UnderlyingType)RootSignatureType::kColor);
+    extern const Type kParticles            ((Type::UnderlyingType)RootSignatureType::kParticles);
 };
 
 namespace grePrimitiveTopology {
@@ -46,6 +49,7 @@ namespace grePrimitiveTopologyType {
     extern const Type kInvalid = Type();
     extern const Type kTriangle(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
     extern const Type kLine    (D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE);
+    extern const Type kPoint   (D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT);
 }
 
 namespace greFillMode {

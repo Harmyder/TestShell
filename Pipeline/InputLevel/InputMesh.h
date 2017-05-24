@@ -2,6 +2,7 @@
 
 #include "Common/Attribute/NamedObject.h"
 #include "Common/Geometry/GeometryGenerator.h"
+#include "Common/Math/Vector/all.h"
 
 namespace Pipeline
 {
@@ -23,10 +24,10 @@ namespace Pipeline
         const std::vector<XMFLOAT2>& GetTexCoords() const { return texCoords_; }
         const std::vector<uint16>&   GetTrianglesTexCoords() const { return trianglesTexCoords_; }
 
-        void SetTransform(const XMFLOAT4X4& transform);
+        void SetTransform(const Common::OrthogonalTransform& transform);
         void SetTransforms(std::vector<XMFLOAT4X3>&& transform);
 
-        const XMFLOAT4X4& GetTransform() const { assert(isInstanced_ == InstanceOption::NotInstanced); return transform_; }
+        const Common::OrthogonalTransform& GetTransform() const { assert(isInstanced_ == InstanceOption::NotInstanced); return transform_; }
         const std::vector<XMFLOAT4X3>& GetTransforms() const { assert(isInstanced_ == InstanceOption::Instanced); return transforms_; }
 
         using Vertex = Common::GeometryGenerator::Vertex;
@@ -50,8 +51,8 @@ namespace Pipeline
         std::vector<XMFLOAT2> texCoords_;
         std::vector<uint16>   trianglesTexCoords_;
 
+        Common::OrthogonalTransform transform_;
         InstanceOption isInstanced_ = InstanceOption::None;
-        XMFLOAT4X4 transform_;
         std::vector<XMFLOAT4X3> transforms_;
 
         std::vector<Vertex> uniqueVertices_;

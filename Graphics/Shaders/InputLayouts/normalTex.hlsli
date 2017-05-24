@@ -1,5 +1,5 @@
-#ifndef __NORMALTEX__
-#define __NORMALTEX__
+#ifndef __NORMALTEX_IL__
+#define __NORMALTEX_IL__
 
 struct VertexIn
 {
@@ -10,8 +10,8 @@ struct VertexIn
 
 struct VertexOut
 {
-    float4 PosH    : SV_POSITION;
     float3 PosW    : POSITION;
+    float4 PosH    : SV_POSITION;
     float3 NormalW : NORMAL;
     float2 TexC    : TEXCOORD;
 #ifdef SETTINGS_LIGHTING_INSTANCED

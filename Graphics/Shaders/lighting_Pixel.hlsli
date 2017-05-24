@@ -1,4 +1,8 @@
+#ifdef SETTINGS_PARTICLES
+float4 main(GeoOut pin) : SV_Target
+#else
 float4 main(VertexOut pin) : SV_Target
+#endif
 {
 #ifdef SETTINGS_LIGHTING_INSTANCED
     MaterialData matData = gMaterialsData[pin.MatIndex];

@@ -29,3 +29,8 @@ void Printf(const char* formatstring, ...)
         OutputDebugString("YolaFbxImporter: "##functionName##" failed.\n"); \
     else \
         OutputDebugString("YolaFbxImporter: "##functionName##" succeeded.\n")
+
+
+//***************************************************************************************
+#define PrintError(buffer) \
+    OutputDebugString("YolaFbxImporter: Error: "); OutputDebugString(buffer); OutputDebugString("\n");

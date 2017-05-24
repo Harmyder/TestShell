@@ -54,7 +54,7 @@ namespace Exploring_Bullet
         auto groundRigidBody = CreateRigidBody(dynamicsWorld_.get(), groundShape, 0, Tobt(groundTransform));
 
         auto inputMesh = make_unique<InputMesh>("ground");
-        Helpers::CreateBox(groundX, groundY, groundZ, Matrix4(kIdentity), *inputMesh);
+        Helpers::CreateBox(groundX, groundY, groundZ, OrthogonalTransform(kIdentity), *inputMesh);
         inputScene_->AddMesh(move(inputMesh));
         return groundRigidBody;
     }
@@ -77,12 +77,12 @@ namespace Exploring_Bullet
         collisionShapes_->push_back(colShape);
 
         constexpr int kSize = 5;
-        vector<Matrix4> transforms;
+        vector<OrthogonalTransform> transforms;
         transforms.reserve(kSize * kSize * kSize);
         for (int k = 0; k < kSize; k++) {
             for (int i = 0; i < kSize; i++) {
                 for (int j = 0; j < kSize; j++) {
-                    transforms.push_back(Matrix4::MakeTranslation(.2f*i, 5.f + .2f*k, .2f*j));
+                    transforms.push_back(OrthogonalTransform::MakeTranslation(.2f*i, 5.f + .2f*k, .2f*j));
                 }
             }
         }
@@ -122,7 +122,7 @@ namespace Exploring_Bullet
         dynamicsWorld_->stepSimulation(deltaTime);
         vector<XMFLOAT4X3> transforms;
         auto& fallingMesh = scene_->GetMesh(scene_->SearchMesh("falling"));
-        for (uint32 i = 0; i < fallingMesh.GetTransformsCount(); ++i) transforms.push_back(fallingMesh.GetTransform(i).Store4x3());
+        for (uint32 i = 0; i < fallingMesh.GetTransformsCount(); ++i) transforms.push_back(OrthoToAffine(fallingMesh.GetTransform(i)).Store4x3());
         viewport_.UpdateRenderWithInstancesTransforms(*falling_, Matrix4(kIdentity).Store4x3(), transforms.data());
     }
 }

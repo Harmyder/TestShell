@@ -12,6 +12,7 @@
 #include <memory>
 #include <algorithm>
 #include <functional>
+#include <random>
 
 #define NOMINMAX
 #include <Windows.h>

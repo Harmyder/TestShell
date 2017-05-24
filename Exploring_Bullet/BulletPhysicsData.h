@@ -14,8 +14,8 @@ namespace Exploring_Bullet
         BulletRigidPhysicsData(std::unique_ptr<btRigidBody> rigidBody);
         ~BulletRigidPhysicsData();
 
-        Common::Matrix4 GetTransform() override;
-        void SetTransform(const Common::Matrix4&) override;
+        Common::OrthogonalTransform GetTransform() override;
+        void SetTransform(const Common::OrthogonalTransform&) override;
 
         void GetPositions(std::vector<Common::Vector3>& positions) override { throw "You don't need vertices from btRigidBody"; }
 
@@ -29,8 +29,8 @@ namespace Exploring_Bullet
         BulletSoftPhysicsData(std::unique_ptr<btSoftBody> softBody);
         ~BulletSoftPhysicsData();
 
-        Common::Matrix4 GetTransform() override;
-        void SetTransform(const Common::Matrix4&) override;
+        Common::OrthogonalTransform GetTransform() override;
+        void SetTransform(const Common::OrthogonalTransform&) override;
 
         void GetPositions(std::vector<Common::Vector3>& positions) override;
 

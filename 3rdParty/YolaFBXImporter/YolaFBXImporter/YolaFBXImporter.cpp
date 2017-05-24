@@ -277,7 +277,10 @@ Scene *ImportScene(const char *filePath)
 
     bool bSuccess = importer->Initialize(filePath, -1, sdkManager->GetIOSettings());
     PrintErroOnFunctionCall(bSuccess, false, "importer->Initialize"); 
-    if(!bSuccess) return NULL;
+    if (!bSuccess) {
+        PrintError(importer->GetStatus().GetErrorString());
+        return NULL;
+    }
 
     bSuccess = importer->Import(fbxScene);
     PrintErroOnFunctionCall(bSuccess, false, "importer->Import"); 

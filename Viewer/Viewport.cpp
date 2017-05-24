@@ -121,6 +121,7 @@ namespace Viewer
         rootSignatures_.insert(make_pair(RootSignatureType::kColor, grCreateRootSignature(greRootSignature::kColor)));
         rootSignatures_.insert(make_pair(RootSignatureType::kLighting, grCreateRootSignature(greRootSignature::kLighting)));
         rootSignatures_.insert(make_pair(RootSignatureType::kLightingWithInstances, grCreateRootSignature(greRootSignature::kLightingWithInstances)));
+        rootSignatures_.insert(make_pair(RootSignatureType::kParticles, grCreateRootSignature(greRootSignature::kParticles)));
     }
 
     void Viewport::PreparePsos() {
@@ -151,6 +152,12 @@ namespace Viewer
         desc.ShaderType = greShaderType::kLighting;
         pso2rs_.insert(make_pair(PsoType::kTransparent, RootSignatureType::kLighting));
         psos_.insert(make_pair(PsoType::kTransparent, grCreatePipelineStateObject(desc, rootSignatures_.at(pso2rs_[PsoType::kTransparent]))));
+
+        desc.PrimitiveTolopologyType = grePrimitiveTopologyType::kPoint;
+        desc.VertexType = greVertexType::kParticles;
+        desc.ShaderType = greShaderType::kParticles;
+        pso2rs_.insert(make_pair(PsoType::kParticles, RootSignatureType::kParticles));
+        psos_.insert(make_pair(PsoType::kParticles, grCreatePipelineStateObject(desc, rootSignatures_.at(pso2rs_[PsoType::kParticles]))));
     }
 
     Material Viewport::CreateMaterial(MaterialType::Type material, const string& name) {
@@ -263,7 +270,7 @@ namespace Viewer
     }
 
     void Viewport::DrawGrating() {
-//        grDrawRenderItem(grating_);
+        grDrawRenderItem(grating_);
     }
 
     void Viewport::PrepareGeometry() {

@@ -4,13 +4,13 @@
 #include "Common/Geometry/GeometryGenerator.h"
 
 namespace Common {
-    class Matrix4;
+    class OrthogonalTransform;
 }
 
 namespace Pipeline {
     namespace Helpers {
-        void CreateBox(float x, float y, float z, const Common::Matrix4& transform, Pipeline::InputMesh& output);
-        void CreateBoxInstanced(float x, float y, float z, const std::vector<Common::Matrix4>& transforms, InputMesh& output);
+        void CreateBox(float x, float y, float z, const Common::OrthogonalTransform& transform, Pipeline::InputMesh& output);
+        void CreateBoxInstanced(float x, float y, float z, const std::vector<Common::OrthogonalTransform>& transforms, InputMesh& output);
 
         
         void CreateGridXyInternal(Common::GeometryGenerator::Geometry& grid, InputMesh& output);

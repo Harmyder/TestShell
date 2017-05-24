@@ -7,6 +7,7 @@ namespace greVertexType {
     extern const Type kInvalid;
     extern const Type kNormalTex;
     extern const Type kColor;
+    extern const Type kParticles;
 };
 
 namespace greShaderType {
@@ -15,6 +16,7 @@ namespace greShaderType {
     extern const Type kLighting;
     extern const Type kLightingWithInstances;
     extern const Type kColor;
+    extern const Type kParticles;
 };
 
 namespace greRootSignature {
@@ -23,6 +25,7 @@ namespace greRootSignature {
     extern const Type kLighting;
     extern const Type kLightingWithInstances;
     extern const Type kColor;
+    extern const Type kParticles;
 };
 
 namespace grePrimitiveTopology {
@@ -37,6 +40,7 @@ namespace grePrimitiveTopologyType {
     extern const Type kInvalid;
     extern const Type kTriangle;
     extern const Type kLine;
+    extern const Type kPoint;
 }
 
 namespace greFillMode {

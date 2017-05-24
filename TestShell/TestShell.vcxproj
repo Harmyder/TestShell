@@ -95,6 +95,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Simulations\Particles\RandomWalk.h" />
     <ClInclude Include="Simulations\FEM\Displacement1d.h" />
     <ClInclude Include="Simulations\HeatEquation2d.h" />
     <ClInclude Include="Internal\BlankPhysicsData.h" />
@@ -116,6 +117,7 @@
     <ClInclude Include="Simulations\TextureDemo.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Simulations\Particles\RandomWalk.cpp" />
     <ClCompile Include="Simulations\FEM\Displacement1d.cpp" />
     <ClCompile Include="Simulations\HeatEquation2d.cpp" />
     <ClCompile Include="Simulations\Cloth\ClothSimulation.cpp" />

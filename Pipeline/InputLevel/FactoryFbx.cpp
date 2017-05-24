@@ -6,13 +6,15 @@
 #include "InputLevel/InputMesh.h"
 #include "InputLevel/InputCollider.h"
 #include "3rdParty/YolaFbxImporter/YolaFbxImporter/YolaFbxImporter.h"
+#include "Common/Math/Vector/all.h"
 
 using namespace DirectX;
 using namespace std;
+using namespace Common;
 
 namespace Pipeline
 {
-    unique_ptr<InputMesh> FactoryFbx::BuildMesh(const ::FBX::Node *fbxNode, const XMFLOAT4X4 &globalTransform, float scaleFactor)
+    unique_ptr<InputMesh> FactoryFbx::BuildMesh(const ::FBX::Node *fbxNode, const OrthogonalTransform &globalTransform, float scaleFactor)
     {
         assert(fbxNode->element->m_Type == ::FBX::Element::MESH);
 
@@ -104,31 +106,37 @@ namespace Pipeline
         return mesh;
     }
 
-    std::unique_ptr<InputCollider> FactoryFbx::BuildCollider(const FBX::Node *fbxNode, const XMFLOAT4X4 &globalTransform, float scaleFactor, const ColliderFbx& colliderFbx) {
+    std::unique_ptr<InputCollider> FactoryFbx::BuildCollider(const FBX::Node *fbxNode,
+                                                             const OrthogonalTransform &parent,
+                                                             const OrthogonalTransform &local,
+                                                             float scaleFactor,
+                                                             const ColliderFbx& colliderFbx) {
         assert(fbxNode->element->m_Type == ::FBX::Element::MESH);
 
         unique_ptr<InputCollider> collider;
         switch (colliderFbx.type) {
-        case ColliderType::kBox:
-            collider = make_unique<InputBoxCollider>(
-                fbxNode->name,
-                globalTransform,
-                colliderFbx.x * scaleFactor,
-                colliderFbx.y * scaleFactor,
-                colliderFbx.z * scaleFactor
-                );
+        case ColliderType::kBox: {
+            // 3ds max stores an object's pivot 
+            const float x = colliderFbx.width * scaleFactor;
+            const float y = colliderFbx.height * scaleFactor;
+            const float z = colliderFbx.length * scaleFactor;
+            auto tmp = local;
+            tmp.SetTranslation(local.GetTranslation() + local.GetRotation() * Vector3(0.f, 0.f, z / 2.f));
+            const auto global = OrthoToAffine(parent * tmp).Store4x4();
+            collider = make_unique<InputBoxCollider>(fbxNode->name, global, x, y, z);
+        }
             break;
         case ColliderType::kSphere:
             collider = make_unique<InputSphereCollider>(
                 fbxNode->name,
-                globalTransform,
+                OrthoToAffine(parent * local).Store4x4(),
                 colliderFbx.radius * scaleFactor
                 );
             break;
         case ColliderType::kCapsule:
             collider = make_unique<InputCapsuleCollider>(
                 fbxNode->name,
-                globalTransform,
+                OrthoToAffine(parent * local).Store4x4(),
                 colliderFbx.height * scaleFactor,
                 colliderFbx.radius * scaleFactor
                 );

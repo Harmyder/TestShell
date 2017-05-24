@@ -17,8 +17,8 @@ namespace Graphics
     extern ComPtr<ID3D12Device> g_device;
 
     void RootSignature::Finalize() {
-        uint32 rPerObject, rPerPass, rMaterialBuf, rDiffuseTexture, rInstanceBuf, kParamsCount;
-        rPerObject = rPerPass = rMaterialBuf = rDiffuseTexture = rInstanceBuf = kParamsCount = (uint32)-1;
+        uint32 rPerObject, rPerPass, rParticlesMeta, rMaterialBuf, rDiffuseTexture, rInstanceBuf, kParamsCount;
+        rPerObject = rPerPass = rParticlesMeta = rMaterialBuf = rDiffuseTexture = rInstanceBuf = kParamsCount = (uint32)-1;
         switch (type_) {
         case RootSignatureType::kLighting:
             rPerObject      = ParseRegisterIndex(STR(REGISTER_L_CB_PER_OBJECT));
@@ -40,17 +40,32 @@ namespace Graphics
             rPerObject      = ParseRegisterIndex(STR(REGISTER_C_CB_PER_OBJECT));
             kParamsCount = 2;
             break;
+        case RootSignatureType::kParticles:
+            rParticlesMeta  = ParseRegisterIndex(STR(REGISTER_P_CB_PARTICLES_META));
+            rPerPass        = ParseRegisterIndex(STR(REGISTER_P_CB_PER_PASS));
+            rDiffuseTexture = ParseRegisterIndex(STR(REGISTER_P_TB_DIFFUSE_MAP));
+            rMaterialBuf    = ParseRegisterIndex(STR(REGISTER_P_TB_MATERIAL_DATA));
+            kParamsCount = 4;
+            break;
         default:
             throw "Unknown root signature type";
         }
 
         CD3DX12_DESCRIPTOR_RANGE cbvTablePass(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, rPerPass);;
         CD3DX12_DESCRIPTOR_RANGE cbvTableObj(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, rPerObject);
+        CD3DX12_DESCRIPTOR_RANGE cbvTableParticles(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, rParticlesMeta);
 
         vector<CD3DX12_ROOT_PARAMETER> slotRootParameters(kParamsCount);
-        slotRootParameters[0].InitAsDescriptorTable(1, &cbvTableObj, D3D12_SHADER_VISIBILITY_ALL);
+        if (type_ == RootSignatureType::kParticles) {
+            slotRootParameters[0].InitAsDescriptorTable(1, &cbvTableParticles, D3D12_SHADER_VISIBILITY_ALL);
+        }
+        else {
+            slotRootParameters[0].InitAsDescriptorTable(1, &cbvTableObj, D3D12_SHADER_VISIBILITY_ALL);
+        }
         slotRootParameters[1].InitAsDescriptorTable(1, &cbvTablePass, D3D12_SHADER_VISIBILITY_ALL);
-        if (type_ == RootSignatureType::kLighting || type_ == RootSignatureType::kLightingWithInstances) {
+        if (type_ == RootSignatureType::kLighting ||
+            type_ == RootSignatureType::kLightingWithInstances ||
+            type_ == RootSignatureType::kParticles) {
             assert(rDiffuseTexture != (uint32)-1 && rMaterialBuf != (uint32)-1);
             CD3DX12_DESCRIPTOR_RANGE texTable(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, rDiffuseTexture);
             slotRootParameters[2].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);

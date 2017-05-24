@@ -11,7 +11,7 @@ RenderItemWithInstancesDesc BuildDescInstancedFromMesh(const Pipeline::UserMesh&
     const auto& mg = mesh.GetGeometry();
     auto instances = make_unique<RenderItemInstanceDesc[]>(mesh.GetTransformsCount());
     for (uint32 i = 0; i < mesh.GetTransformsCount(); ++i) {
-        instances[i].transform = mesh.GetTransform(i).Store4x3();
+        instances[i].transform = OrthoToAffine(mesh.GetTransform(i)).Store4x3();
         instances[i].material = matRigid;
     }
     return RenderItemWithInstancesDesc(mesh.GetName(),
@@ -25,7 +25,7 @@ RenderItemVerticesDesc BuildDescFromMesh(const Pipeline::UserMesh& mesh, Materia
     return RenderItemVerticesDesc(mesh.GetName(),
         (uint8*)mg.UniqueVertices.data(), (uint32)mg.UniqueVertices.size(),
         (uint8*)mg.TrianglesVertices.data(), (uint32)mg.TrianglesVertices.size(),
-        mesh.GetTransform().Store4x3(), matRigid, Texture(), PrimitiveTopology::kTriangleList());
+        OrthoToAffine(mesh.GetTransform()).Store4x3(), matRigid, Texture(), PrimitiveTopology::kTriangleList());
 }
 
 RenderItemTypeDesc BuildDescFromCollider(const Pipeline::UserCollider& collider, Material matCollider) {
