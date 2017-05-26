@@ -70,9 +70,7 @@ void ClothSimulation::Init() {
     cloth_ = make_unique<RenderItemOpaqueRaii>(viewport_.CreateRenderItemOpaque(descs.Vertices, sizeof(VertexNormalTex)));
 }
 
-void ClothSimulation::Step(float deltaTime) {
-    deltaTime;
- 
+void ClothSimulation::Step(float) {
     auto& mg = clothMesh_->GetGeometryNonConst();
     for (auto& v : mg.UniqueVertices) {
         v.Position.z -= 0.1f;

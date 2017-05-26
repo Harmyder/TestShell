@@ -12,4 +12,6 @@ public:
     void Step(float deltaTime) override;
 
 private:
+    std::unique_ptr<Viewer::MaterialRaii> matParticle_;
+    std::unique_ptr<Viewer::RenderItemParticlesRaii> particles_;
 };

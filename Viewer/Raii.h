@@ -62,4 +62,13 @@ namespace Viewer
     protected:
         const StructRenderItemWithInstancesId riwiid_;
     };
+
+    class RenderItemParticlesRaii : public Raii {
+    public:
+        RenderItemParticlesRaii(StructRenderItemParticlesId riid) : riid_(riid) {}
+        ~RenderItemParticlesRaii() { viewport_->DestroyRenderItem(riid_); }
+        operator StructRenderItemParticlesId() const { return riid_; }
+    protected:
+        const StructRenderItemParticlesId riid_;
+    };
 }

@@ -6,6 +6,7 @@ namespace Graphics
     class RootSignature;
     class PipelineStateObject;
     class RenderItem;
+    class RenderItemParticles;
     class RenderItemWithInstances;
     class CommandContext;
     class Material;
@@ -23,6 +24,7 @@ namespace Graphics
     struct RootSignatureHandle          : InternalHandle<RootSignature, grRootSignature>                    { using InternalHandle::InternalHandle; };
     struct PipelineStateHandle          : InternalHandle<PipelineStateObject, grPipelineStateObject>        { using InternalHandle::InternalHandle; };
     struct RenderItemHandle             : InternalHandle<RenderItem, grRenderItem>                          { using InternalHandle::InternalHandle; };
+    struct RenderItemParticlesHandle    : InternalHandle<RenderItemParticles, grRenderItemParticles>        { using InternalHandle::InternalHandle; };
     struct RenderItemWithInstancesHandle: InternalHandle<RenderItemWithInstances, grRenderItemWithInstances>{ using InternalHandle::InternalHandle; };
     struct CommandContextHandle         : InternalHandle<CommandContext, grCommandContext>                  { using InternalHandle::InternalHandle; };
     struct MaterialHandle               : InternalHandle<Material, grMaterial>                              { using InternalHandle::InternalHandle; };

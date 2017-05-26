@@ -24,6 +24,7 @@ namespace Graphics
         void SetRootSignature(RootSignature& rootSignature) { rootSignature_ = &rootSignature; }
         void SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE type) { primitiveTopologyType_ = type; }
         void SetFillMode(D3D12_FILL_MODE mode) { fillMode_ = mode; }
+        void SetCullMode(D3D12_CULL_MODE mode) { cullMode_ = mode; }
         void SetBlendEnable(bool enable) { blendEnable_ = enable; }
         void SetDepthEnable(bool enable) { depthEnable_ = enable; }
         void SetVertexType(VertexType vertexType) { vertexType_ = vertexType; }
@@ -42,6 +43,7 @@ namespace Graphics
         bool depthEnable_;
         D3D12_PRIMITIVE_TOPOLOGY_TYPE primitiveTopologyType_;
         D3D12_FILL_MODE fillMode_;
+        D3D12_CULL_MODE cullMode_;
 
         Microsoft::WRL::ComPtr<ID3D12PipelineState> pso_;
     };

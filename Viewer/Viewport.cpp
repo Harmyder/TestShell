@@ -19,6 +19,7 @@ namespace Viewer
         DEFINE_NAMESPACE_ENUM_MEMBER(grePrimitiveTopology, kInvalid);
         DEFINE_NAMESPACE_ENUM_MEMBER(grePrimitiveTopology, kTriangleList);
         DEFINE_NAMESPACE_ENUM_MEMBER(grePrimitiveTopology, kLineList);
+        DEFINE_NAMESPACE_ENUM_MEMBER(grePrimitiveTopology, kPointList);
         DEFINE_NAMESPACE_ENUM_TOSRC(grePrimitiveTopology);
     }
 
@@ -27,6 +28,7 @@ namespace Viewer
     constexpr uint32 kPassesCountLimit = 1;
     constexpr uint32 kMaterialsCountLimit = 10;
     constexpr uint32 kTexturesCountLimit = 20;
+    constexpr uint32 kParticlesMetasCountLimit = 10;
     constexpr uint32 kFrameResourcesCount = 3;
 
     constexpr auto kNearClipPlane = .3f;
@@ -56,13 +58,51 @@ namespace Viewer
     }
     
 
+    template <class Descs> struct CreateRenderItemTraits;
+    template <> struct CreateRenderItemTraits<DescsParticles> {
+        using grtRSID = grtRenderSubItemParticlesDesc;
+        using grtRID = grtRenderItemParticlesDesc;
+        static auto distinctiveParam(const RenderItemParticlesDesc& d) { return d.particleSize; }
+        static auto engineCall(const grtRID& rid, uint32 vs) { return grCreateRenderItem(rid, vs); }
+    };
+    template <> struct CreateRenderItemTraits<DescsVertices> {
+        using grtRSID = grtRenderSubItemDesc;
+        using grtRID = grtRenderItemDesc;
+        static auto distinctiveParam(const RenderItemVerticesDesc& d) { return PrimitiveTopology::ToSrc(d.primitiveTopology); }
+        static auto engineCall(const grtRID& rid, uint32 vs) { return grCreateRenderItem(rid, vs); }
+    };
+
+    template <class Descs>
+    auto Viewport::CreateRenderItemInternal(const Descs& viewportVerticesDescs, uint32 vertexSize) {
+        using Traits = CreateRenderItemTraits<Descs>;
+        vector<Traits::grtRSID> descs;
+        vector<grtRenderVertices> vertices;
+        vector<uint32> itemsToVertices;
+
+        descs.reserve(viewportVerticesDescs.size());
+        itemsToVertices.reserve(viewportVerticesDescs.size());
+        vertices.reserve(viewportVerticesDescs.size());
+
+        uint32 currentItem = 0;
+        for (const auto& d : viewportVerticesDescs) {
+            const Traits::grtRSID descEngine(d.name, d.transform, d.material.Value, d.texture.Value, Traits::distinctiveParam(d));
+            descs.push_back(descEngine);
+            itemsToVertices.push_back((uint32)vertices.size());
+            vertices.emplace_back(d.vertices, d.verticesCount, d.indices, d.indicesCount);
+            ++currentItem;
+        }
+
+        Traits::grtRID rid{ vertices.data(), (uint32)vertices.size(), descs.data(), (uint32)descs.size(), itemsToVertices.data() };
+        return Traits::engineCall(rid, vertexSize);
+    }
+
     Viewport::Viewport(HWND hWnd) : hwnd_(hWnd),
         referenceFrame_(nullptr),
         grating_(nullptr),
         lightKey_(nullptr), lightFill_(nullptr), lightBack_(nullptr), lightPoint_(nullptr), lightSpot_(nullptr)
     {
         Raii::Init(this);
-        grInit(hwnd_, { kSceneObjectsCountLimit, kInstancesCountLimit, kPassesCountLimit, kMaterialsCountLimit, kTexturesCountLimit, kFrameResourcesCount });
+        grInit(hwnd_, { kSceneObjectsCountLimit, kInstancesCountLimit, kPassesCountLimit, kMaterialsCountLimit, kTexturesCountLimit, kParticlesMetasCountLimit, kFrameResourcesCount });
         PrepareRootSignatures();
         PreparePsos();
 
@@ -129,6 +169,7 @@ namespace Viewer
         desc.BlendEnable = false;
         desc.DepthEnable = true;
         desc.FillMode = greFillMode::kSolid;
+        desc.CullMode = greCullMode::kBack;
         desc.PrimitiveTolopologyType = grePrimitiveTopologyType::kTriangle;
         desc.VertexType = greVertexType::kNormalTex;
         desc.ShaderType = greShaderType::kLighting;
@@ -153,6 +194,7 @@ namespace Viewer
         pso2rs_.insert(make_pair(PsoType::kTransparent, RootSignatureType::kLighting));
         psos_.insert(make_pair(PsoType::kTransparent, grCreatePipelineStateObject(desc, rootSignatures_.at(pso2rs_[PsoType::kTransparent]))));
 
+        desc.CullMode = greCullMode::kNone;
         desc.PrimitiveTolopologyType = grePrimitiveTopologyType::kPoint;
         desc.VertexType = greVertexType::kParticles;
         desc.ShaderType = greShaderType::kParticles;
@@ -202,6 +244,7 @@ namespace Viewer
     void Viewport::BeforeOpaqueWithInstances() { SetPso(PsoType::kOpaqueWithInstances); }
     void Viewport::BeforeLine() { SetPso(PsoType::kLine); }
     void Viewport::BeforeTransparent() { SetPso(PsoType::kTransparent); }
+    void Viewport::BeforeParticles() { SetPso(PsoType::kParticles); }
 
     void Viewport::SetRootSignature(RootSignatureType type) {
         if (currentRootSignatureType_ != type) {
@@ -232,6 +275,12 @@ namespace Viewer
 
     void Viewport::DrawRenderItemsTransparent() {
         for (const auto& ri : renderItemsTransparent_) {
+            grDrawRenderItem(ri);
+        }
+    }
+
+    void Viewport::DrawRenderItemsParticles() {
+        for (const auto& ri : renderItemsParticles_) {
             grDrawRenderItem(ri);
         }
     }
@@ -301,28 +350,34 @@ namespace Viewer
         return result;
     }
 
-    RenderItemId Viewport::CreateRenderItemOpaque(const DescsVertices& viewportVerticesDescs, uint32 vertexSize) {
-        grRenderItem ri = CreateRenderItemInternal(viewportVerticesDescs, vertexSize);
+    RenderItemId Viewport::CreateRenderItemOpaque(const DescsVertices& desc, uint32 vertexSize) {
+        grRenderItem ri = CreateRenderItemInternal(desc, vertexSize);
         renderItemsOpaque_.push_back(ri);
         return --renderItemsOpaque_.end();
     }
 
-    RenderItemId Viewport::CreateRenderItemOpaque(const DescsTypes& viewportTypeDescs) {
-        grRenderItem ri = CreateRenderItemInternal(viewportTypeDescs);
+    RenderItemId Viewport::CreateRenderItemOpaque(const DescsTypes& desc) {
+        grRenderItem ri = CreateRenderItemInternal(desc);
         renderItemsOpaque_.push_back(ri);
         return --renderItemsOpaque_.end();
     }
 
-    RenderItemId Viewport::CreateRenderItemTransparent(const DescsVertices& viewportVerticesDescs, uint32 vertexSize) {
-        grRenderItem ri = CreateRenderItemInternal(viewportVerticesDescs, vertexSize);
+    RenderItemId Viewport::CreateRenderItemTransparent(const DescsVertices& desc, uint32 vertexSize) {
+        grRenderItem ri = CreateRenderItemInternal(desc, vertexSize);
         renderItemsTransparent_.push_back(ri);
         return --renderItemsTransparent_.end();
     }
 
-    RenderItemId Viewport::CreateRenderItemTransparent(const DescsTypes& viewportTypeDescs) {
-        grRenderItem ri = CreateRenderItemInternal(viewportTypeDescs);
+    RenderItemId Viewport::CreateRenderItemTransparent(const DescsTypes& desc) {
+        grRenderItem ri = CreateRenderItemInternal(desc);
         renderItemsTransparent_.push_back(ri);
         return --renderItemsTransparent_.end();
+    }
+
+    RenderItemParticlesId Viewport::CreateRenderItemParticles(const DescsParticles& desc, uint32 vertexSize) {
+        grRenderItemParticles ri = CreateRenderItemInternal(desc, vertexSize);
+        renderItemsParticles_.push_back(ri);
+        return --renderItemsParticles_.end();
     }
 
     RenderItemWithInstancesId Viewport::CreateRenderItemOpaqueWithInstances(const RenderItemWithInstancesDesc& descs, uint32 vertexSize) {
@@ -341,12 +396,21 @@ namespace Viewer
         renderItemsTransparent_.erase(id.Value);
     }
 
+    void Viewport::DestroyRenderItem(const StructRenderItemParticlesId& id) {
+        grDestroyRenderItem(*id.Value);
+        renderItemsParticles_.erase(id.Value);
+    }
+
     void Viewport::DestroyRenderItemOpaqueWithInstances(const StructRenderItemWithInstancesId& id) {
         grDestroyRenderItem(*id.Value);
         renderItemsWithInstances_.erase(id.Value);
     }
 
     void Viewport::UpdateRenderSubItemTransform(const StructRenderItemId& id, const string& name, const XMFLOAT4X3& transform) {
+        grUpdateRenderSubItemTransform(*id.Value, name, transform);
+    }
+
+    void Viewport::UpdateRenderSubItemTransform(const StructRenderItemParticlesId& id, const string& name, const XMFLOAT4X3& transform) {
         grUpdateRenderSubItemTransform(*id.Value, name, transform);
     }
 
@@ -358,26 +422,8 @@ namespace Viewer
         grUpdateRenderSubItemVertexData(*id.Value, name, data);
     }
 
-    grRenderItem Viewport::CreateRenderItemInternal(const DescsVertices& viewportVerticesDescs, uint32 vertexSize) {
-        vector<grtRenderSubItemDesc> descs;
-        vector<grtRenderVertices> vertices;
-        vector<uint32> itemsToVertices;
-
-        descs.reserve(viewportVerticesDescs.size());
-        itemsToVertices.reserve(viewportVerticesDescs.size());
-        vertices.reserve(viewportVerticesDescs.size());
-
-        uint32 currentItem = 0;
-        for (const auto& d : viewportVerticesDescs) {
-            const grtRenderSubItemDesc descEngine(d.name, d.transform, d.material.Value, d.texture.Value, PrimitiveTopology::ToSrc(d.primitiveTopology));
-            descs.push_back(descEngine);
-            itemsToVertices.push_back((uint32)vertices.size());
-            vertices.emplace_back(d.vertices, d.verticesCount, d.indices, d.indicesCount);
-            ++currentItem;
-        }
-
-        grtRenderItemDesc rid{ vertices.data(), (uint32)vertices.size(), descs.data(), (uint32)descs.size(), itemsToVertices.data() };
-        return grCreateRenderItem(rid, vertexSize);
+    void Viewport::UpdateRenderSubItemVertexData(const StructRenderItemParticlesId& id, const std::string& name, const uint8* data) {
+        grUpdateRenderSubItemVertexData(*id.Value, name, data);
     }
 
     grRenderItemWithInstances Viewport::CreateRenderItemInternal(const RenderItemWithInstancesDesc& desc, uint32 vertexSize) {

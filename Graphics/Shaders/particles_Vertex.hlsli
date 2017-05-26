@@ -12,7 +12,7 @@ VertexOut main(
             float4(0.f, 0.f, 0.f, 1.f));
 
     float4 posW = mul(world, float4(vin.PosL, 1.f));
-    vout.PosW = posW;
+    vout.PosW = posW.xyz;
     vout.PosH = mul(gView, posW);
     vout.PosH = mul(gProj, vout.PosH);
 

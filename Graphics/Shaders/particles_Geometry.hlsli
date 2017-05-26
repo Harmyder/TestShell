@@ -9,11 +9,11 @@ void main(
     look.y = 0.0f;
     look = normalize(look);
     float3 right = cross(up, look);
-    float halfExtent = 0.5f * gParticleSize;
+    float halfExtent = .5f * gParticleSize;
 
     float4 v[4];
-    v[0] = float4(position[0].PosW + halfExtent * (right - up), 1.0f);
-    v[1] = float4(position[0].PosW + halfExtent * (right + up), 1.0f);
+    v[0] = float4(position[0].PosW + halfExtent * (right + up), 1.0f);
+    v[1] = float4(position[0].PosW + halfExtent * (right - up), 1.0f);
     v[2] = float4(position[0].PosW - halfExtent * (right - up), 1.0f);
     v[3] = float4(position[0].PosW - halfExtent * (right + up), 1.0f);
 
@@ -27,7 +27,8 @@ void main(
     [unroll]
     for (int i = 0; i < 4; ++i)
     {
-        gout.PosH = mul(v[i], gViewProj);
+        gout.PosH = mul(gView, v[i]);
+        gout.PosH = mul(gProj, gout.PosH);
         gout.PosW = v[i].xyz;
         gout.NormalW = look;
         gout.TexC = texC[i];

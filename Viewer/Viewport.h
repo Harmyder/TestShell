@@ -20,6 +20,7 @@ namespace Viewer
         Type kInvalid();
         Type kTriangleList();
         Type kLineList();
+        Type kPointList();
     }
 
     enum class PredefinedGeometryType {
@@ -70,6 +71,8 @@ namespace Viewer
 
     using RenderItemId = std::list<grRenderItem>::const_iterator;
     struct StructRenderItemId { StructRenderItemId(RenderItemId id) : Value(id) {} RenderItemId Value; };
+    using RenderItemParticlesId = std::list<grRenderItemParticles>::const_iterator;
+    struct StructRenderItemParticlesId { StructRenderItemParticlesId(RenderItemParticlesId id) : Value(id) {} RenderItemParticlesId Value; };
     using RenderItemWithInstancesId = std::list<grRenderItemWithInstances>::const_iterator;
     struct StructRenderItemWithInstancesId { 
         StructRenderItemWithInstancesId(RenderItemWithInstancesId id) : Value(id) {} 
@@ -77,12 +80,23 @@ namespace Viewer
     };
 
     struct RenderItemDesc {
-        RenderItemDesc(const std::string& name, const XMFLOAT4X3& transform, PrimitiveTopology::Type primitiveTopology) :
-            name(name), transform(transform), primitiveTopology(primitiveTopology) {}
+        RenderItemDesc(const std::string& name, const XMFLOAT4X3& transform, const uint8* vertices, uint32 verticesCount, const uint8* indices, uint32 indicesCount, Texture texture) :
+            name(name),
+            transform(transform),
+            vertices(vertices),
+            verticesCount(verticesCount),
+            indices(indices),
+            indicesCount(indicesCount),
+            texture(texture)
+        {}
 
         const std::string name;
         const XMFLOAT4X3 transform;
-        const PrimitiveTopology::Type primitiveTopology;
+        const uint8* vertices;
+        const uint32 verticesCount;
+        const uint8* indices;
+        const uint32 indicesCount;
+        Texture texture;
     };
     struct RenderItemInstanceDesc {
         RenderItemInstanceDesc() {}
@@ -103,60 +117,52 @@ namespace Viewer
             std::unique_ptr<RenderItemInstanceDesc[]> instances,
             uint32 instancesCount
             ) :
-            RenderItemDesc(name, transform, primitiveTopology),
-            vertices(vertices),
-            verticesCount(verticesCount),
-            indices(indices),
-            indicesCount(indicesCount),
-            texture(texture),
-            instances(move(instances)),
-            instancesCount(instancesCount)
+            RenderItemDesc(name, transform, vertices, verticesCount, indices, indicesCount, texture),
+            primitiveTopology(primitiveTopology), instances(move(instances)), instancesCount(instancesCount)
         {}
-        const uint8* vertices;
-        const uint32 verticesCount;
-        const uint8* indices;
-        const uint32 indicesCount;
-        Texture texture;
+        const PrimitiveTopology::Type primitiveTopology;
         std::unique_ptr<RenderItemInstanceDesc[]> instances;
         const uint32 instancesCount;
     };
     struct RenderItemVerticesDesc : RenderItemDesc {
-        RenderItemVerticesDesc(const std::string& name, const uint8* vertices, uint32 verticesCount, uint8* indices, uint32 indicesCount, const XMFLOAT4X3& transform, Material material, Texture texture, PrimitiveTopology::Type primitiveTopology) :
-            RenderItemDesc(name, transform, primitiveTopology),
-            material(material),
-            texture(texture),
-            vertices(vertices),
-            verticesCount(verticesCount),
-            indices(indices),
-            indicesCount(indicesCount)
+        RenderItemVerticesDesc(const std::string& name, const uint8* vertices, uint32 verticesCount, const uint8* indices, uint32 indicesCount, const XMFLOAT4X3& transform, Material material, Texture texture, PrimitiveTopology::Type primitiveTopology) :
+            RenderItemDesc(name, transform, vertices, verticesCount, indices, indicesCount, texture),
+            material(material), primitiveTopology(primitiveTopology)
         {}
 
         Material material;
-        Texture texture;
-        const uint8* vertices;
-        const uint32 verticesCount;
-        const uint8* indices;
-        const uint32 indicesCount;
+        const PrimitiveTopology::Type primitiveTopology;
     };
-    struct RenderItemTypeDesc : RenderItemDesc {
+    struct RenderItemTypeDesc {
         RenderItemTypeDesc(const std::string& name, const PredefinedGeometryType type, const XMFLOAT4X3& transform, Material material, PrimitiveTopology::Type primitiveTopology) :
-            RenderItemDesc(name, transform, primitiveTopology),
+            name(name),
+            transform(transform),
+            primitiveTopology(primitiveTopology),
             material(material),
-            type(type) {}
+            type(type)
+        {}
 
+        const std::string name;
+        const XMFLOAT4X3 transform;
+        const PrimitiveTopology::Type primitiveTopology;
         const Material material;
         const Texture texture;
         const PredefinedGeometryType type;
     }; 
+    struct RenderItemParticlesDesc : RenderItemDesc {
+        RenderItemParticlesDesc(const std::string& name, const uint8* vertices, uint32 verticesCount, const XMFLOAT4X3& transform, Material material, Texture texture, float particleSize) :
+            RenderItemDesc(name, transform, vertices, verticesCount, nullptr, 0, texture),
+            material(material),
+            particleSize(particleSize)
+        {}
+
+        const Material material;
+        const float particleSize;
+    };
     using DescsInstanced = std::vector<RenderItemWithInstancesDesc>;
     using DescsVertices = std::vector<RenderItemVerticesDesc>;
     using DescsTypes = std::vector<RenderItemTypeDesc>;
-    struct RenderItemsDescriptions
-    {
-        DescsInstanced Instanced;
-        DescsVertices Vertices;
-        DescsTypes Types;
-    };
+    using DescsParticles = std::vector<RenderItemParticlesDesc>;
 
     class Viewport : Common::NonCopyable
     {
@@ -179,18 +185,22 @@ namespace Viewer
         Texture CreateTextureFromHandmadeData(const std::wstring& title, uint32 width, uint32 height, ResourceFormat::Type format, const void* data, bool forceRecreation);
         void DestroyTexture(Texture texture);
 
-        RenderItemId CreateRenderItemOpaque(const DescsVertices& viewportVerticesDescs, uint32 vertexSize);
-        RenderItemId CreateRenderItemOpaque(const DescsTypes& viewportTypeDescs);
-        RenderItemId CreateRenderItemTransparent(const DescsVertices& viewportVerticesDescs, uint32 vertexSize);
-        RenderItemId CreateRenderItemTransparent(const DescsTypes& viewportTypeDescs);
+        RenderItemId CreateRenderItemOpaque(const DescsVertices& desc, uint32 vertexSize);
+        RenderItemId CreateRenderItemOpaque(const DescsTypes& desc);
+        RenderItemId CreateRenderItemTransparent(const DescsVertices& desc, uint32 vertexSize);
+        RenderItemId CreateRenderItemTransparent(const DescsTypes& desc);
+        RenderItemParticlesId CreateRenderItemParticles(const DescsParticles& desc, uint32 vertexSize);
         RenderItemWithInstancesId CreateRenderItemOpaqueWithInstances(const RenderItemWithInstancesDesc& viewportWithInstancesDesc, uint32 vertexSize);
         void DestroyRenderItemOpaque(const StructRenderItemId& id);
         void DestroyRenderItemTransparent(const StructRenderItemId& id);
+        void DestroyRenderItem(const StructRenderItemParticlesId& id);
         void DestroyRenderItemOpaqueWithInstances(const StructRenderItemWithInstancesId& id);
 
         void UpdateRenderSubItemTransform(const StructRenderItemId& id, const std::string& name, const XMFLOAT4X3& transform);
+        void UpdateRenderSubItemTransform(const StructRenderItemParticlesId& id, const std::string& name, const XMFLOAT4X3& transform);
         void UpdateRenderWithInstancesTransforms(const StructRenderItemWithInstancesId& id, const XMFLOAT4X3& transform, const XMFLOAT4X3* instancesTransforms);
         void UpdateRenderSubItemVertexData(const StructRenderItemId& id, const std::string& name, const uint8* data);
+        void UpdateRenderSubItemVertexData(const StructRenderItemParticlesId& id, const std::string& name, const uint8* data);
 
         void BeforeDraw();
         void AfterDraw();
@@ -198,10 +208,12 @@ namespace Viewer
         void BeforeOpaqueWithInstances();
         void BeforeLine();
         void BeforeTransparent();
+        void BeforeParticles();
 
         void DrawRenderItemsOpaque();
         void DrawRenderItemsOpaqueWithInstances();
         void DrawRenderItemsTransparent();
+        void DrawRenderItemsParticles();
 
         void DrawReferenceFrame();
         void DrawGrating();
@@ -218,7 +230,8 @@ namespace Viewer
         enum class PsoType { kOpaque, kOpaqueWithInstances, kTransparent, kLine, kParticles, kSize };
         void SetPso(PsoType type);
 
-        grRenderItem CreateRenderItemInternal(const DescsVertices& descs, uint32 vertexSize);
+        template <class Descs>
+        auto CreateRenderItemInternal(const Descs& descs, uint32 vertexSize);
         grRenderItem CreateRenderItemInternal(const DescsTypes& descs);
         grRenderItemWithInstances CreateRenderItemInternal(const RenderItemWithInstancesDesc& descs, uint32 vertexSize);
 
@@ -229,6 +242,7 @@ namespace Viewer
 
         std::list<grRenderItem> renderItemsOpaque_;
         std::list<grRenderItem> renderItemsTransparent_;
+        std::list<grRenderItemParticles> renderItemsParticles_;
         std::list<grRenderItemWithInstances> renderItemsWithInstances_;
         std::array<std::pair<std::vector<VertexNormalTex>, std::vector<uint16>>, (size_t)PredefinedGeometryType::kSize> geometries_;
 

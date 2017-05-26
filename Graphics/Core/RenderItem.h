@@ -8,39 +8,43 @@ namespace Graphics {
     class Material;
     class Texture;
 
-    struct RenderVerticesDesc
-    {
+    struct RenderVerticesDesc {
         const uint8 *vertices;
         uint32 verticesCount;
         const uint8 *indices;
         uint32 indicesCount;
     };
-    struct RenderItemDesc
-    {
+    struct RenderItemDescBase {
         const std::string& name;
         const XMFLOAT4X3& transform;
-        D3D12_PRIMITIVE_TOPOLOGY primitiveTopology;
-        const Material *material;
         const Texture *texture;
+        const Material *material;
+    };
+    // Keep in sync with grtRenderSubItemDesc
+    struct RenderItemDesc : RenderItemDescBase {
+        D3D12_PRIMITIVE_TOPOLOGY primitiveTopology;
+    };
+    // Keep in sync with grtRenderSubItemParticlesDesc
+    struct RenderItemParticlesDesc : RenderItemDescBase {
+        float particleSize;
     };
 
-    class RenderItem;
-    
-    class RenderSubItem : public Utility::BufferEntryDirty
+    class RenderSubItemBase : public Utility::BufferEntryDirty
     {
     public:
-        RenderSubItem(uint32 baseVertexLocation,
-            uint32 baseIndexLocation,
-            int verticesCount,
-            int indicesCount,
-            const XMFLOAT4X3& transform,
-            uint32 objBufferIndex,
-            const Material* material,
-            const Texture* const texture,
-            D3D_PRIMITIVE_TOPOLOGY primitiveTopology,
-            const RenderItem& container);
+        struct ConstructionData {
+            uint32 baseVertexLocation;
+            uint32 baseIndexLocation;
+            uint32 verticesCount;
+            uint32 indicesCount;
+            const XMFLOAT4X3& transform;
+            uint32 objBufferIndex;
+            const Material* material;
+            const Texture* const texture;
+        };
 
-        RenderSubItem(const RenderSubItem& other) = delete;
+        RenderSubItemBase(const ConstructionData& data);
+        RenderSubItemBase(const RenderSubItemBase& other) = delete;
 
         uint32 BaseVertexLocation() const { return baseVertexLocation_; }
         uint32 VerticesCount() const { return verticesCount_; }
@@ -54,7 +58,6 @@ namespace Graphics {
 
         uint32 GetMaterialIndex() const { return materialIndex_; }
         const Texture* GetTexture() const { return texture_; }
-        D3D12_PRIMITIVE_TOPOLOGY GetPrimitiveTopology() const { return primitiveTopology_; }
 
     private:
         uint32 baseVertexLocation_;
@@ -64,8 +67,43 @@ namespace Graphics {
         XMFLOAT4X3 transform_;
         uint32 materialIndex_;
         const Texture* texture_;
-        D3D12_PRIMITIVE_TOPOLOGY primitiveTopology_;
+    };
 
+    class RenderItem;
+    class RenderItemParticles;
+
+    class RenderSubItemParticles : public RenderSubItemBase
+    {
+    public:
+        using Desc = RenderItemParticlesDesc;
+        RenderSubItemParticles(const ConstructionData& data, float particleSize, const RenderItemParticles& container) :
+            RenderSubItemBase(data),
+            particleSize_(particleSize),
+            container_(container)
+        {}
+
+        D3D12_PRIMITIVE_TOPOLOGY GetPrimitiveTopology() const { return D3D_PRIMITIVE_TOPOLOGY_POINTLIST; }
+        float GetParticleSize() const { return particleSize_; }
+
+    private:
+        float particleSize_;
+        const RenderItemParticles& container_;
+    };
+
+    class RenderSubItem : public RenderSubItemBase
+    {
+    public:
+        using Desc = RenderItemDesc;
+        RenderSubItem(const ConstructionData& data, D3D_PRIMITIVE_TOPOLOGY primitiveTopology, const RenderItem& container) :
+            RenderSubItemBase(data),
+            primitiveTopology_(primitiveTopology),
+            container_(container)
+        {}
+
+        D3D12_PRIMITIVE_TOPOLOGY GetPrimitiveTopology() const { return primitiveTopology_; }
+
+    private:
+        D3D12_PRIMITIVE_TOPOLOGY primitiveTopology_;
         const RenderItem& container_;
     };
 
@@ -89,6 +127,9 @@ namespace Graphics {
 
         void SetVertexData(const uint8* data, uint32 vertexOffset, uint32 verticesCount);
 
+    protected:
+        void CreateVertexBuffer(const RenderVerticesDesc* verticesDescs, uint32 verticesDescsCount, uint32 totalVerticesCount, uint32 vertexSize);
+
     private:
         enum { kIndexFormat = DXGI_FORMAT_R16_UINT };
 
@@ -99,7 +140,41 @@ namespace Graphics {
         const uint32 ibByteSize_;
     };
 
-    class RenderItem : public RenderItemBase
+    template <class RSI>
+    class RenderItemBase2 : public RenderItemBase
+    {
+    public:
+        using RenderItemBase::RenderItemBase;
+
+        using SubItems = std::unordered_map<std::string, RSI>;
+        const typename SubItems::iterator GetSubItemsBegin() { return begin(subItems_); }
+        const typename SubItems::iterator GetSubItemsEnd() { return end(subItems_); }
+        RSI& FindSubItem(const std::string& name) { return subItems_.find(name)->second; }
+
+        void SetSubItemVertexData(const std::string& name, const uint8* data) {
+            const RSI& rsi = subItems_.at(name);
+            SetVertexData(data, rsi.BaseVertexLocation(), rsi.VerticesCount());
+        }
+
+    protected:
+        template<class IndicesOffsets>
+        void AddSubItems(
+            const typename RSI::Desc* itemsDescs,
+            uint32 itemsDescsCount,
+            const RenderVerticesDesc* verticesDescs,
+            const uint32* itemsToData,
+            const std::vector<uint32>& verticesOffsets,
+            const IndicesOffsets& indicesOffsets,
+            Utility::FreeIndices& freeIndices);
+
+    private:
+        bool AddSubItem(const RenderSubItemBase::ConstructionData& data, const typename RSI::Desc& itemDesc);
+
+    private:
+        SubItems subItems_;
+    };
+
+    class RenderItem : public RenderItemBase2<RenderSubItem>
     {
     public:
         static void Create(
@@ -109,22 +184,25 @@ namespace Graphics {
             uint32 vertexSize,
             std::unique_ptr<RenderItem>& ri);
 
-        using SubItems = std::unordered_map<std::string, RenderSubItem>;
-        const SubItems::iterator GetSubItemsBegin() { return begin(subItems_); }
-        const SubItems::iterator GetSubItemsEnd() { return end(subItems_); }
-        RenderSubItem& FindSubItem(const std::string& name) { return subItems_.find(name)->second; }
-
-        void SetSubItemVertexData(const std::string& name, const uint8* data) {
-            const RenderSubItem& rsi = subItems_.at(name);
-            SetVertexData(data, rsi.BaseVertexLocation(), rsi.VerticesCount());
-        }
-
     private:
         RenderItem(uint32 vertexSize, uint32 verticesCount, uint32 indicesCount) :
-            RenderItemBase(vertexSize, verticesCount, indicesCount)
+            RenderItemBase2(vertexSize, verticesCount, indicesCount)
         {}
+    };
+
+    class RenderItemParticles : public RenderItemBase2<RenderSubItemParticles>
+    {
+    public:
+        static void Create(
+            const RenderItemParticlesDesc* itemsDescs, uint32 itemsDescsCount,
+            const RenderVerticesDesc* verticesDescs, uint32 verticesDescsCount,
+            const uint32* itemsToVertices,
+            uint32 vertexSize,
+            std::unique_ptr<RenderItemParticles>& ri);
 
     private:
-        SubItems subItems_;
+        RenderItemParticles(uint32 vertexSize, uint32 verticesCount) :
+            RenderItemBase2(vertexSize, verticesCount, 0)
+        {}
     };
 }

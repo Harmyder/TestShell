@@ -23,6 +23,13 @@ namespace Graphics {
         uint32 pad1, pad2, pad3;
     };
 
+    struct ParticlesMetaConsts
+    {
+        DirectX::XMFLOAT4X3 World;
+        float ParticleSize;
+        uint32 MaterialIndex;
+    };
+
     struct DirectionalLightConsts
     {
         DirectX::XMFLOAT3 Strength;
@@ -85,19 +92,20 @@ namespace Graphics {
     class FrameResource
     {
     public:
-        FrameResource(uint32 passesCount, uint32 objsCount, uint32 matsCount, uint32 instsCount, const std::wstring& suffix);
+        FrameResource(uint32 passesCount, uint32 objsCount, uint32 matsCount, uint32 instsCount, uint32 pmsCount, const std::wstring& suffix);
         ~FrameResource();
 
         uint64 Fence = 0;
         std::unique_ptr<ConstantBuffer<PerPassConsts>> passCB;
         std::unique_ptr<ConstantBuffer<PerObjConsts>> objCB;
+        std::unique_ptr<UploadBuffer<ParticlesMetaConsts>> pmCB;
         std::unique_ptr<UploadBuffer<PerMatConsts>> matBuffer;
         std::unique_ptr<UploadBuffer<InstanceData>> instBuffer;
     };
 
     class FrameResources {
     public:
-        FrameResources(uint32 count, uint32 passesCount, uint32 objsCount, uint32 matsCount, uint32 texsCount, uint32 instsCount);
+        FrameResources(uint32 count, uint32 passesCount, uint32 objsCount, uint32 matsCount, uint32 texsCount, uint32 instsCount, uint32 pmsCount);
         ~FrameResources();
 
         void AdvanceFrame() { currentIndex_ = ++currentIndex_ % Count(); }
@@ -106,14 +114,16 @@ namespace Graphics {
         FrameResource& GetFrameResource(uint_t index) { return *resources_[index]; }
         uint32 Count() const { return (uint32)resources_.size(); }
 
-        uint_t CalcPassCbSize() const { return Utility::CalcConstBufSize(sizeof(PerPassConsts)); }
-        uint_t CalcObjCbSize() const { return Utility::CalcConstBufSize(sizeof(PerObjConsts)); }
+        uint32 CalcPassCbSize() const { return (uint32)Utility::CalcConstBufSize(sizeof(PerPassConsts)); }
+        uint32 CalcObjCbSize() const { return (uint32)Utility::CalcConstBufSize(sizeof(PerObjConsts)); }
+        uint32 CalcPmCbSize() const { return (uint32)Utility::CalcConstBufSize(sizeof(ParticlesMetaConsts)); }
 
         const uint32 PassesCountLimit;
         const uint32 ObjsCountLimit;
         const uint32 MatsCountLimit;
         const uint32 TexsCountLimit;
         const uint32 InstancesCountLimit;
+        const uint32 ParticlesMetasCountLimit;
 
         uint32 AcquireInstsRange(uint32 count) {
             assert(nextFreeInst + count < InstancesCountLimit);

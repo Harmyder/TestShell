@@ -28,20 +28,23 @@ namespace Graphics
     class FrameResources;
     class CommandContext;
     class RenderItem;
+    class RenderItemParticles;
     class RenderItemWithInstances;
     class RenderSubItem;
+    class RenderSubItemParticles;
     class LightsHolder;
     class MaterialsBuffer;
     class TexturesBuffer;
     class Texture;
 
     struct InitParams {
-        InitParams(uint32 sceneObjsCountLimit, uint32 instancesCountLimit, uint32 passesCountLimit, uint32 matsCountLimit, uint32 texsCountLimit, uint32 frameResourcesCount) :
+        InitParams(uint32 sceneObjsCountLimit, uint32 instancesCountLimit, uint32 passesCountLimit, uint32 matsCountLimit, uint32 texsCountLimit, uint32 pmsCountLimits, uint32 frameResourcesCount) :
             SceneObjectsCountLimit(sceneObjsCountLimit),
             InstancesCountLimit(instancesCountLimit),
             PassesCountLimit(passesCountLimit),
             MaterialsCountLimit(matsCountLimit),
             TexturesCountLimit(texsCountLimit),
+            ParticlesMetasCountLimit(pmsCountLimits),
             FrameResourcesCount(frameResourcesCount)
         {}
 
@@ -50,6 +53,7 @@ namespace Graphics
         uint32 PassesCountLimit;
         uint32 MaterialsCountLimit;
         uint32 TexturesCountLimit;
+        uint32 ParticlesMetasCountLimit;
         uint32 FrameResourcesCount;
     };
 
@@ -72,6 +76,7 @@ namespace Graphics
         void BeginScene();
         void EndScene();
         void DrawRenderItem(RenderItem& ri);
+        void DrawRenderItem(RenderItemParticles& ri);
         void DrawRenderSubItem(RenderItem& ri, const std::string& name);
         void DrawRenderItemWithInstances(RenderItemWithInstances& ri);
 
@@ -80,6 +85,7 @@ namespace Graphics
         Camera& GetCamera() { return camera_; }
 
         Utility::FreeIndices& GetFreePerObjBufferIndices() { return *freePerObjBufferIndices_; }
+        Utility::FreeIndices& GetFreeParticlesMetaBufferIndices() { return *freeParticlesMetaBufferIndices_; }
         LightsHolder& GetLightsHolder() { return *lightsHolder_; }
         MaterialsBuffer& GetMaterialsBuffer() { return *materialsBuffer_; }
         TexturesBuffer& GetTexturesBuffer() { return *texturesBuffer_; }
@@ -105,6 +111,7 @@ namespace Graphics
         void UpdatePassesCBs();
         void UpdateMaterials();
         void DrawRenderSubItemInternal(const RenderItem& ri, RenderSubItem& rsi);
+        void DrawRenderSubItemInternal(const RenderItemParticles& ri, RenderSubItemParticles& rsi);
 
     private:
         HWND hwnd_;
@@ -131,6 +138,7 @@ namespace Graphics
         Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> cbvHeap_;
 
         std::unique_ptr<Utility::FreeIndices> freePerObjBufferIndices_;
+        std::unique_ptr<Utility::FreeIndices> freeParticlesMetaBufferIndices_;
         std::unique_ptr<LightsHolder> lightsHolder_;
         std::unique_ptr<MaterialsBuffer> materialsBuffer_;
         std::unique_ptr<TexturesBuffer> texturesBuffer_;
@@ -139,8 +147,9 @@ namespace Graphics
         D3D12_RECT scissorRect_;
 
         std::unique_ptr<FrameResources> frameResources_;
-        uint32 passCbvOffset_;
-        uint32 texsCbvOffset_;
+        uint32 cbvOffsetPass_;
+        uint32 cbvOffsetPm_;
+        uint32 cbvOffsetTex_;
         Texture* dummyDiffuseTex_; // Intended for use in place of absent render item texture, and supposed to not change diffuse properties of its material
 
         Camera camera_;

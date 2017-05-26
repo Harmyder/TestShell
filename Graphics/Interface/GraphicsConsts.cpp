@@ -41,6 +41,7 @@ namespace grePrimitiveTopology {
     extern const Type kInvalid = Type();
     extern const Type kTriangleList(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     extern const Type kLineList    (D3D10_PRIMITIVE_TOPOLOGY_LINELIST);
+    extern const Type kPointList   (D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 }
 
 namespace grePrimitiveTopologyType {
@@ -57,7 +58,16 @@ namespace greFillMode {
         "Underlying type of D3D12_FILL_MODE is different from greFillMode::UnderlyingType");
     extern const Type kInvalid = Type();
     extern const Type kWireframe(D3D12_FILL_MODE_WIREFRAME);
-    extern const Type kSolid    (D3D12_FILL_MODE_SOLID);
+    extern const Type kSolid(D3D12_FILL_MODE_SOLID);
+}
+
+namespace greCullMode {
+    static_assert(std::is_same<Type::UnderlyingType, std::underlying_type_t<D3D12_CULL_MODE>>::value,
+        "Underlying type of D3D12_CULL_MODE is different from greCullMode::UnderlyingType");
+    extern const Type kInvalid = Type();
+    extern const Type kNone(D3D12_CULL_MODE_NONE);
+    extern const Type kFront(D3D12_CULL_MODE_FRONT);
+    extern const Type kBack(D3D12_CULL_MODE_BACK);
 }
 
 namespace greLibraryMaterial {

@@ -33,6 +33,7 @@ namespace grePrimitiveTopology {
     extern const Type kInvalid;
     extern const Type kTriangleList;
     extern const Type kLineList;
+    extern const Type kPointList;
 }
 
 namespace grePrimitiveTopologyType {
@@ -48,6 +49,14 @@ namespace greFillMode {
     extern const Type kInvalid;
     extern const Type kWireframe;
     extern const Type kSolid;
+}
+
+namespace greCullMode {
+    DEFINE_NAMESPACE_ENUM_TYPE(int, -1);
+    extern const Type kInvalid;
+    extern const Type kNone;
+    extern const Type kFront;
+    extern const Type kBack;
 }
 
 namespace greLibraryMaterial {

@@ -10,6 +10,7 @@ struct grInitParams {
     uint32 PassesCountLimit;
     uint32 MaterialsCountLimit;
     uint32 TexturesCountLimit;
+    uint32 ParticlesMetasCountLimit;
     uint32 FrameResourcesCount;
 };
 void grInit(HWND hWnd, grInitParams params);
@@ -22,6 +23,7 @@ XMMATRIX grGetInvViewTransform();
 void grBeginScene();
 void grEndScene();
 void grDrawRenderItem(grRenderItem ri);
+void grDrawRenderItem(grRenderItemParticles ri);
 void grDrawRenderItem(grRenderItemWithInstances riwi);
 void grDrawRenderSubItem(grRenderItem ri, const std::string& name);
 
@@ -47,11 +49,15 @@ grTexture grCreateTextureFromHandmadeData(const std::wstring& name, uint32 width
 void grDestroyTexture(grTexture material);
 
 grRenderItem grCreateRenderItem(const grtRenderItemDesc& renderItemDesc, uint32 vertexSize);
+grRenderItemParticles grCreateRenderItem(const grtRenderItemParticlesDesc& renderItemDesc, uint32 vertexSize);
 grRenderItemWithInstances grCreateRenderItemWithInstances(const grtRenderSubItemWithInstancesDesc& desc, const grtRenderVertices& vertices, uint32 vertexSize);
 void grUpdateRenderSubItemTransform(grRenderItem renderItem, const std::string& name, const XMFLOAT4X3& transform);
+void grUpdateRenderSubItemTransform(grRenderItemParticles renderItem, const std::string& name, const XMFLOAT4X3& transform);
 void grUpdateRenderItemInstancesTransforms(grRenderItemWithInstances renderItem, const XMFLOAT4X3& transform, const XMFLOAT4X3* instancesTransforms);
 void grUpdateRenderSubItemVertexData(grRenderItem renderItem, const std::string& name, const uint8* data);
+void grUpdateRenderSubItemVertexData(grRenderItemParticles renderItem, const std::string& name, const uint8* data);
 void grDestroyRenderItem(grRenderItem renderItem);
+void grDestroyRenderItem(grRenderItemParticles renderItem);
 void grDestroyRenderItem(grRenderItemWithInstances renderItem);
 
 void __vectorcall grSetCameraAffineTransform(FXMMATRIX affine, XMVECTOR translation);

@@ -13,13 +13,13 @@ namespace Graphics {
         XMFLOAT4X3 transform;
         Material *material;
     };
+    // Keep in sync with grtRenderSubItemWithInstancesDesc
     struct RenderItemWithInstancesDesc
     {
         std::string& name;
         XMFLOAT4X3& transform;
-        D3D12_PRIMITIVE_TOPOLOGY primitiveTopology;
         Texture *texture;
-
+        D3D12_PRIMITIVE_TOPOLOGY primitiveTopology;
         const RenderItemInstanceDesc* instancesDescs;
         uint32 instancesCount;
     };

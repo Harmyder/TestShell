@@ -12,4 +12,12 @@ namespace Viewer
     struct Material;
 }
 
-Viewer::RenderItemsDescriptions BuildDescsFromScene(const Pipeline::UserScene& scene, Viewer::Material matRigid, Viewer::Material matCollider);
+struct RenderItemsDescriptions
+{
+    Viewer::DescsInstanced Instanced;
+    Viewer::DescsVertices Vertices;
+    Viewer::DescsTypes Types;
+    Viewer::DescsParticles Particles;
+};
+
+RenderItemsDescriptions BuildDescsFromScene(const Pipeline::UserScene& scene, Viewer::Material matRigid, Viewer::Material matCollider);

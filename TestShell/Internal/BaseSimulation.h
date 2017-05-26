@@ -14,6 +14,7 @@ namespace Viewer {
     class RenderItemOpaqueRaii;
     class RenderItemTransparentRaii;
     class RenderItemWithInstancesRaii;
+    class RenderItemParticlesRaii;
     class MaterialRaii;
 }
 

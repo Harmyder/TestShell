@@ -33,24 +33,26 @@ namespace Graphics
         }
     }
 
-    FrameResource::FrameResource(uint32 passesCount, uint32 objsCount, uint32 matsCount, uint32 instsCount, const wstring& suffix) {
+    FrameResource::FrameResource(uint32 passesCount, uint32 objsCount, uint32 matsCount, uint32 instsCount, uint32 pmsCount, const wstring& suffix) {
         passCB = make_unique<ConstantBuffer<PerPassConsts>>(L"fr passes " + suffix, passesCount);
-        objCB  = make_unique<ConstantBuffer<PerObjConsts>>(L"fr objs " + suffix, objsCount);
+        objCB = make_unique<ConstantBuffer<PerObjConsts>>(L"fr objs " + suffix, objsCount);
+        pmCB  = make_unique<ConstantBuffer<ParticlesMetaConsts>>(L"fr pms " + suffix, pmsCount);
         matBuffer  = make_unique<UploadBuffer<PerMatConsts>>(L"fr mats " + suffix, matsCount, false);
         instBuffer = make_unique<UploadBuffer<InstanceData>>(L"fr insts " + suffix, instsCount, false);
     }
 
     FrameResource::~FrameResource() {}
 
-    FrameResources::FrameResources(uint32 count, uint32 passesCount, uint32 objsCount, uint32 matsCount, uint32 texsCount, uint32 instsCount) :
+    FrameResources::FrameResources(uint32 count, uint32 passesCount, uint32 objsCount, uint32 matsCount, uint32 texsCount, uint32 instsCount, uint32 pmsCount) :
         PassesCountLimit(passesCount),
         ObjsCountLimit(objsCount),
         MatsCountLimit(matsCount),
         TexsCountLimit(texsCount),
-        InstancesCountLimit(instsCount)
+        InstancesCountLimit(instsCount),
+        ParticlesMetasCountLimit(pmsCount)
     {
         for (uint_t i = 0; i < count; ++i) {
-            resources_.push_back(make_unique<FrameResource>(passesCount, objsCount, matsCount, instsCount, L"#" + to_wstring(i)));
+            resources_.push_back(make_unique<FrameResource>(passesCount, objsCount, matsCount, instsCount, pmsCount, L"#" + to_wstring(i)));
         }
     }
 

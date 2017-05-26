@@ -27,33 +27,80 @@ namespace Graphics
         return ibv;
     }
 
-    RenderSubItem::RenderSubItem(uint32 baseVertexLocation,
-        uint32 baseIndexLocation,
-        int verticesCount,
-        int indicesCount,
-        const XMFLOAT4X3& transform,
-        uint32 objBufferIndex,
-        const Material* material,
-        const Texture* texture,
-        D3D_PRIMITIVE_TOPOLOGY primitiveTopology,
-        const RenderItem& container) :
-        BufferEntryDirty(objBufferIndex),
-        baseVertexLocation_(baseVertexLocation),
-        baseIndexLocation_(baseIndexLocation),
-        verticesCount_(verticesCount),
-        indicesCount_(indicesCount),
-        transform_(transform),
-        materialIndex_(material->BufferIndex()),
-        texture_(texture),
-        primitiveTopology_(primitiveTopology),
-        container_(container)
+    RenderSubItemBase::RenderSubItemBase(const ConstructionData& data) :
+        BufferEntryDirty(data.objBufferIndex),
+        baseVertexLocation_(data.baseVertexLocation),
+        baseIndexLocation_(data.baseIndexLocation),
+        verticesCount_(data.verticesCount),
+        indicesCount_(data.indicesCount),
+        transform_(data.transform),
+        materialIndex_(data.material->BufferIndex()),
+        texture_(data.texture)
     {
         SetAllFramesDirty();
     }
 
-    void RenderSubItem::SetTransform(const XMFLOAT4X3& transform) {
+    void RenderSubItemBase::SetTransform(const XMFLOAT4X3& transform) {
         transform_ = transform;
         SetAllFramesDirty();
+    }
+
+    void RenderItemBase::CreateVertexBuffer(const RenderVerticesDesc* verticesDescs, uint32 verticesDescsCount, uint32 totalVerticesCount, uint32 vertexSize) {
+        std::vector<uint8> vertices;
+        vertices.reserve(totalVerticesCount * vertexSize);
+        for (uint_t i = 0; i < verticesDescsCount; ++i) {
+            auto& vd = verticesDescs[i];
+            vertices.insert(vertices.end(), vd.vertices, vd.vertices + vd.verticesCount * vertexSize);
+        }
+        VertexBuffer().Create(L"ri_vertex", totalVerticesCount, vertexSize, vertices.data());
+    }
+
+    template <>
+    bool RenderItemBase2<RenderSubItem>::AddSubItem(const RenderSubItemBase::ConstructionData& data, const RenderSubItem::Desc& itemDesc) {
+        const auto p = subItems_.emplace(
+            std::piecewise_construct,
+            std::forward_as_tuple(itemDesc.name),
+            std::forward_as_tuple(data, itemDesc.primitiveTopology, *(RenderItem*)this)
+        );
+        return p.second;
+    }
+
+    template <>
+    bool RenderItemBase2<RenderSubItemParticles>::AddSubItem(const RenderSubItemBase::ConstructionData& data, const RenderSubItemParticles::Desc& itemDesc) {
+        const auto p = subItems_.emplace(
+            std::piecewise_construct,
+            std::forward_as_tuple(itemDesc.name),
+            std::forward_as_tuple(data, itemDesc.particleSize, *(RenderItemParticles*)this)
+        );
+        return p.second;
+    }
+
+    template <class RSI>
+    template<class IndicesOffsets>
+    void RenderItemBase2<RSI>::AddSubItems(
+        const typename RSI::Desc* itemsDescs,
+        uint32 itemsDescsCount,
+        const RenderVerticesDesc* verticesDescs,
+        const uint32* itemsToData,
+        const vector<uint32>& verticesOffsets,
+        const IndicesOffsets& indicesOffsets,
+        Utility::FreeIndices& freeIndices)
+    {
+        for (uint_t i = 0; i < itemsDescsCount; ++i) {
+            const auto& cur_id = itemsDescs[i];
+            const auto& cur_vd = verticesDescs[itemsToData[i]];
+            RenderSubItemBase::ConstructionData data{
+                verticesOffsets[itemsToData[i]],
+                indicesOffsets(itemsToData[i]),
+                cur_vd.verticesCount,
+                cur_vd.indicesCount,
+                cur_id.transform,
+                freeIndices.OccupyIndex(),
+                cur_id.material,
+                cur_id.texture
+            };
+            if (!AddSubItem(data, cur_id)) throw "At least two elements have the same name";
+        }
     }
 
     void RenderItem::Create(
@@ -63,8 +110,7 @@ namespace Graphics
         uint32 vertexSize,
         unique_ptr<RenderItem>& ri)
     {
-        auto& objBufferIndices = GraphicsCore::GetInstance().GetFreePerObjBufferIndices();
-        std::vector<uint32> verticesOffsets, indicesOffsets;
+        vector<uint32> verticesOffsets, indicesOffsets;
         verticesOffsets.reserve(verticesDescsCount);
         indicesOffsets.reserve(verticesDescsCount);
         uint32 totalVerticesCount = 0;
@@ -77,36 +123,12 @@ namespace Graphics
             assert(verticesDescs[i].indicesCount != 0 && verticesDescs[i].indices != nullptr || verticesDescs[i].indicesCount == 0 && verticesDescs[i].indices == nullptr);
         }
 
+        auto& objBufferIndices = GraphicsCore::GetInstance().GetFreePerObjBufferIndices();
         struct RenderItemUniquePtrEnabler : public RenderItem { RenderItemUniquePtrEnabler(uint32 vs, uint32 vc, uint32 ic) : RenderItem(vs, vc, ic) {} };
         ri = make_unique<RenderItemUniquePtrEnabler>(vertexSize, totalVerticesCount, totalIndicesCount);
-        for (uint_t i = 0; i < itemsDescsCount; ++i) {
-            const auto& cur_id = itemsDescs[i];
-            const auto& cur_vd = verticesDescs[itemsToData[i]];
-            const auto p = ri->subItems_.emplace(
-                std::piecewise_construct,
-                std::forward_as_tuple(cur_id.name),
-                std::forward_as_tuple(
-                    verticesOffsets[itemsToData[i]],
-                    indicesOffsets[itemsToData[i]],
-                    cur_vd.verticesCount,
-                    cur_vd.indicesCount,
-                    cur_id.transform,
-                    objBufferIndices.OccupyIndex(),
-                    cur_id.material,
-                    cur_id.texture,
-                    cur_id.primitiveTopology,
-                    *ri)
-            );
-            if (!p.second) throw "At least two elements have the same name";
-        }
+        ri->AddSubItems(itemsDescs, itemsDescsCount, verticesDescs, itemsToData, verticesOffsets, [&indicesOffsets](int i) { return indicesOffsets[i]; }, objBufferIndices);
 
-        std::vector<uint8> vertices;
-        vertices.reserve(totalVerticesCount * vertexSize);
-        for (uint_t i = 0; i < verticesDescsCount; ++i) {
-            auto& vd = verticesDescs[i];
-            vertices.insert(vertices.end(), vd.vertices, vd.vertices + vd.verticesCount * vertexSize);
-        }
-        ri->VertexBuffer().Create(L"ri_vertex", totalVerticesCount, vertexSize, vertices.data());
+        ri->CreateVertexBuffer(verticesDescs, verticesDescsCount, totalVerticesCount, vertexSize);
 
         if (totalIndicesCount > 0) {
             std::vector<uint8> indices;
@@ -117,6 +139,30 @@ namespace Graphics
             }
             ri->IndexBuffer().Create(L"ri_index", totalIndicesCount, kIndexSize, indices.data());
         }
+    }
+
+    void RenderItemParticles::Create(
+        const RenderItemParticlesDesc* itemsDescs, uint32 itemsDescsCount,
+        const RenderVerticesDesc* verticesDescs, uint32 verticesDescsCount,
+        const uint32* itemsToData,
+        uint32 vertexSize,
+        unique_ptr<RenderItemParticles>& ri)
+    {
+        std::vector<uint32> verticesOffsets;
+        verticesOffsets.reserve(verticesDescsCount);
+        uint32 totalVerticesCount = 0;
+        for (uint_t i = 0; i < verticesDescsCount; ++i) {
+            verticesOffsets.push_back(totalVerticesCount);
+            totalVerticesCount += verticesDescs[i].verticesCount;
+            assert(verticesDescs[i].indicesCount == 0 && verticesDescs[i].indices == nullptr);
+        }
+
+        auto& pmBufferIndices = GraphicsCore::GetInstance().GetFreeParticlesMetaBufferIndices();
+        struct RenderItemParticlesUniquePtrEnabler : public RenderItemParticles { RenderItemParticlesUniquePtrEnabler(uint32 vs, uint32 vc) : RenderItemParticles(vs, vc) {} };
+        ri = make_unique<RenderItemParticlesUniquePtrEnabler>(vertexSize, totalVerticesCount);
+        ri->AddSubItems(itemsDescs, itemsDescsCount, verticesDescs, itemsToData, verticesOffsets, [](int) -> uint32 { return 0; }, pmBufferIndices);
+
+        ri->CreateVertexBuffer(verticesDescs, verticesDescsCount, totalVerticesCount, vertexSize);
     }
 
     void RenderItemBase::SetVertexData(const uint8* data, uint32 vertexOffset, uint32 verticesCount) {

@@ -7,3 +7,5 @@
 | Ideas to implement |
 | --- |
 | Allow simulation to set/reset initial camera position and respond to keyboard/mouse |
+| `auto v = static_cast<RenderItemHandle*>(&ri)->GetValue();` -> `auto v = GetValue(ri)` use kind of traits |
+

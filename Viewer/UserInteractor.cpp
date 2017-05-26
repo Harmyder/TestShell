@@ -238,6 +238,9 @@ namespace Viewer
         viewport_->BeforeOpaqueWithInstances();
         viewport_->DrawRenderItemsOpaqueWithInstances();
 
+        viewport_->BeforeParticles();
+        viewport_->DrawRenderItemsParticles();
+
         viewport_->BeforeTransparent();
         viewport_->DrawRenderItemsTransparent();
     }

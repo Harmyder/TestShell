@@ -29,6 +29,7 @@ void grInit(HWND hWnd, grInitParams params) {
         params.PassesCountLimit,
         params.MaterialsCountLimit,
         params.TexturesCountLimit,
+        params.ParticlesMetasCountLimit,
         params.FrameResourcesCount);
     GraphicsCore::GetInstance().Initialize(hWnd, ip);
 }
@@ -130,6 +131,11 @@ void grDrawRenderItem(grRenderItem ri) {
     GraphicsCore::GetInstance().DrawRenderItem(*v);
 }
 
+void grDrawRenderItem(grRenderItemParticles ri) {
+    auto v = static_cast<RenderItemParticlesHandle*>(&ri)->GetValue();
+    GraphicsCore::GetInstance().DrawRenderItem(*v);
+}
+
 void grDrawRenderItem(grRenderItemWithInstances riwi) {
     auto v = static_cast<RenderItemWithInstancesHandle*>(&riwi)->GetValue();
     GraphicsCore::GetInstance().DrawRenderItemWithInstances(*v);
@@ -170,6 +176,7 @@ grPipelineStateObject grCreatePipelineStateObject(const grtPipelineStateDesc& de
     pso->SetBlendEnable(desc.BlendEnable);
     pso->SetDepthEnable(desc.DepthEnable);
     pso->SetFillMode(*(D3D12_FILL_MODE*)&desc.FillMode);
+    pso->SetCullMode(*(D3D12_CULL_MODE*)&desc.CullMode);
     pso->SetPrimitiveTopologyType(*(D3D12_PRIMITIVE_TOPOLOGY_TYPE*)&desc.PrimitiveTolopologyType);
     pso->SetVertexType(*(VertexType*)&desc.VertexType);
     pso->SetShaderType(*(ShaderType*)&desc.ShaderType);
@@ -190,17 +197,26 @@ void grDestroyPipelineStateObject(grPipelineStateObject pipelineState) {
     delete pso;
 }
 
-grRenderItem grCreateRenderItem(const grtRenderItemDesc& renderItemDesc, uint32 vertexSize) {
+template <class grRI, class D, class RI, class grtD>
+grRI CreateRenderItem(const grtD& renderItemDesc, uint32 vertexSize) {
     assert(renderItemDesc.renderVerticesCount && renderItemDesc.renderSubItemsCount);
-    auto renderSubItemsInternal = (RenderItemDesc*)renderItemDesc.renderSubItems;
+    auto renderSubItemsInternal = (D*)renderItemDesc.renderSubItems;
     auto renderVerticesInternal = (RenderVerticesDesc*)renderItemDesc.renderVertices;
-    unique_ptr<RenderItem> ri;
-    RenderItem::Create(
+    unique_ptr<RI> ri;
+    RI::Create(
         renderSubItemsInternal, renderItemDesc.renderSubItemsCount,
         renderVerticesInternal, renderItemDesc.renderVerticesCount,
         renderItemDesc.itemsToVertices,
         vertexSize, ri);
-    return grRenderItem(ri.release());
+    return grRI(ri.release());
+}
+
+grRenderItem grCreateRenderItem(const grtRenderItemDesc& renderItemDesc, uint32 vertexSize) {
+    return CreateRenderItem<grRenderItem, RenderItemDesc, RenderItem>(renderItemDesc, vertexSize);
+}
+
+grRenderItemParticles grCreateRenderItem(const grtRenderItemParticlesDesc& renderItemDesc, uint32 vertexSize) {
+    return CreateRenderItem<grRenderItemParticles, RenderItemParticlesDesc, RenderItemParticles>(renderItemDesc, vertexSize);
 }
 
 grRenderItemWithInstances grCreateRenderItemWithInstances(const grtRenderSubItemWithInstancesDesc& desc, const grtRenderVertices& vertices, uint32 vertexSize) {
@@ -216,6 +232,12 @@ void grUpdateRenderSubItemTransform(grRenderItem renderItem, const std::string& 
     subItem.SetTransform(transform);
 }
 
+void grUpdateRenderSubItemTransform(grRenderItemParticles renderItem, const std::string& name, const XMFLOAT4X3& transform) {
+    auto ri = static_cast<RenderItemParticlesHandle>(renderItem).GetValue();
+    auto& subItem = ri->FindSubItem(name);
+    subItem.SetTransform(transform);
+}
+
 void grUpdateRenderItemInstancesTransforms(grRenderItemWithInstances renderItem, const XMFLOAT4X3& transform, const XMFLOAT4X3* instancesTransforms) {
     auto ri = static_cast<RenderItemWithInstancesHandle>(renderItem).GetValue();
     ri->SetTransform(transform);
@@ -227,9 +249,20 @@ void grUpdateRenderSubItemVertexData(grRenderItem renderItem, const std::string&
     ri->SetSubItemVertexData(name, data);
 }
 
+void grUpdateRenderSubItemVertexData(grRenderItemParticles renderItem, const std::string& name, const uint8* data) {
+    auto ri = static_cast<RenderItemParticlesHandle>(renderItem).GetValue();
+    ri->SetSubItemVertexData(name, data);
+}
+
 void grDestroyRenderItem(grRenderItem renderItem) {
     GraphicsCore::GetInstance().GetCommandQueue()->WaitAllDone();
     RenderItem* ri = static_cast<RenderItemHandle>(renderItem).GetValue();
+    delete ri;
+}
+
+void grDestroyRenderItem(grRenderItemParticles renderItem) {
+    GraphicsCore::GetInstance().GetCommandQueue()->WaitAllDone();
+    RenderItemParticles* ri = static_cast<RenderItemParticlesHandle>(renderItem).GetValue();
     delete ri;
 }
 

@@ -13,8 +13,8 @@ struct grPipelineStateObject : grHandle { grPipelineStateObject(void *pipelineSt
 
 struct grCommandContext : grHandle { grCommandContext(void *commandContext) : grHandle(commandContext) {} }; 
 
-struct grRenderItem : grHandle { grRenderItem(void *renderItem) : grHandle(renderItem) {} };
-
+struct grRenderItem              : grHandle { grRenderItem(void *renderItem)              : grHandle(renderItem) {} };
+struct grRenderItemParticles     : grHandle { grRenderItemParticles(void *renderItem)     : grHandle(renderItem) {} };
 struct grRenderItemWithInstances : grHandle { grRenderItemWithInstances(void *renderItem) : grHandle(renderItem) {} };
 
 struct grMaterial : grHandle { grMaterial(void *material) : grHandle(material) {} };
@@ -24,7 +24,5 @@ struct grTexture : grHandle { grTexture(void *texture) : grHandle(texture) {} };
 extern grTexture grcTextureNone;
 
 struct grDirectionalLight : grHandle { grDirectionalLight(void *light) : grHandle(light) {} };
-
-struct grPointLight : grHandle { grPointLight(void *light) : grHandle(light) {} };
-
-struct grSpotLight : grHandle { grSpotLight(void *light) : grHandle(light) {} };
+struct grPointLight       : grHandle { grPointLight(void *light)       : grHandle(light) {} };
+struct grSpotLight        : grHandle { grSpotLight(void *light)        : grHandle(light) {} };

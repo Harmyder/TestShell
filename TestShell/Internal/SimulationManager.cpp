@@ -12,6 +12,7 @@
 #include "Simulations/CubeSimulation.h"
 #include "Simulations/MovingObjsInRi.h"
 #include "Simulations/Cloth/ClothSimulation.h"
+#include "Simulations/Particles/RandomWalk.h"
 
 #include "Exploring_Bullet/Simulations/FallingCube.h"
 #include "Exploring_Bullet/Simulations/SimpleCloth.h"
@@ -34,6 +35,7 @@ void SimulationManager::Close()
 void SimulationManager::RegisterSimulations()
 {
     factories_ = new std::vector<BaseFactory*>;
+    RegisterFactory(new SimulationFactory<RandomWalk>("Diffusion with drift and reaction"));
     RegisterFactory(new SimulationFactory<FbxSimulation>("Fbx Loading"));
     RegisterFactory(new SimulationFactory<HeatEquation2d>("Heat diffusion over plate"));
     RegisterFactory(new SimulationFactory<TextureDemo>("Texture Demo"));
