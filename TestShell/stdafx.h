@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <functional>
 #include <random>
+#include <numeric>
 
 #define NOMINMAX
 #include <Windows.h>
@@ -26,20 +27,20 @@
 
 // Bullet libs, used in Exploring_Bullet
 #if defined(_DEBUG)
-    #pragma comment(lib, "Bullet3Collision_Debug.lib")
-    #pragma comment(lib, "Bullet3Dynamics_Debug.lib")
-    #pragma comment(lib, "Bullet3Common_Debug.lib")
-    #pragma comment(lib, "BulletCollision_Debug.lib")
-    #pragma comment(lib, "BulletDynamics_Debug.lib")
-    #pragma comment(lib, "BulletSoftBody_Debug.lib")
-    #pragma comment(lib, "LinearMath_Debug.lib")
+    #pragma comment(lib, "Bullet3Collision.lib")
+    #pragma comment(lib, "Bullet3Dynamics.lib")
+    #pragma comment(lib, "Bullet3Common.lib")
+    #pragma comment(lib, "BulletCollision.lib")
+    #pragma comment(lib, "BulletDynamics.lib")
+    #pragma comment(lib, "BulletSoftBody.lib")
+    #pragma comment(lib, "LinearMath.lib")
 #else
-    #pragma comment(lib, "Bullet3Collision_Release.lib")
-    #pragma comment(lib, "Bullet3Dynamics_Release.lib")
-    #pragma comment(lib, "Bullet3Common_Release.lib")
-    #pragma comment(lib, "BulletCollision_Release.lib")
-    #pragma comment(lib, "BulletDynamics_Release.lib")
-    #pragma comment(lib, "BulletSoftBody_Release.lib")
-    #pragma comment(lib, "LinearMath_Release.lib")
+    #pragma comment(lib, "Bullet3Collision.lib")
+    #pragma comment(lib, "Bullet3Dynamics.lib")
+    #pragma comment(lib, "Bullet3Common.lib")
+    #pragma comment(lib, "BulletCollision.lib")
+    #pragma comment(lib, "BulletDynamics.lib")
+    #pragma comment(lib, "BulletSoftBody.lib")
+    #pragma comment(lib, "LinearMath.lib")
 #endif
 

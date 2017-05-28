@@ -14,4 +14,6 @@ public:
 private:
     std::unique_ptr<Viewer::MaterialRaii> matParticle_;
     std::unique_ptr<Viewer::RenderItemParticlesRaii> particles_;
+    std::unique_ptr<Viewer::TextureRaii> texParticle_;
+    float timeLeftout_ = 0.f;
 };

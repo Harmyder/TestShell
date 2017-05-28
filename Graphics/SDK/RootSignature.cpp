@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "SDK\RootSignature.h"
+#include "SDK/RootSignature.h"
 
-#include "Shaders\consts.shared.h"
+#include "Shaders/consts.shared.h"
 
 using namespace std;
 
@@ -63,11 +63,12 @@ namespace Graphics
             slotRootParameters[0].InitAsDescriptorTable(1, &cbvTableObj, D3D12_SHADER_VISIBILITY_ALL);
         }
         slotRootParameters[1].InitAsDescriptorTable(1, &cbvTablePass, D3D12_SHADER_VISIBILITY_ALL);
+        CD3DX12_DESCRIPTOR_RANGE texTable;
         if (type_ == RootSignatureType::kLighting ||
             type_ == RootSignatureType::kLightingWithInstances ||
             type_ == RootSignatureType::kParticles) {
             assert(rDiffuseTexture != (uint32)-1 && rMaterialBuf != (uint32)-1);
-            CD3DX12_DESCRIPTOR_RANGE texTable(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, rDiffuseTexture);
+            texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, rDiffuseTexture);
             slotRootParameters[2].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
             slotRootParameters[3].InitAsShaderResourceView(rMaterialBuf, 0, D3D12_SHADER_VISIBILITY_PIXEL);
             if (type_ == RootSignatureType::kLightingWithInstances) {

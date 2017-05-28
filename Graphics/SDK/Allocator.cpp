@@ -66,7 +66,7 @@ namespace Graphics
     static PagePool s_pagePool;
 
     Allocation Allocator::ReserveBuffer(uint64 currentFence, uint32 sizeInBytes, uint32 alignment) {
-        assert(sizeInBytes < PagePool::kPageSize); // Add possibility to request large pages
+        if (sizeInBytes > PagePool::kPageSize) throw "Add possibility to request large pages";
         auto neededOffset = Utility::AlignUp(currentOffset_, alignment);
         uint32 offset = neededOffset;
         if (usedPages_.size() == 0 || sizeInBytes > PagePool::kPageSize - neededOffset) {

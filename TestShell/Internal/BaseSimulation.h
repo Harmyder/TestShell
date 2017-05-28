@@ -16,6 +16,7 @@ namespace Viewer {
     class RenderItemWithInstancesRaii;
     class RenderItemParticlesRaii;
     class MaterialRaii;
+    class TextureRaii;
 }
 
 class BaseSimulation : public ISimulation
