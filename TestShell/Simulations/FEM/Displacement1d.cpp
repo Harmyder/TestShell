@@ -30,7 +30,10 @@ float basisFuncGrad(float xi, int localNode) {
     throw;
 }
 
-Displacement1d::Displacement1d(Viewport& viewport, const Viewer::GameInput& gameInput) : BaseSimulation("Displacement field 1d", viewport, gameInput) {
+CONS_DEF(Displacement1d);
+Displacement1d::~Displacement1d() {}
+
+void Displacement1d::Init() {
     force_ = [](float x) { return (float)1e11 * x; };
 
     const int kElemsCount = 10;
@@ -39,10 +42,6 @@ Displacement1d::Displacement1d(Viewport& viewport, const Viewer::GameInput& game
     for (int i = 0; i < kElemsCount + 1; ++i) points.push_back(bl + kElemLength * i);
 
     std::vector<float> dofs(kElemsCount + 1);
-
 }
 
-Displacement1d::~Displacement1d() {}
-
-void Displacement1d::Init() {}
 void Displacement1d::Step(float) {}

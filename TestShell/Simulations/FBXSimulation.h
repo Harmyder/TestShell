@@ -5,7 +5,7 @@
 class FbxSimulation : public BaseSimulation
 {
 public:
-    FbxSimulation(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput);
+    CONS_DEC(FbxSimulation);
     ~FbxSimulation();
 
 public:

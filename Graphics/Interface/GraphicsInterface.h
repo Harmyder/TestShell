@@ -60,7 +60,7 @@ void grDestroyRenderItem(grRenderItem renderItem);
 void grDestroyRenderItem(grRenderItemParticles renderItem);
 void grDestroyRenderItem(grRenderItemWithInstances renderItem);
 
-void __vectorcall grSetCameraAffineTransform(FXMMATRIX affine, XMVECTOR translation);
+void __vectorcall grSetCameraAffineTransform(FXMMATRIX affine);
 XMVECTOR __vectorcall grGetCameraPosition();
 
 grDirectionalLight grCreateDirectionalLight(DirectX::XMFLOAT3 strength, DirectX::XMFLOAT3 direction);

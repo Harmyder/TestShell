@@ -16,7 +16,7 @@ namespace Viewer
 class HeatEquation2d : public BaseSimulation
 {
 public:
-    HeatEquation2d(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput);
+    CONS_DEC(HeatEquation2d);
     ~HeatEquation2d();
 
 public:

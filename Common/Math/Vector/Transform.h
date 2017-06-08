@@ -62,6 +62,7 @@ namespace Common {
         XMFLOAT4X3 Store4x3() const { XMFLOAT4X3 t; XMStoreFloat4x3(&t, (XMMATRIX&)*this); return t; }
         XMFLOAT4X4 Store4x4() const { XMFLOAT4X4 t; XMStoreFloat4x4(&t, (XMMATRIX&)*this); return t; }
 
+        void SetLinear(Matrix3 linear) { linear_ = linear; }
         void SetX(Vector3 x) { linear_.SetX(x); }
         void SetY(Vector3 y) { linear_.SetY(y); }
         void SetZ(Vector3 z) { linear_.SetZ(z); }

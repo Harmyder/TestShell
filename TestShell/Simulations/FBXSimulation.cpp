@@ -14,8 +14,7 @@ using namespace Viewer;
 using namespace std;
 using namespace Pipeline;
 
-FbxSimulation::FbxSimulation(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) :
-    BaseSimulation("FbxSimulation", viewport, gameInput) {}
+CONS_DEF(FbxSimulation);
 FbxSimulation::~FbxSimulation() {}
 
 void FbxSimulation::Init() {

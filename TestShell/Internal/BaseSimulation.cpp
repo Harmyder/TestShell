@@ -16,10 +16,10 @@ using namespace Pipeline;
 using namespace Viewer;
 using namespace Common;
 
-BaseSimulation::BaseSimulation(const char* name, Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) :
-    ISimulation(name),
+BaseSimulation::BaseSimulation(Viewport& viewport, const GameInput& gameInput, CameraController& cameraCtrl) :
     viewport_(viewport),
-    gameInput_(gameInput)
+    gameInput_(gameInput),
+    cameraCtrl_(cameraCtrl)
 {}
 
 BaseSimulation::~BaseSimulation() {}

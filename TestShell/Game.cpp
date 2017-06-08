@@ -34,9 +34,9 @@ int Game::Run(HINSTANCE hInstance)
         while (++nextSimulation_ < simulationManager.GetFactoriesCount() && !launcher_->IsMustStop())
         {
             BaseFactory *factory = simulationManager.GetFactory(nextSimulation_);
-            auto simulation = factory->Create(userInteractor_->GetViewport(), userInteractor_->GetGameInput());
+            auto simulation = factory->Create(userInteractor_->GetViewport(), userInteractor_->GetGameInput(), userInteractor_->GetCameraController());
 
-            userInteractor_->SetWindowTitle(simulation->GetName().c_str());
+            userInteractor_->SetWindowTitle(factory->GetName().c_str());
 
             simulation->Init();
 

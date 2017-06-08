@@ -64,7 +64,14 @@ namespace Pipeline
     }
 
     void SceneManager::Load(const string& path, const string& filetitle) {
-        const ::FBX::Scene *fbxScene = FbxImporter::GetInstance().GetScene((path + filetitle + "." + fbx_ext).c_str());
+        const string relative = path + filetitle + "." + fbx_ext;
+        if (!ifstream(relative.c_str()).good()) {
+            vector<char> absolute(1024);
+            GetFullPathName(relative.c_str(), (DWORD)absolute.size(), absolute.data(), nullptr);
+            throw logic_error("File doesn't exist: " + string(absolute.data()));
+        }
+
+        const ::FBX::Scene *fbxScene = FbxImporter::GetInstance().GetScene(relative.c_str());
         const float scaleFactor = fbxScene->scaleFactor;
 
         colliders_ = move(LoadColliders((path + filetitle + "." + hrm_ext).c_str(), Matrix3(UpAxisRotation(fbxScene->upVector, fbxScene->upVectorSign))));

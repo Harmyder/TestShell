@@ -6,7 +6,7 @@
 class MovingObjsInRi : public BaseSimulation
 {
 public:
-    MovingObjsInRi(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput);
+    CONS_DEC(MovingObjsInRi);
     ~MovingObjsInRi();
 
 public:

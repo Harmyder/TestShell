@@ -6,19 +6,16 @@
 
 using namespace std;
 using namespace DirectX;
+using namespace Common;
 
 namespace Viewer
 {
     CameraController::CameraController(const GameInput& gameInput, UpVector upVector) : gameInput_(gameInput) {
-        XMVECTOR up, north, east;
-        if (upVector == UpVector::Y) up = g_XMIdentityR1;
-        else if (upVector == UpVector::Z) up = g_XMIdentityR2;
+        if (upVector == UpVector::Y) up_ = Vector3(g_XMIdentityR1);
+        else if (upVector == UpVector::Z) up_ = Vector3(g_XMIdentityR2);
         else throw "X can't be up axis";
-        north = XMVector3Normalize(XMVector3Cross(up, g_XMIdentityR0));
-        east = XMVector3Normalize(XMVector3Cross(north, up));
-        XMStoreFloat3(&worldUp_, up);
-        XMStoreFloat3(&worldNorth_, north);
-        XMStoreFloat3(&worldEast_, east);
+        north_ = XMVector3Normalize(Cross(up_, Vector3(g_XMIdentityR0)));
+        east_ = XMVector3Normalize(Cross(north_, up_));
     }
 
     void CameraController::Update(float dT) {
@@ -27,12 +24,10 @@ namespace Viewer
             if (gameInput_.IsFirstPressed(GameInput::Input::kMenuKey)) {
                 for_each(begin(observers_), end(observers_), [](ICameraControllerObserver* o) { o->HandleStartTracking(); });
             }
-            float yaw = gameInput_.GetMouseDeltaX() * kMouseSensitivityX;
-            float pitch = gameInput_.GetMouseDeltaY() * kMouseSensitivityY;
+            float yaw = -gameInput_.GetMouseDeltaX() * kMouseSensitivityX;
+            float pitch = -gameInput_.GetMouseDeltaY() * kMouseSensitivityY;
             currentYaw_ += yaw;
             currentPitch_ += pitch;
-            lastYaw_ = yaw;
-            lastPitch_ = pitch;
 
             currentPitch_ = XMMin(XM_PIDIV2, currentPitch_);
             currentPitch_ = XMMax(-XM_PIDIV2, currentPitch_);
@@ -69,20 +64,14 @@ namespace Viewer
         if (gameInput_.IsPressed(GameInput::Input::kKeyE)) {
             ascent = dT * kKeyboardSensitivity;
         }
-
-        XMVECTOR up = XMLoadFloat3(&worldUp_);
-        XMVECTOR forward = XMLoadFloat3(&worldNorth_);
-        XMVECTOR right = XMLoadFloat3(&worldEast_);
-        XMMATRIX transform(right, up, forward, g_XMIdentityR3);
+        Vector3& forward = north_;
+        Vector3& right = east_;
+        Matrix3 transform(right, up_, forward);
         transform = transform
-            * XMMatrixRotationAxis(right, currentPitch_)
-            * XMMatrixRotationAxis(up, currentYaw_);
-
-        XMVECTOR translation = { strafe, ascent, walk, 0.f };
-        translation = XMVectorSetW(XMVector3Transform(translation, transform), 1.f);
-
-        XMStoreFloat3x3(&transform_, transform);
-        XMStoreFloat3(&translation_, translation);
+            * Matrix3(XMMatrixRotationAxis(up_, currentYaw_))
+            * Matrix3(XMMatrixRotationAxis(right, currentPitch_));
+        Vector3 translation(strafe, ascent, walk);
+        transform_ = AffineTransform(transform, transform_ * translation);
     }
 
     bool CameraController::IsTrackingMouse() const {

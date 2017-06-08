@@ -146,15 +146,13 @@ namespace Viewer
         grShutdown();
     }
 
-    void Viewport::UpdateCamera(const XMFLOAT3X3& transform, const XMFLOAT3& frameTranslation) {
-        XMVECTOR ft = XMLoadFloat3(&frameTranslation);
-        XMVECTOR position = grGetCameraPosition() + ft;
-        XMMATRIX t = XMLoadFloat3x3(&transform);
-        grSetCameraAffineTransform(t, position);
+    void Viewport::UpdateCamera(const XMFLOAT4X3& transform) {
+        XMMATRIX t = XMLoadFloat4x3(&transform);
+        grSetCameraAffineTransform(t);
 
-        XMFLOAT3 p; XMStoreFloat3(&p, position);
-        grUpdatePointLight(lightPoint_, p);
-        grUpdateSpotLight(lightSpot_, p, XMFLOAT3(transform.m[2][0], transform.m[2][1], transform.m[2][2]));
+        XMFLOAT3 *p = (XMFLOAT3*)transform.m[3];
+        grUpdatePointLight(lightPoint_, *p);
+        grUpdateSpotLight(lightSpot_, *p, XMFLOAT3(transform.m[2][0], transform.m[2][1], transform.m[2][2]));
     }
 
     void Viewport::PrepareRootSignatures() {

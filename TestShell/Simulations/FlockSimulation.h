@@ -4,7 +4,7 @@
 class FlockSimulation : public BaseSimulation
 {
 public:
-    FlockSimulation(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput);
+    CONS_DEC(FlockSimulation);
     ~FlockSimulation();
 
     void Init() override;

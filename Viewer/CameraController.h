@@ -1,5 +1,6 @@
 #pragma once
 #include "ICameraControllerObserver.h"
+#include "Common/Math/Vector/all.h"
 
 namespace Viewer
 {
@@ -15,20 +16,24 @@ namespace Viewer
         void Update(float dT);
         bool IsTrackingMouse() const;
 
-        XMFLOAT3X3 GetTransform() { return transform_; }
-        XMFLOAT3 GetFrameTranslation() { return translation_; }
+        const Common::AffineTransform& GetTransform() const { return transform_; }
+        const Common::Matrix3& GetRotation() const { return transform_.GetLinear(); }
+        const Common::Vector3& GetTranslation() const { return transform_.GetTranslation(); }
+
+        void SetTranslation(Common::Vector3 translation) { transform_.SetTranslation(translation); }
+        void SetYaw(float yaw) { currentYaw_ = yaw; }
+        void SetPitch(float pitch) { currentPitch_ = pitch; }
 
     public:
         void ObserverAdd(ICameraControllerObserver* o) { observers_.push_back(o); }
         void ObserverRemove(ICameraControllerObserver* o) { observers_.remove(o); }
 
     private:
-        XMFLOAT3 worldUp_;
-        XMFLOAT3 worldNorth_;
-        XMFLOAT3 worldEast_;
+        Common::Vector3 up_;
+        Common::Vector3 north_;
+        Common::Vector3 east_;
 
-        XMFLOAT3X3 transform_;
-        XMFLOAT3 translation_;
+        Common::AffineTransform transform_;
        
         const float kMouseSensitivityX = .003f;
         const float kMouseSensitivityY = .003f;
@@ -36,9 +41,6 @@ namespace Viewer
 
         const GameInput& gameInput_;
 
-        float lastPitch_ = 0.f;
-        float lastYaw_ = 0.f;
-        
         float currentPitch_ = 0.f;
         float currentYaw_ = 0.f;
 

@@ -29,16 +29,14 @@ const float kEarthVisualScale = 300000;
 
 auto acceleration(Scalar radius) { return kG * kSunMass / (radius * radius); }
 
-MovingObjsInRi::MovingObjsInRi(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) :
-    BaseSimulation("MovingObjsInRi", viewport, gameInput),
-    sun_pos(kSunPos),
-    earth_pos(kEarthPos),
-    velocity(kVelocity)
-{}
-
+CONS_DEF(MovingObjsInRi)
 MovingObjsInRi::~MovingObjsInRi() {}
 
 void MovingObjsInRi::Init() {
+    sun_pos = kSunPos;
+    earth_pos = kEarthPos;
+    velocity = kVelocity;
+        
     matSun_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kSilver(), "sun"));
     matEarth_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kBlue(), "earth"));
 

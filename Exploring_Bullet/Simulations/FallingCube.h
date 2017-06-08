@@ -19,7 +19,7 @@ namespace Exploring_Bullet
     class FallingCube : public BaseBulletSimulation
     {
     public:
-        FallingCube(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput);
+        BCONS_DEC(FallingCube);
         ~FallingCube();
 
         void Init() override;

@@ -17,7 +17,7 @@ using namespace std;
 using namespace DirectX;
 using namespace Common;
 
-SphereBvSimulation::SphereBvSimulation(Viewport& viewport, const GameInput& gameInput) : BaseSimulation("SphereBvSimulation", viewport, gameInput) {}
+CONS_DEF(SphereBvSimulation)
 SphereBvSimulation::~SphereBvSimulation() {}
 
 void SphereBvSimulation::Init() {

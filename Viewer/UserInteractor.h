@@ -25,6 +25,7 @@ namespace Viewer
 
         Viewport& GetViewport() { return *viewport_; }
         GameInput& GetGameInput() { return *gameInput_; }
+        CameraController& GetCameraController() { return *cameraCtrl_; }
 
         void SetWindowTitle(const char* name);
 
@@ -73,5 +74,7 @@ namespace Viewer
         std::unique_ptr<Common::Timer> timer_;
         float dT_;
         uint64 startTicks_;
+
+        bool drawGrating_ = true;
     };
 }

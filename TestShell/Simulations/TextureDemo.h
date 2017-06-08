@@ -5,7 +5,7 @@
 class TextureDemo : public BaseSimulation
 {
 public:
-    TextureDemo(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput);
+    CONS_DEC(TextureDemo);
     ~TextureDemo();
 
 public:

@@ -171,8 +171,7 @@ namespace
     }
 }
 
-TextureDemo::TextureDemo(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) :
-    BaseSimulation("TextureDemo", viewport, gameInput) {}
+CONS_DEF(TextureDemo)
 TextureDemo::~TextureDemo() {}
 
 void TextureDemo::Init() {

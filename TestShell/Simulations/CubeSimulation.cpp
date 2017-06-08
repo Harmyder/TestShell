@@ -9,8 +9,7 @@ using namespace Viewer;
 using namespace std;
 using namespace Common;
 
-CubeSimulation::CubeSimulation(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) :
-    BaseSimulation("CubeSimulation", viewport, gameInput) {}
+CONS_DEF(CubeSimulation);
 CubeSimulation::~CubeSimulation() {}
 
 void CubeSimulation::Init() {

@@ -272,8 +272,8 @@ void grDestroyRenderItem(grRenderItemWithInstances renderItem) {
     delete ri;
 }
 
-void __vectorcall grSetCameraAffineTransform(FXMMATRIX affine, XMVECTOR translation) {
-    GraphicsCore::GetInstance().GetCamera().SetAffineTransform(affine, translation);
+void __vectorcall grSetCameraAffineTransform(FXMMATRIX affine) {
+    GraphicsCore::GetInstance().GetCamera().SetAffineTransform(affine);
 }
 
 XMVECTOR __vectorcall grGetCameraPosition() {

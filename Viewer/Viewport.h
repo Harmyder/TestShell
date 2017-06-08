@@ -11,7 +11,6 @@
 
 namespace Viewer
 {
-    class CameraController;
     class GameInput;
     class MaterialRaii;
 
@@ -170,7 +169,7 @@ namespace Viewer
         Viewport(HWND hWnd);
         ~Viewport();
 
-        void UpdateCamera(const XMFLOAT3X3& transform, const XMFLOAT3& frameTranslation);
+        void UpdateCamera(const XMFLOAT4X3& transform);
 
         HWND GetHwnd() const { return hwnd_; }
         uint32 GetWidth() const { return width_; }

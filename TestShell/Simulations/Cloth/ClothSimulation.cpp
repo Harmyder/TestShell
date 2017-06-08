@@ -48,8 +48,7 @@ class EulerianSolver {
     }
 };
 
-ClothSimulation::ClothSimulation(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) :
-    BaseSimulation("Clothsimulation", viewport, gameInput) {}
+CONS_DEF(ClothSimulation);
 ClothSimulation::~ClothSimulation() {}
 
 void ClothSimulation::Init() {

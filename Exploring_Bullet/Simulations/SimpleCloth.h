@@ -13,7 +13,7 @@ namespace Exploring_Bullet
     class SimpleCloth : public BaseBulletSimulation
     {
     public:
-        SimpleCloth(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput);
+        BCONS_DEC(SimpleCloth);
         ~SimpleCloth();
 
         void Init() override;

@@ -4,7 +4,7 @@
 class Displacement1d : public BaseSimulation
 {
 public:
-    Displacement1d(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput);
+    CONS_DEC(Displacement1d);
     ~Displacement1d();
 
 public:

@@ -53,8 +53,7 @@ int RollBiasedDie(const array<int, 6>& odds) {
     return i - 1;
 }
 
-RandomWalk::RandomWalk(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) :
-    BaseSimulation("RandomWalk", viewport, gameInput) {}
+CONS_DEF(RandomWalk);
 RandomWalk::~RandomWalk() {}
 
 void RandomWalk::Init() {

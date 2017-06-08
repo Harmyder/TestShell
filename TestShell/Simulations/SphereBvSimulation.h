@@ -5,7 +5,7 @@
 class SphereBvSimulation : public BaseSimulation
 {
 public:
-    SphereBvSimulation(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput);
+    CONS_DEC(SphereBvSimulation);
     ~SphereBvSimulation();
 
     void Init() override;

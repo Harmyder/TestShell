@@ -5,7 +5,7 @@
 class CubeSimulation : public BaseSimulation
 {
 public:
-    CubeSimulation(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput);
+    CONS_DEC(CubeSimulation);
     ~CubeSimulation();
 
 public:

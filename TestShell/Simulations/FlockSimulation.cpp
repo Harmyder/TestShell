@@ -16,7 +16,7 @@ using namespace Viewer;
 using namespace std;
 using namespace Common;
 
-FlockSimulation::FlockSimulation(Viewport& viewport, const GameInput& gameInput) : BaseSimulation("FlockSimulation", viewport, gameInput) {}
+CONS_DEF(FlockSimulation)
 FlockSimulation::~FlockSimulation() {}
 
 void FlockSimulation::Init()

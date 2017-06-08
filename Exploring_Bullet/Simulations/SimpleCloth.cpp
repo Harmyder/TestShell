@@ -76,13 +76,12 @@ namespace Exploring_Bullet
         softBodyWorldInfo_->m_sparsesdf.Initialize();
     }
 
-    SimpleCloth::SimpleCloth(Viewport& viewport, const GameInput& gameInput) : BaseBulletSimulation("Bullet:SimpleCloth", viewport, gameInput) {
-        CreateEmptyDynamicsWorld();
-    }
-
+    BCONS_DEF(SimpleCloth)
     SimpleCloth::~SimpleCloth() {}
 
     void SimpleCloth::Init() {
+        CreateEmptyDynamicsWorld();
+
         auto inputMesh = make_unique<InputMesh>("cloth");
         const int sizeX = 50; const int sizeY = 50;
         Helpers::CreateGridXy(sizeX, sizeY, .5f, .5f, *inputMesh);

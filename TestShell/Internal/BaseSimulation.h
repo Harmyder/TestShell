@@ -10,6 +10,7 @@ namespace Pipeline {
 namespace Viewer {
     class Viewport;
     class GameInput;
+    class CameraController;
 
     class RenderItemOpaqueRaii;
     class RenderItemTransparentRaii;
@@ -19,10 +20,13 @@ namespace Viewer {
     class TextureRaii;
 }
 
+#define CONS_DEC(C) C(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput, Viewer::CameraController& cameraCtrl)
+#define CONS_DEF(C) C::C(Viewport& viewport, const GameInput& gameInput, CameraController& cameraCtrl) : BaseSimulation(viewport, gameInput, cameraCtrl) {}
+
 class BaseSimulation : public ISimulation
 {
 public:
-    BaseSimulation(const char* name, Viewer::Viewport& viewport, const Viewer::GameInput& gameInput);
+    CONS_DEC(BaseSimulation);
     ~BaseSimulation();
 
 public:
@@ -38,5 +42,6 @@ protected:
     std::unique_ptr<Pipeline::UserScene> scene_;
     Viewer::Viewport& viewport_;
     const Viewer::GameInput& gameInput_;
+    Viewer::CameraController& cameraCtrl_;
     bool isOngoing_ = true;
 };

@@ -6,9 +6,9 @@ using namespace std;
 
 namespace Graphics
 {
-    void Camera::SetAffineTransform(FXMMATRIX affine, XMVECTOR translation) {
+    void Camera::SetAffineTransform(FXMMATRIX affine) {
         SetLookDirection(affine.r[2], affine.r[1]);
-        SetPosition(translation);
+        SetPosition(affine.r[3]);
     }
 
     void Camera::Update() {

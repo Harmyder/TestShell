@@ -4,7 +4,7 @@
 class RandomWalk : public BaseSimulation
 {
 public:
-    RandomWalk(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput);
+    CONS_DEC(RandomWalk);
     ~RandomWalk();
 
 public:

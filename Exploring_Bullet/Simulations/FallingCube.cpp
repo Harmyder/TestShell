@@ -17,6 +17,7 @@ using namespace Common;
 #include "Pipeline/Helpers/CreateInputMesh.h"
 using namespace Pipeline;
 
+#include "Viewer/CameraController.h"
 #include "Viewer/Vertex.h"
 #include "Viewer/Raii.h"
 using namespace Viewer;
@@ -40,8 +41,7 @@ namespace
 
 namespace Exploring_Bullet
 {
-    FallingCube::FallingCube(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) :
-        BaseBulletSimulation("Bullet:FallingCube", viewport, gameInput) {}
+    BCONS_DEF(FallingCube)
     FallingCube::~FallingCube() {}
 
     auto FallingCube::CreateGround() {
@@ -116,6 +116,11 @@ namespace Exploring_Bullet
 
         ground_ = make_unique<RenderItemOpaqueRaii>(viewport_.CreateRenderItemOpaque(descs.Vertices, sizeof(VertexNormalTex)));
         falling_ = make_unique<RenderItemWithInstancesRaii>(viewport_.CreateRenderItemOpaqueWithInstances(descs.Instanced[0], sizeof(VertexNormalTex)));
+
+        Vector3 eye(0., 15., 10.);
+        cameraCtrl_.SetYaw(0.f);
+        cameraCtrl_.SetPitch(1.f);
+        cameraCtrl_.SetTranslation(Vector3(eye));
     }
 
     void FallingCube::Step(float deltaTime) {

@@ -6,7 +6,7 @@ namespace Graphics
     __declspec(align(64)) class Camera
     {
     public:
-        void __vectorcall SetAffineTransform(FXMMATRIX affine, XMVECTOR translation);
+        void __vectorcall SetAffineTransform(FXMMATRIX affine);
 
         void SetPerspective(float heightOverWidth, float fov, float nearCP, float farCP) {
             aspectRatio_ = heightOverWidth;

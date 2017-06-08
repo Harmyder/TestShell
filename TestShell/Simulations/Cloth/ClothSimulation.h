@@ -11,7 +11,7 @@ namespace Pipeline
 class ClothSimulation : public BaseSimulation
 {
 public:
-    ClothSimulation(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput);
+    CONS_DEC(ClothSimulation);
     ~ClothSimulation();
 
 public:

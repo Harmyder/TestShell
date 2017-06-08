@@ -15,10 +15,10 @@ using namespace Viewer;
 
 namespace Exploring_Bullet
 {
-    BaseBulletSimulation::BaseBulletSimulation(const char* name, Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) :
-        ISimulation(name),
+    BaseBulletSimulation::BaseBulletSimulation(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput, Viewer::CameraController& cameraCtrl) :
         viewport_(viewport),
-        gameInput_(gameInput)
+        gameInput_(gameInput),
+        cameraCtrl_(cameraCtrl)
     {}
 
     BaseBulletSimulation::~BaseBulletSimulation() {}

@@ -17,5 +17,6 @@
 #include <memory>
 #include <algorithm>
 #include <numeric>
+#include <list>
 
 #define BT_NO_SIMD_OPERATOR_OVERLOADS

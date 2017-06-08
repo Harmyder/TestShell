@@ -12,6 +12,7 @@ namespace Pipeline {
 namespace Viewer {
     class Viewport;
     class GameInput;
+    class CameraController;
 
     struct StructRenderItemId;
     struct StructRenderItemWithInstancesId;
@@ -24,10 +25,13 @@ namespace Viewer {
 
 namespace Exploring_Bullet
 {
+#define BCONS_DEC(C) C(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput, Viewer::CameraController& cameraCtrl)
+#define BCONS_DEF(C) C::C(Viewport& viewport, const GameInput& gameInput, CameraController& cameraCtrl) : BaseBulletSimulation(viewport, gameInput, cameraCtrl) {}
+    
     class BaseBulletSimulation : public ISimulation
     {
     public:
-        BaseBulletSimulation(const char* name, Viewer::Viewport& viewport, const Viewer::GameInput& gameInput);
+        BCONS_DEC(BaseBulletSimulation);
         ~BaseBulletSimulation();
 
     public:
@@ -42,6 +46,7 @@ namespace Exploring_Bullet
         std::unique_ptr<Pipeline::UserScene> scene_;
         Viewer::Viewport& viewport_;
         const Viewer::GameInput& gameInput_;
+        Viewer::CameraController& cameraCtrl_;
         bool isOngoing_ = true;
     };
 }

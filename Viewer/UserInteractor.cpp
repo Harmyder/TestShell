@@ -172,6 +172,11 @@ namespace Viewer
 
     void UserInteractor::OnKeyDown(int keyCode) {
         gameInput_->OnKeyDown(keyCode);
+        switch (keyCode) {
+        case 0x47:
+            drawGrating_ = !drawGrating_;
+            break;
+        }
     }
 
     void UserInteractor::OnKeyUp(int keyCode) {
@@ -199,7 +204,7 @@ namespace Viewer
         startTicks_ = newStartTicks;
 
         cameraCtrl_->Update(frameTime);
-        viewport_->UpdateCamera(cameraCtrl_->GetTransform(), cameraCtrl_->GetFrameTranslation());
+        viewport_->UpdateCamera(cameraCtrl_->GetTransform().Store4x3());
         gameInput_->PreUpdate();
     }
 
@@ -229,8 +234,10 @@ namespace Viewer
     }
 
     void UserInteractor::Render() {
-        viewport_->BeforeLine();
-        viewport_->DrawGrating();
+        if (drawGrating_) {
+            viewport_->BeforeLine();
+            viewport_->DrawGrating();
+        }
         
         viewport_->BeforeOpaque();
         viewport_->DrawRenderItemsOpaque();

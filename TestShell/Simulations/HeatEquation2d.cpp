@@ -24,9 +24,10 @@ const float kPlateHeight = 2.f;
 const uint32 kSurfaceWidth = 25;
 const uint32 kSurfaceHeight = 25;
 
-HeatEquation2d::HeatEquation2d(Viewer::Viewport& viewport, const Viewer::GameInput& gameInput) :
-    BaseSimulation("HeatEquation2d", viewport, gameInput)
-{
+CONS_DEF(HeatEquation2d)
+HeatEquation2d::~HeatEquation2d() {}
+
+void HeatEquation2d::Init() {
     temperature_ = make_unique<Dynarray<Dynarray<float>>>(kSurfaceHeight, Dynarray<float>(kSurfaceWidth, 0.f));
     InitTemperature();
 
@@ -46,10 +47,6 @@ HeatEquation2d::HeatEquation2d(Viewer::Viewport& viewport, const Viewer::GameInp
 
     plate_ = make_unique<RenderItemOpaqueRaii>(viewport_.CreateRenderItemOpaque(descs.Vertices, sizeof(VertexNormalTex)));
 }
-
-HeatEquation2d::~HeatEquation2d() {}
-
-void HeatEquation2d::Init() {}
 
 void HeatEquation2d::Step(float deltaTime) {
     InitTemperature();
