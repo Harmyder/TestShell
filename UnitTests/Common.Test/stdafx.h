@@ -20,4 +20,6 @@
 #include <stdexcept>
 using namespace std;
 
+#include <math.h>
+
 #include "Common/Types.h"

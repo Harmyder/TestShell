@@ -90,6 +90,7 @@
     <ClInclude Include="DefineNamespaceEnumType.h" />
     <ClInclude Include="DirectXInclude.h" />
     <ClInclude Include="Container\Dynarray.h" />
+    <ClInclude Include="Math\Numerical\GaussQuadrature.h" />
     <ClInclude Include="Math\Linear\IterativeBasic.h" />
     <ClInclude Include="Math\Graph\bfs.h" />
     <ClInclude Include="Math\Graph\EdmondsKarp.h" />
