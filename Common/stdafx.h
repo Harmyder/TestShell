@@ -24,3 +24,7 @@
 
 #include "Types.h"
 #include "Consts.h"
+
+#ifdef _DEBUG
+    #include "Print/DebugPrint.h"
+#endif

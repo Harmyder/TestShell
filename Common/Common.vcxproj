@@ -87,6 +87,7 @@
     <ClInclude Include="Attribute\NamedObject.h" />
     <ClInclude Include="Attribute\NonCopyable.h" />
     <ClInclude Include="Consts.h" />
+    <ClInclude Include="Container\Iterator.h" />
     <ClInclude Include="DefineNamespaceEnumType.h" />
     <ClInclude Include="DirectXInclude.h" />
     <ClInclude Include="Container\Dynarray.h" />
@@ -116,6 +117,9 @@
   <ItemGroup>
     <ClCompile Include="Math\Linear\IterativeBasic.cpp" />
     <ClCompile Include="Geometry\GeometryGenerator.cpp" />
+    <ClInclude Include="Math\Numerical\LagrangePolynomials.h">
+      <FileType>CppCode</FileType>
+    </ClInclude>
     <ClCompile Include="Print\DumpDirectX.cpp" />
     <ClCompile Include="Print\DebugPrint.cpp" />
     <ClCompile Include="Print\PrettyPrinting.cpp" />
