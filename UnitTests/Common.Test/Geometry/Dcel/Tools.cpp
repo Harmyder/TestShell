@@ -1,0 +1,146 @@
+#include "stdafx.h"
+#include "CppUnitTest.h"
+#include "Common/Geometry/Dcel/Tools.h"
+#include <Common/Geometry/GeometryGenerator.h>
+#include <unordered_set>
+
+using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace Common::Dcel;
+
+namespace CommonTest
+{
+    TEST_CLASS(Tools_Test)
+    {
+        template<class It>
+        void AssertStructure(It bTri, It eTri, const Mesh<typename It::value_type>& mesh) {
+            using Id = typename It::value_type;
+            Assert::AreEqual((size_t)distance(bTri, eTri) / 3, mesh.faces().size());
+            for (size_t f = 0; f < mesh.faces().size(); ++f) {
+                const Id e = mesh.faces()[f].getEdge();
+                vector<Id> actual; actual.reserve(6);
+                Id ei = e;
+                for (int i = 0; i < 3; ++i) {
+                    actual.push_back(mesh.halfedges()[ei].getOrigin());
+                    Assert::IsTrue(mesh.halfedges()[ei].getFace() == (Id)f);
+                    ei = mesh.halfedges()[ei].getNext();
+                }
+                Assert::IsTrue(e == ei);
+
+                copy_n(cbegin(actual), 3, back_inserter(actual));
+                auto permute = search(cbegin(actual), cend(actual), bTri + f * 3, bTri + (f + 1) * 3);
+                Assert::IsTrue(permute != cend(actual));
+            }
+        }
+
+        struct pairhash {
+        public:
+            template <typename T, typename U>
+            std::size_t operator()(const std::pair<T, U> &x) const
+            {
+                return std::hash<T>()(x.first) ^ std::hash<U>()(x.second);
+            }
+        };
+
+        template <class It>
+        size_t countOutterEdges(It bTri, It eTri) {
+            using Id = It::value_type;
+            const Id trianglesCount = (Id)distance(bTri, eTri) / 3;
+            unordered_set<pair<Id, Id>, pairhash> edges;
+            for (Id t = 0; t < trianglesCount; ++t) {
+                for (Id i = 0; i < 3; ++i) {
+                    Id vStart = *(bTri + t * 3 + i);
+                    Id vEnd = *(bTri + t * 3 + (i + 1) % 3);
+                    auto it = edges.find(make_pair(vEnd, vStart));
+                    if (it == end(edges)) {
+                        edges.insert(make_pair(vStart, vEnd));
+                    }
+                    else {
+                        edges.erase(it);
+                    }
+                }
+            }
+            return edges.size();
+        }
+
+    public:
+        TEST_METHOD(TestTools_Tetrahedron) {
+            using Id = uint32;
+            array<Id, 4 * 3> triangles = {
+                0,1,2,
+                0,2,3,
+                0,3,1,
+                1,3,2
+            };
+            const auto mesh = Create(cbegin(triangles), cend(triangles), 4,  6);
+            AssertStructure(cbegin(triangles), cend(triangles), mesh);
+        }
+
+        TEST_METHOD(TestTools_Box) {
+            using Id = uint32;
+            const Id trianglesCount = 12;
+            array<Id, trianglesCount * 3> triangles = {
+                // bottom
+                0,1,2,
+                0,2,3,
+                // left
+                3,2,4,
+                4,2,5,
+                // back
+                5,2,1,
+                5,1,6,
+                // right
+                6,1,7,
+                7,1,0,
+                // front
+                0,3,7,
+                7,3,4,
+                // top
+                4,6,7,
+                4,5,6,
+            };
+
+            assert(countOutterEdges(cbegin(triangles), cend(triangles)) == 0);
+
+            const auto mesh = Create(cbegin(triangles), cend(triangles), 8, 18);
+            AssertStructure(cbegin(triangles), cend(triangles), mesh);
+        }
+
+        TEST_METHOD(TestTools_Quad) {
+            using Id = uint32;
+            const Id trianglesCount = 2;
+            array<Id, trianglesCount * 3> triangles = {
+                0,1,2,
+                0,2,3,
+            };
+
+            assert(countOutterEdges(cbegin(triangles), cend(triangles)) == 4);
+
+            const auto mesh = Create(cbegin(triangles), cend(triangles), 4, 5);
+            AssertStructure(cbegin(triangles), cend(triangles), mesh);
+        }
+
+        //TEST_METHOD(TestTools_Plane) {
+        //    using Id = uint32;
+        //    const Id width = 100;
+        //    const Id height = 100;
+        //    array<Id, width * height * 6> triangles;
+        //    for (Id w = 0; w < width; ++w) {
+        //        for (Id h = 0; h < height; ++h) {
+        //            const Id quad = h * width + w;
+        //            const Id 
+        //            triangles[]
+        //        }
+        //    }
+
+        //    const auto& g = Common::GeometryGenerator::CreateSphere(1);
+        //    using Id = decltype(g.TrianglesPositions)::value_type;
+
+        //    assert(areEdgesOk(cbegin(g.TrianglesPositions), cend(g.TrianglesPositions)));
+
+        //    // Sphere is closed polyhedra, so we can apply euler characteristic
+        //    const Id edgesCount = (Id)(g.Positions.size() + g.TrianglesPositions.size() / 3);
+        //    const auto mesh = Create(cbegin(g.TrianglesPositions), cend(g.TrianglesPositions), (uint16)g.Positions.size(), edgesCount);
+        //    AssertStructure(cbegin(g.TrianglesPositions), cend(g.TrianglesPositions), mesh);
+        //}
+    };
+}

@@ -53,8 +53,8 @@ namespace Common
 
         size_type size()     const noexcept { return size_; }
 
-        reference       operator[](size_type n) { return data_[n]; }
-        const_reference operator[](size_type n) const { return data_[n]; }
+        reference       operator[](size_type n) { assert(n < size_); return data_[n]; }
+        const_reference operator[](size_type n) const { assert(n < size_); return data_[n]; }
 
         reference       front()       { CHECK_NOT_EMPTY; return data_[0]; }
         const_reference front() const { CHECK_NOT_EMPTY; return data_[0]; }

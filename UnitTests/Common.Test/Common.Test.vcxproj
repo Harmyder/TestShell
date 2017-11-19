@@ -93,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Container\Dynarray.cpp" />
+    <ClCompile Include="Geometry\Dcel\Tools.cpp" />
     <ClCompile Include="Math\Graph\bfs.cpp" />
     <ClCompile Include="Math\Graph\EdmondsKarp.cpp" />
     <ClCompile Include="Math\Graph\Graph.cpp" />
