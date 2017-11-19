@@ -2,6 +2,7 @@
 #include "CppUnitTest.h"
 #include "Common/Geometry/Dcel/Tools.h"
 #include <Common/Geometry/GeometryGenerator.h>
+#include <Common/Hashes.h>
 #include <unordered_set>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
@@ -32,20 +33,11 @@ namespace CommonTest
             }
         }
 
-        struct pairhash {
-        public:
-            template <typename T, typename U>
-            std::size_t operator()(const std::pair<T, U> &x) const
-            {
-                return std::hash<T>()(x.first) ^ std::hash<U>()(x.second);
-            }
-        };
-
         template <class It>
         size_t countOutterEdges(It bTri, It eTri) {
             using Id = It::value_type;
             const Id trianglesCount = (Id)distance(bTri, eTri) / 3;
-            unordered_set<pair<Id, Id>, pairhash> edges;
+            unordered_set<pair<Id, Id>, Common::pairhash> edges;
             for (Id t = 0; t < trianglesCount; ++t) {
                 for (Id i = 0; i < 3; ++i) {
                     Id vStart = *(bTri + t * 3 + i);
@@ -105,7 +97,7 @@ namespace CommonTest
             AssertStructure(cbegin(triangles), cend(triangles), mesh);
         }
 
-        TEST_METHOD(TestTools_Quad) {
+        TEST_METHOD(TestTools_Quad_CCW) {
             using Id = uint32;
             const Id trianglesCount = 2;
             array<Id, trianglesCount * 3> triangles = {
@@ -119,28 +111,18 @@ namespace CommonTest
             AssertStructure(cbegin(triangles), cend(triangles), mesh);
         }
 
-        //TEST_METHOD(TestTools_Plane) {
-        //    using Id = uint32;
-        //    const Id width = 100;
-        //    const Id height = 100;
-        //    array<Id, width * height * 6> triangles;
-        //    for (Id w = 0; w < width; ++w) {
-        //        for (Id h = 0; h < height; ++h) {
-        //            const Id quad = h * width + w;
-        //            const Id 
-        //            triangles[]
-        //        }
-        //    }
+        TEST_METHOD(TestTools_Quad_CW) {
+            using Id = uint32;
+            const Id trianglesCount = 2;
+            array<Id, trianglesCount * 3> triangles = {
+                2,1,0,
+                2,0,3,
+            };
 
-        //    const auto& g = Common::GeometryGenerator::CreateSphere(1);
-        //    using Id = decltype(g.TrianglesPositions)::value_type;
+            assert(countOutterEdges(cbegin(triangles), cend(triangles)) == 4);
 
-        //    assert(areEdgesOk(cbegin(g.TrianglesPositions), cend(g.TrianglesPositions)));
-
-        //    // Sphere is closed polyhedra, so we can apply euler characteristic
-        //    const Id edgesCount = (Id)(g.Positions.size() + g.TrianglesPositions.size() / 3);
-        //    const auto mesh = Create(cbegin(g.TrianglesPositions), cend(g.TrianglesPositions), (uint16)g.Positions.size(), edgesCount);
-        //    AssertStructure(cbegin(g.TrianglesPositions), cend(g.TrianglesPositions), mesh);
-        //}
+            const auto mesh = Create(cbegin(triangles), cend(triangles), 4, 5);
+            AssertStructure(cbegin(triangles), cend(triangles), mesh);
+        }
     };
 }

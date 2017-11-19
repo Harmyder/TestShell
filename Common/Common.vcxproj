@@ -96,6 +96,7 @@
     <ClInclude Include="Geometry\Dcel\HalfEdge.h" />
     <ClInclude Include="Geometry\Dcel\Mesh.h" />
     <ClInclude Include="Geometry\Dcel\Vertex.h" />
+    <ClInclude Include="Hashes.h" />
     <ClInclude Include="Math\Numerical\GaussQuadrature.h" />
     <ClInclude Include="Math\Linear\IterativeBasic.h" />
     <ClInclude Include="Math\Graph\bfs.h" />
