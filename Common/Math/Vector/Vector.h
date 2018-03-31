@@ -105,3 +105,20 @@ namespace Common {
         XMVECTOR v_;
     };
 }
+
+namespace std
+{
+    template <> struct hash<XMFLOAT3>
+    {
+        size_t operator()(const XMFLOAT3 & v) const {
+            return (int)v.x * 2714011 ^ (int)v.y * 1855519 ^ (int)v.z * 1300297;
+        }
+    };
+
+    template <> struct hash<Common::Vector3>
+    {
+        size_t operator()(const Common::Vector3 & x) const {
+            return hash<XMFLOAT3>()(x.Store());
+        }
+    };
+}

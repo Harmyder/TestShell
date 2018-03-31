@@ -8,13 +8,22 @@
 #include <DirectXMath.h>
 using namespace std;
 
+namespace
+{
+    struct Float3 {
+        Float3(const XMFLOAT3& v) { x = v.x; y = v.y; z = v.z; }
+        operator XMFLOAT3() const { return XMFLOAT3(x, y, z); }
+        bool operator==(const Float3&o) const { return x == o.x && y == o.y && z == o.z; }
+        float x, y, z;
+    };
+}
+
 namespace std {
-    template <> struct hash<Common::Vector3>
+    template <> struct hash<Float3>
     {
-        size_t operator()(const Common::Vector3 & x) const
+        size_t operator()(const Float3 & x) const
         {
-            XMFLOAT3 f3 = x.Store();
-            return (int)f3.x * 2714011 ^ (int)f3.y * 1855519 ^ (int)f3.z * 1300297;
+            return std::hash<XMFLOAT3>()(*reinterpret_cast<const XMFLOAT3*>(&x));
         }
     };
 }
@@ -81,24 +90,24 @@ namespace Common
 
     // Fold vertices into distinct vertices and indices
     pair<vector<XMFLOAT3>, vector<uint16>> FoldVertices(const vector<Vector3>& vertices) {
-        unordered_map<Vector3, int> vertexToIndex;
+        unordered_map<Float3, int> vertexToIndex; // Using of Vector3 gives warning about padding of pair because of Vector3 alignment
         for (const auto& v : vertices) {
-            if (vertexToIndex.find(v) == vertexToIndex.end()) {
-                vertexToIndex[v] = (int)vertexToIndex.size();
+            if (vertexToIndex.find(v.Store()) == vertexToIndex.end()) {
+                vertexToIndex[v.Store()] = (int)vertexToIndex.size();
             }
         }
 
         vector<XMFLOAT3> positions(vertexToIndex.size());
-        for (const auto& p : vertexToIndex) positions[p.second] = p.first.Store();
+        for (const auto& p : vertexToIndex) positions[p.second] = p.first;
 
         const uint32 verticesCount = (uint32)vertices.size();
         const uint32 trianglesCount = verticesCount / 3;
         vector<uint16> trianglesPositions(verticesCount);
         for (uint32 triangleIndex = 0; triangleIndex < trianglesCount; ++triangleIndex) {
             const uint32 baseVertexIndex = triangleIndex * 3;
-            trianglesPositions.push_back((uint16)vertexToIndex[vertices[baseVertexIndex]]);
-            trianglesPositions.push_back((uint16)vertexToIndex[vertices[baseVertexIndex + 1]]);
-            trianglesPositions.push_back((uint16)vertexToIndex[vertices[baseVertexIndex + 2]]);
+            trianglesPositions.push_back((uint16)vertexToIndex[vertices[baseVertexIndex].Store()]);
+            trianglesPositions.push_back((uint16)vertexToIndex[vertices[baseVertexIndex + 1].Store()]);
+            trianglesPositions.push_back((uint16)vertexToIndex[vertices[baseVertexIndex + 2].Store()]);
         }
 
         return make_pair(positions, trianglesPositions);

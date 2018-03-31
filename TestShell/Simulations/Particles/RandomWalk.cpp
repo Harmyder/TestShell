@@ -58,7 +58,7 @@ RandomWalk::~RandomWalk() {}
 
 void RandomWalk::Init() {
     for (auto& p : particles) p.Die();
-    iota(begin(indicesDead), end(indicesDead), 0);
+    iota(begin(indicesDead), end(indicesDead), (uint16)0);
     deadCount = kParticlesCount;
     matParticle_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kWhite(), "rigid"));
 
