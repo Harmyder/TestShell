@@ -1,8 +1,11 @@
 #include "stdafx.h"
 #include "BulletPhysicsData.h"
 
-#include "BulletDynamics/Dynamics/btRigidBody.h"
-#include "BulletSoftBody/btSoftBody.h"
+#pragma warning(push,0)
+#include <BulletSoftBody/btSoftBody.h>
+#include <BulletDynamics/Dynamics/btRigidBody.h>
+#pragma warning(pop)
+
 #include "TypesConnector.h"
 
 using namespace Common;

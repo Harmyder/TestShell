@@ -1,14 +1,16 @@
 #include "stdafx.h"
 #include "SimpleCloth.h"
 
-#include "btBulletDynamicsCommon.h"
-#include "LinearMath/btVector3.h"
-#include "LinearMath/btAlignedObjectArray.h"
-#include "TypesConnector.h"
+#pragma warning(push,0)
+#include <btBulletDynamicsCommon.h>
+#include <LinearMath/btVector3.h>
+#include <LinearMath/btAlignedObjectArray.h>
+#include <BulletSoftBody/btSoftRigidDynamicsWorld.h>
+#include <BulletSoftBody/btSoftBodyHelpers.h>
+#include <BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h>
+#pragma warning(pop)
 
-#include "BulletSoftBody/btSoftRigidDynamicsWorld.h"
-#include "BulletSoftBody/btSoftBodyHelpers.h"
-#include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
+#include "TypesConnector.h"
 
 #include "Pipeline/InputLevel/InputMesh.h"
 #include "Pipeline/InputLevel/InputScene.h"

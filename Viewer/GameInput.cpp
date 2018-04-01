@@ -57,24 +57,13 @@ namespace Viewer
         case VK_SPACE:
             buttons_[FIRST][Input::kSpaceKey] = value;
             break;
-        case 0x41:
-            buttons_[FIRST][Input::kKeyA] = value;
-            break;
-        case 0x53:
-            buttons_[FIRST][Input::kKeyS] = value;
-            break;
-        case 0x44:
-            buttons_[FIRST][Input::kKeyD] = value;
-            break;
-        case 0x57:
-            buttons_[FIRST][Input::kKeyW] = value;
-            break;
-        case 0x45:
-            buttons_[FIRST][Input::kKeyE] = value;
-            break;
-        case 0x51:
-            buttons_[FIRST][Input::kKeyQ] = value;
-            break;
+        }
+
+        const int keyA = 65;
+        const int keyZ = 90;
+        if (keyA <= keyCode && keyCode <= keyZ) {
+            int distance = keyCode - keyA;
+            buttons_[FIRST][Input::kKeyA + distance] = value;
         }
     }
 

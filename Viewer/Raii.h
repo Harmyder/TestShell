@@ -45,19 +45,19 @@ namespace Viewer
     class RenderItemOpaqueRaii : public RenderItemRaii {
     public:
         using RenderItemRaii::RenderItemRaii;
-        ~RenderItemOpaqueRaii() { viewport_->DestroyRenderItemOpaque(riid_); }
+        ~RenderItemOpaqueRaii() { viewport_->DestroyRenderItem(riid_); }
     };
 
     class RenderItemTransparentRaii : public RenderItemRaii {
     public:
         using RenderItemRaii::RenderItemRaii;
-        ~RenderItemTransparentRaii() { viewport_->DestroyRenderItemTransparent(riid_); }
+        ~RenderItemTransparentRaii() { viewport_->DestroyRenderItem(riid_); }
     };
 
     class RenderItemWithInstancesRaii : protected Raii {
     public:
         RenderItemWithInstancesRaii(StructRenderItemWithInstancesId riwiid) : riwiid_(riwiid) {}
-        ~RenderItemWithInstancesRaii() { viewport_->DestroyRenderItemOpaqueWithInstances(riwiid_); }
+        ~RenderItemWithInstancesRaii() { viewport_->DestroyRenderItem(riwiid_); }
         operator StructRenderItemWithInstancesId() const { return riwiid_; }
     protected:
         const StructRenderItemWithInstancesId riwiid_;

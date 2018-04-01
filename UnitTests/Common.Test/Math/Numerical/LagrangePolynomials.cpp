@@ -15,13 +15,15 @@ namespace CommonTest
 
         TEST_METHOD(TestLagrangeInterpolation) {
             struct Point { double x, y; };
-            struct AbscissaIterator : public Common::Iterator<vector<Point>, const double, AbscissaIterator> {
-                using Common::Iterator<vector<Point>, const double, AbscissaIterator>::Iterator;
-                virtual value_type& operator* () { return container_[index_].x; }
+            struct AbscissaIterator : public Common::RandomAccessIterator<vector<Point>, const double, AbscissaIterator> {
+                using Common::RandomAccessIterator<vector<Point>, const double, AbscissaIterator>::RandomAccessIterator;
+                value_type& operator* () override { return container_[index_].x; }
+                value_type* operator->() override { return &container_[index_].x; }
             };
-            struct OrdinateIterator : public Common::Iterator<vector<Point>, const double, OrdinateIterator> {
-                using Common::Iterator<vector<Point>, const double, OrdinateIterator>::Iterator;
-                virtual value_type& operator* () { return container_[index_].y; }
+            struct OrdinateIterator : public Common::RandomAccessIterator<vector<Point>, const double, OrdinateIterator> {
+                using Common::RandomAccessIterator<vector<Point>, const double, OrdinateIterator>::RandomAccessIterator;
+                value_type& operator* () override { return container_[index_].x; }
+                value_type* operator->() override { return &container_[index_].x; }
             };
             vector<Point> points;
             const int degree = 5;

@@ -23,8 +23,8 @@ namespace Viewer
         DEFINE_NAMESPACE_ENUM_TOSRC(grePrimitiveTopology);
     }
 
-    constexpr uint32 kSceneObjectsCountLimit = 100;
-    constexpr uint32 kInstancesCountLimit = 1000;
+    constexpr uint32 kSceneObjectsCountLimit = 10000;
+    constexpr uint32 kInstancesCountLimit = 100000;
     constexpr uint32 kPassesCountLimit = 1;
     constexpr uint32 kMaterialsCountLimit = 10;
     constexpr uint32 kTexturesCountLimit = 20;
@@ -260,26 +260,26 @@ namespace Viewer
     }
 
     void Viewport::DrawRenderItemsOpaque() {
-        for (auto& ri : renderItemsOpaque_) {
-            grDrawRenderItem(ri);
+        for (auto& ri : renderItems_[kOpaque]) {
+            if (ri.show) grDrawRenderItem(ri.item);
         }
     }
 
     void Viewport::DrawRenderItemsOpaqueWithInstances() {
         for (auto& riwi : renderItemsWithInstances_) {
-            grDrawRenderItem(riwi);
+            if (riwi.show) grDrawRenderItem(riwi.item);
         }
     }
 
     void Viewport::DrawRenderItemsTransparent() {
-        for (const auto& ri : renderItemsTransparent_) {
-            grDrawRenderItem(ri);
+        for (const auto& ri : renderItems_[kTransparent]) {
+            if (ri.show) grDrawRenderItem(ri.item);
         }
     }
 
     void Viewport::DrawRenderItemsParticles() {
         for (const auto& ri : renderItemsParticles_) {
-            grDrawRenderItem(ri);
+            if (ri.show) grDrawRenderItem(ri.item);
         }
     }
 
@@ -348,80 +348,83 @@ namespace Viewer
         return result;
     }
 
-    RenderItemId Viewport::CreateRenderItemOpaque(const DescsVertices& desc, uint32 vertexSize) {
+    StructRenderItemId Viewport::CreateRenderItemOpaque(const DescsVertices& desc, uint32 vertexSize) {
         grRenderItem ri = CreateRenderItemInternal(desc, vertexSize);
-        renderItemsOpaque_.push_back(ri);
-        return --renderItemsOpaque_.end();
+        renderItems_[kOpaque].emplace_back(ri);
+        return StructRenderItemId(renderItems_[kOpaque].size() - 1, kOpaque);
     }
 
-    RenderItemId Viewport::CreateRenderItemOpaque(const DescsTypes& desc) {
+    StructRenderItemId Viewport::CreateRenderItemOpaque(const DescsTypes& desc) {
         grRenderItem ri = CreateRenderItemInternal(desc);
-        renderItemsOpaque_.push_back(ri);
-        return --renderItemsOpaque_.end();
+        renderItems_[kOpaque].emplace_back(ri);
+        return StructRenderItemId(renderItems_[kOpaque].size() - 1, kOpaque);
     }
 
-    RenderItemId Viewport::CreateRenderItemTransparent(const DescsVertices& desc, uint32 vertexSize) {
+    StructRenderItemId Viewport::CreateRenderItemTransparent(const DescsVertices& desc, uint32 vertexSize) {
         grRenderItem ri = CreateRenderItemInternal(desc, vertexSize);
-        renderItemsTransparent_.push_back(ri);
-        return --renderItemsTransparent_.end();
+        renderItems_[kTransparent].emplace_back(ri);
+        return StructRenderItemId(renderItems_[kTransparent].size() - 1, kTransparent);
     }
 
-    RenderItemId Viewport::CreateRenderItemTransparent(const DescsTypes& desc) {
+    StructRenderItemId Viewport::CreateRenderItemTransparent(const DescsTypes& desc) {
         grRenderItem ri = CreateRenderItemInternal(desc);
-        renderItemsTransparent_.push_back(ri);
-        return --renderItemsTransparent_.end();
+        renderItems_[kTransparent].emplace_back(ri);
+        return StructRenderItemId(renderItems_[kTransparent].size() - 1, kTransparent);
     }
 
-    RenderItemParticlesId Viewport::CreateRenderItemParticles(const DescsParticles& desc, uint32 vertexSize) {
+    StructRenderItemParticlesId Viewport::CreateRenderItemParticles(const DescsParticles& desc, uint32 vertexSize) {
         grRenderItemParticles ri = CreateRenderItemInternal(desc, vertexSize);
-        renderItemsParticles_.push_back(ri);
-        return --renderItemsParticles_.end();
+        renderItemsParticles_.emplace_back(ri);
+        return StructRenderItemParticlesId(renderItemsParticles_.size() - 1);
     }
 
-    RenderItemWithInstancesId Viewport::CreateRenderItemOpaqueWithInstances(const RenderItemWithInstancesDesc& descs, uint32 vertexSize) {
+    StructRenderItemWithInstancesId Viewport::CreateRenderItemOpaqueWithInstances(const RenderItemWithInstancesDesc& descs, uint32 vertexSize) {
         grRenderItemWithInstances ri = CreateRenderItemInternal(descs, vertexSize);
-        renderItemsWithInstances_.push_back(ri);
-        return --renderItemsWithInstances_.end();
+        renderItemsWithInstances_.emplace_back(ri);
+        return StructRenderItemWithInstancesId(renderItemsWithInstances_.size() - 1);
     }
 
-    void Viewport::DestroyRenderItemOpaque(const StructRenderItemId& id) {
-        grDestroyRenderItem(*id.Value);
-        renderItemsOpaque_.erase(id.Value);
+    template <class grRi>
+    void DestroyRenderItemInternal(vector<RenderItemInfo<grRi>>& c, size_t i) {
+        grDestroyRenderItem(c[i].item);
+        c[i] = c.back();
+        c.pop_back();
     }
 
-    void Viewport::DestroyRenderItemTransparent(const StructRenderItemId& id) {
-        grDestroyRenderItem(*id.Value);
-        renderItemsTransparent_.erase(id.Value);
-    }
-
-    void Viewport::DestroyRenderItem(const StructRenderItemParticlesId& id) {
-        grDestroyRenderItem(*id.Value);
-        renderItemsParticles_.erase(id.Value);
-    }
-
-    void Viewport::DestroyRenderItemOpaqueWithInstances(const StructRenderItemWithInstancesId& id) {
-        grDestroyRenderItem(*id.Value);
-        renderItemsWithInstances_.erase(id.Value);
-    }
+    void Viewport::DestroyRenderItem(const StructRenderItemId& id)              { DestroyRenderItemInternal(renderItems_[id.Type], id.Id); }
+    void Viewport::DestroyRenderItem(const StructRenderItemParticlesId& id)     { DestroyRenderItemInternal(renderItemsParticles_, id.Id); }
+    void Viewport::DestroyRenderItem(const StructRenderItemWithInstancesId& id) { DestroyRenderItemInternal(renderItemsWithInstances_, id.Id); }
 
     void Viewport::UpdateRenderSubItemTransform(const StructRenderItemId& id, const string& name, const XMFLOAT4X3& transform) {
-        grUpdateRenderSubItemTransform(*id.Value, name, transform);
+        grUpdateRenderSubItemTransform(renderItems_[id.Type][id.Id].item, name, transform);
     }
 
     void Viewport::UpdateRenderSubItemTransform(const StructRenderItemParticlesId& id, const string& name, const XMFLOAT4X3& transform) {
-        grUpdateRenderSubItemTransform(*id.Value, name, transform);
+        grUpdateRenderSubItemTransform(renderItemsParticles_[id.Id].item, name, transform);
     }
 
     void Viewport::UpdateRenderWithInstancesTransforms(const StructRenderItemWithInstancesId& id, const XMFLOAT4X3& transform, const XMFLOAT4X3* instancesTransforms) {
-        grUpdateRenderItemInstancesTransforms(*id.Value, transform, instancesTransforms);
+        grUpdateRenderItemInstancesTransforms(renderItemsWithInstances_[id.Id].item, transform, instancesTransforms);
     }
 
     void Viewport::UpdateRenderSubItemVertexData(const StructRenderItemId& id, const std::string& name, const uint8* data) {
-        grUpdateRenderSubItemVertexData(*id.Value, name, data);
+        grUpdateRenderSubItemVertexData(renderItems_[id.Type][id.Id].item, name, data);
     }
 
     void Viewport::UpdateRenderSubItemVertexData(const StructRenderItemParticlesId& id, const std::string& name, const uint8* data) {
-        grUpdateRenderSubItemVertexData(*id.Value, name, data);
+        grUpdateRenderSubItemVertexData(renderItemsParticles_[id.Id].item, name, data);
+    }
+
+    void Viewport::ShowRenderItem(const StructRenderItemId& id, bool show) {
+        renderItems_[id.Type][id.Id].show = show;
+    }
+
+    void Viewport::ShowRenderItemParticles(const StructRenderItemParticlesId& id, bool show) {
+        renderItemsParticles_[id.Id].show = show;
+    }
+
+    void Viewport::ShowRenderItemOpaqueWithInstances(const StructRenderItemWithInstancesId& id, bool show) {
+        renderItemsWithInstances_[id.Id].show = show;
     }
 
     grRenderItemWithInstances Viewport::CreateRenderItemInternal(const RenderItemWithInstancesDesc& desc, uint32 vertexSize) {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "btBulletDynamicsCommon.h"
+#include <btBulletDynamicsCommon.h>
 
 #include "Common/Math/Vector/all.h"
 
@@ -12,7 +12,13 @@ namespace Exploring_Bullet
     inline btTransform& Tobt(Common::Matrix4& t) { return *(btTransform*)&t; }
     inline const btTransform& Tobt(const Common::Matrix4& t) { return *(btTransform*)&t; }
 
-    inline const btTransform& Tobt(const Common::OrthogonalTransform& t) { return *(btTransform*)&OrthoToAffine(t); }
+    inline const btTransform Tobt(const Common::OrthogonalTransform& t) { 
+        auto affine = OrthoToAffine(t);
+        btTransform res;
+        static_assert(sizeof(btTransform) == sizeof(Common::AffineTransform), "");
+        memcpy(&res, &affine, sizeof(btTransform));
+        return res;
+    }
 
     inline Common::Vector3& ToCommon(btVector3& t) { return *(Common::Vector3*)&t; }
     inline const Common::Vector3& ToCommon(const btVector3& t) { return *(Common::Vector3*)&t; }

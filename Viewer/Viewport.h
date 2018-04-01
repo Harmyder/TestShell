@@ -68,17 +68,28 @@ namespace Viewer
         grTexture Value;
     };
 
-    using RenderItemId = std::list<grRenderItem>::const_iterator;
-    struct StructRenderItemId { StructRenderItemId(RenderItemId id) : Value(id) {} RenderItemId Value; };
-    using RenderItemParticlesId = std::list<grRenderItemParticles>::const_iterator;
-    struct StructRenderItemParticlesId { StructRenderItemParticlesId(RenderItemParticlesId id) : Value(id) {} RenderItemParticlesId Value; };
-    using RenderItemWithInstancesId = std::list<grRenderItemWithInstances>::const_iterator;
-    struct StructRenderItemWithInstancesId { 
-        StructRenderItemWithInstancesId(RenderItemWithInstancesId id) : Value(id) {} 
-        RenderItemWithInstancesId Value;
+    template <class EngineRenderItem>
+    struct RenderItemInfo {
+        RenderItemInfo(EngineRenderItem item) : item(item), show(true) {}
+        EngineRenderItem item;
+        bool show;
     };
 
+    using RenderItems              = std::vector<RenderItemInfo<grRenderItem>>;
+    using RenderItemsParticles     = std::vector<RenderItemInfo<grRenderItemParticles>>;
+    using RenderItemsWithInstances = std::vector<RenderItemInfo<grRenderItemWithInstances>>;
+
+    enum RenderItemType { kOpaque = 0, kTransparent = 1 };
+    struct StructRenderItemId              {
+        StructRenderItemId(size_t id, RenderItemType type) : Id(id), Type(type) {}
+        size_t Id;
+        RenderItemType Type;
+    };
+    struct StructRenderItemParticlesId     { StructRenderItemParticlesId(size_t id)     : Id(id) {} size_t Id; };
+    struct StructRenderItemWithInstancesId { StructRenderItemWithInstancesId(size_t id) : Id(id) {} size_t Id; };
+
     struct RenderItemDesc {
+        RenderItemDesc() {}
         RenderItemDesc(const std::string& name, const XMFLOAT4X3& transform, const uint8* vertices, uint32 verticesCount, const uint8* indices, uint32 indicesCount, Texture texture) :
             name(name),
             transform(transform),
@@ -89,12 +100,12 @@ namespace Viewer
             texture(texture)
         {}
 
-        const std::string name;
-        const XMFLOAT4X3 transform;
+        std::string name;
+        XMFLOAT4X3 transform;
         const uint8* vertices;
-        const uint32 verticesCount;
+        uint32 verticesCount;
         const uint8* indices;
-        const uint32 indicesCount;
+        uint32 indicesCount;
         Texture texture;
     };
     struct RenderItemInstanceDesc {
@@ -124,13 +135,14 @@ namespace Viewer
         const uint32 instancesCount;
     };
     struct RenderItemVerticesDesc : RenderItemDesc {
+        RenderItemVerticesDesc() {}
         RenderItemVerticesDesc(const std::string& name, const uint8* vertices, uint32 verticesCount, const uint8* indices, uint32 indicesCount, const XMFLOAT4X3& transform, Material material, Texture texture, PrimitiveTopology::Type primitiveTopology) :
             RenderItemDesc(name, transform, vertices, verticesCount, indices, indicesCount, texture),
             material(material), primitiveTopology(primitiveTopology)
         {}
 
         Material material;
-        const PrimitiveTopology::Type primitiveTopology;
+        PrimitiveTopology::Type primitiveTopology;
     };
     struct RenderItemTypeDesc {
         RenderItemTypeDesc(const std::string& name, const PredefinedGeometryType type, const XMFLOAT4X3& transform, Material material, PrimitiveTopology::Type primitiveTopology) :
@@ -184,22 +196,26 @@ namespace Viewer
         Texture CreateTextureFromHandmadeData(const std::wstring& title, uint32 width, uint32 height, ResourceFormat::Type format, const void* data, bool forceRecreation);
         void DestroyTexture(Texture texture);
 
-        RenderItemId CreateRenderItemOpaque(const DescsVertices& desc, uint32 vertexSize);
-        RenderItemId CreateRenderItemOpaque(const DescsTypes& desc);
-        RenderItemId CreateRenderItemTransparent(const DescsVertices& desc, uint32 vertexSize);
-        RenderItemId CreateRenderItemTransparent(const DescsTypes& desc);
-        RenderItemParticlesId CreateRenderItemParticles(const DescsParticles& desc, uint32 vertexSize);
-        RenderItemWithInstancesId CreateRenderItemOpaqueWithInstances(const RenderItemWithInstancesDesc& viewportWithInstancesDesc, uint32 vertexSize);
-        void DestroyRenderItemOpaque(const StructRenderItemId& id);
-        void DestroyRenderItemTransparent(const StructRenderItemId& id);
+        StructRenderItemId CreateRenderItemOpaque(const DescsVertices& desc, uint32 vertexSize);
+        StructRenderItemId CreateRenderItemOpaque(const DescsTypes& desc);
+        StructRenderItemId CreateRenderItemTransparent(const DescsVertices& desc, uint32 vertexSize);
+        StructRenderItemId CreateRenderItemTransparent(const DescsTypes& desc);
+        StructRenderItemParticlesId CreateRenderItemParticles(const DescsParticles& desc, uint32 vertexSize);
+        StructRenderItemWithInstancesId CreateRenderItemOpaqueWithInstances(const RenderItemWithInstancesDesc& viewportWithInstancesDesc, uint32 vertexSize);
+
+        void DestroyRenderItem(const StructRenderItemId& id);
         void DestroyRenderItem(const StructRenderItemParticlesId& id);
-        void DestroyRenderItemOpaqueWithInstances(const StructRenderItemWithInstancesId& id);
+        void DestroyRenderItem(const StructRenderItemWithInstancesId& id);
 
         void UpdateRenderSubItemTransform(const StructRenderItemId& id, const std::string& name, const XMFLOAT4X3& transform);
         void UpdateRenderSubItemTransform(const StructRenderItemParticlesId& id, const std::string& name, const XMFLOAT4X3& transform);
         void UpdateRenderWithInstancesTransforms(const StructRenderItemWithInstancesId& id, const XMFLOAT4X3& transform, const XMFLOAT4X3* instancesTransforms);
         void UpdateRenderSubItemVertexData(const StructRenderItemId& id, const std::string& name, const uint8* data);
         void UpdateRenderSubItemVertexData(const StructRenderItemParticlesId& id, const std::string& name, const uint8* data);
+
+        void ShowRenderItem(const StructRenderItemId& id, bool show);
+        void ShowRenderItemParticles(const StructRenderItemParticlesId& id, bool show);
+        void ShowRenderItemOpaqueWithInstances(const StructRenderItemWithInstancesId& id, bool show);
 
         void BeforeDraw();
         void AfterDraw();
@@ -239,10 +255,9 @@ namespace Viewer
         uint32 width_;
         uint32 height_;
 
-        std::list<grRenderItem> renderItemsOpaque_;
-        std::list<grRenderItem> renderItemsTransparent_;
-        std::list<grRenderItemParticles> renderItemsParticles_;
-        std::list<grRenderItemWithInstances> renderItemsWithInstances_;
+        RenderItems renderItems_[2];
+        RenderItemsParticles renderItemsParticles_;
+        RenderItemsWithInstances renderItemsWithInstances_;
         std::array<std::pair<std::vector<VertexNormalTex>, std::vector<uint16>>, (size_t)PredefinedGeometryType::kSize> geometries_;
 
         RootSignatureType currentRootSignatureType_;

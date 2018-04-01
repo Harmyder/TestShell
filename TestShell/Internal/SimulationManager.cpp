@@ -35,16 +35,16 @@ void SimulationManager::Close()
 void SimulationManager::RegisterSimulations()
 {
     factories_ = new std::vector<BaseFactory*>;
-    RegisterFactory(new SimulationFactory<Exploring_Bullet::FallingCube>("Bullet: Falling Cube"));
+    RegisterFactory(new SimulationFactory<CubeSimulation>("The Cube"));
+    RegisterFactory(new SimulationFactory<MovingObjsInRi>("Solar System"));
     RegisterFactory(new SimulationFactory<RandomWalk>("Diffusion with drift and reaction"));
+    RegisterFactory(new SimulationFactory<Exploring_Bullet::FallingCube>("Bullet: Falling Cube"));
     RegisterFactory(new SimulationFactory<FbxSimulation>("Fbx Loading"));
     RegisterFactory(new SimulationFactory<HeatEquation2d>("Heat diffusion over plate"));
     RegisterFactory(new SimulationFactory<TextureDemo>("Texture Demo"));
     RegisterFactory(new SimulationFactory<FlockSimulation>("Flock"));
     RegisterFactory(new SimulationFactory<Exploring_Bullet::SimpleCloth>("Bullet: Simple Cloth"));
     RegisterFactory(new SimulationFactory<ClothSimulation>("Cloth"));
-    RegisterFactory(new SimulationFactory<MovingObjsInRi>("Solar System"));
-    RegisterFactory(new SimulationFactory<CubeSimulation>("The Cube"));
     RegisterFactory(new SimulationFactory<SphereBvSimulation>("Sphere Bounding Volume"));
 }
 

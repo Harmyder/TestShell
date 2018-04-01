@@ -10,7 +10,8 @@ using namespace std;
 using namespace Common;
 
 CONS_DEF(CubeSimulation);
-CubeSimulation::~CubeSimulation() {}
+CubeSimulation::~CubeSimulation() {
+}
 
 void CubeSimulation::Init() {
     matCollider_ = make_unique<MaterialRaii>(viewport_.CreateMaterial(MaterialType::kSilver(), "collider"));

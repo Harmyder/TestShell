@@ -17,7 +17,7 @@ namespace Exploring_Bullet
         Common::OrthogonalTransform GetTransform() override;
         void SetTransform(const Common::OrthogonalTransform&) override;
 
-        void GetPositions(std::vector<Common::Vector3>& positions) override { throw "You don't need vertices from btRigidBody"; }
+        void GetPositions(std::vector<Common::Vector3>&) override { throw "You don't need vertices from btRigidBody"; }
 
     private:
         std::unique_ptr<btRigidBody> rigidBody_;

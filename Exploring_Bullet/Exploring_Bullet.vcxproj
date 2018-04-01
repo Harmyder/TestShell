@@ -58,8 +58,10 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;..;..\Pipeline;..\Common;C:\Yola\PhysicsEngines\bullet3-2.86.1\src;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;..\Pipeline;..\Common;</AdditionalIncludeDirectories>
       <TreatWarningAsError>false</TreatWarningAsError>
+      <AdditionalOptions>/experimental:external /external:I"C:\Yola\PhysicsEngines\bullet3-2.86.1\src" /external:W0 </AdditionalOptions>
+      <DisableSpecificWarnings>4193</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -78,8 +80,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;..;..\Pipeline;..\Common;C:\Yola\PhysicsEngines\bullet3-2.86.1\src;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;..\Pipeline;..\Common;</AdditionalIncludeDirectories>
       <TreatWarningAsError>false</TreatWarningAsError>
+      <AdditionalOptions>/experimental:external /external:I"C:\Yola\PhysicsEngines\bullet3-2.86.1\src" /external:W0 </AdditionalOptions>
+      <DisableSpecificWarnings>4193</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

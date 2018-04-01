@@ -122,6 +122,7 @@ namespace Graphics {
             vbByteSize_(vertexSize * verticesCount),
             ibByteSize_(kIndexSize * indicesCount)
         {}
+        ~RenderItemBase() {}
         GpuBuffer& VertexBuffer() { return vertexBuffer_; }
         GpuBuffer& IndexBuffer() { return indexBuffer_; }
 
