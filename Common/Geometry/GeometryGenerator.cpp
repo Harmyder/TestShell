@@ -410,7 +410,7 @@ namespace Common
         return CreateCylinder(bottomRadius, 0.0f, height, slicesCount, stacksCount);
     }
 
-    GeometryGenerator::Geometry GeometryGenerator::CreateGridXY(uint16 xCount, uint16 yCount, float width, float height, const std::function<float(int, int)>& getHeight) {
+    GeometryGenerator::Geometry GeometryGenerator::CreateGridXy(uint16 xCount, uint16 yCount, float width, float height, QuadDivision division, std::function<float(int, int)> getZ) {
         Geometry output;
         output.Positions.resize(xCount * yCount);
         const Vector3 base(-width / 2.f, height / 2.f, 0.f);
@@ -418,27 +418,38 @@ namespace Common
         const float stepY = height / yCount;
         for (uint32 j = 0; j < yCount; ++j) {
             for (uint32 i = 0; i < xCount; ++i) {
-                output.Positions[j * xCount + i] = Vector3(base + Vector3(i * stepX, j * -stepY, getHeight(i, j))).Store();
+                output.Positions[j * xCount + i] = Vector3(base + Vector3(i * stepX, j * -stepY, getZ(i, j))).Store();
             }
         }
 
-        // 0--h+0--2h+0
-        // |\ |  \ |
-        // | \|   \|
-        // 1--h+1--2h+1
-        assert(uint16(-1) / 2 / (xCount - 1) >= yCount - 1);
-        const uint16 trianglesCount = 2 * (xCount - 1) * (yCount - 1);
+        // Main diagonal    Trans diagonal    BothDiagonals
+        // 0--h+0--2h+0     0--h+0--2h+0      0--h+0--2h+0
+        // |\ |  \ |        | /|   /|         |\/|  \/|
+        // | \|   \|        |/ |  / |         |/\|  /\|
+        // 1--h+1--2h+1     1--h+1--2h+1      1--h+1--2h+1
+        const uint16 trianglesPerQuad = division == QuadDivision::BothDiagonals ? 4 : 2;
+        assert(uint16(-1) / trianglesPerQuad / (xCount - 1) >= yCount - 1);
+        const uint16 trianglesCount = trianglesPerQuad * (xCount - 1) * (yCount - 1);
         output.TrianglesPositions.resize(trianglesCount * 3);
         uint16 cur = 0;
         for (uint16 i = 0; i < xCount - 1; ++i) {
             for (uint16 j = 0; j < yCount - 1; ++j) {
-                output.TrianglesPositions[cur++] = (j + 1) * xCount + (i + 1);
-                output.TrianglesPositions[cur++] = j * xCount + (i + 1);
-                output.TrianglesPositions[cur++] = j * xCount + i;
-
-                output.TrianglesPositions[cur++] = (j + 1) * xCount + i;
-                output.TrianglesPositions[cur++] = (j + 1) * xCount + (i + 1);
-                output.TrianglesPositions[cur++] = j * xCount + i;
+                if (division == QuadDivision::BothDiagonals || division == QuadDivision::MainDiagonal) {
+                    output.TrianglesPositions[cur++] = (j + 1) * xCount + (i + 1);
+                    output.TrianglesPositions[cur++] = j * xCount + (i + 1);
+                    output.TrianglesPositions[cur++] = j * xCount + i;
+                    output.TrianglesPositions[cur++] = (j + 1) * xCount + i;
+                    output.TrianglesPositions[cur++] = (j + 1) * xCount + (i + 1);
+                    output.TrianglesPositions[cur++] = j * xCount + i;
+                }
+                if (division == QuadDivision::BothDiagonals || division == QuadDivision::TransDiagonal) {
+                    output.TrianglesPositions[cur++] = (j + 1) * xCount + i;
+                    output.TrianglesPositions[cur++] = (j + 1) * xCount + (i + 1);
+                    output.TrianglesPositions[cur++] = j * xCount + (i + 1);
+                    output.TrianglesPositions[cur++] = (j + 1) * xCount + i;
+                    output.TrianglesPositions[cur++] = j * xCount + (i + 1);
+                    output.TrianglesPositions[cur++] = j * xCount + i;
+                }
             }
         }
         output.Normals.resize(output.Positions.size(), { 0.f, 0.f, 1.f });

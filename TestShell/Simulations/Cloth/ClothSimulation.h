@@ -8,6 +8,8 @@ namespace Pipeline
     class UserMesh;
 }
 
+class Cloth;
+
 class ClothSimulation : public BaseSimulation
 {
 public:
@@ -19,9 +21,10 @@ public:
     void Step(float deltaTime) override;
 
 private:
-    std::unique_ptr<Viewer::RenderItemOpaqueRaii> cloth_;
+    std::unique_ptr<Viewer::RenderItemOpaqueRaii> clothRi_;
     std::unique_ptr<Viewer::MaterialRaii> matDeformable_;
 
     std::unique_ptr<Pipeline::InputScene> inputScene_;
     Pipeline::UserMesh* clothMesh_;
+    std::unique_ptr<Cloth> cloth_;
 };

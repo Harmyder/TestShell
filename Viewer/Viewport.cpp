@@ -166,7 +166,7 @@ namespace Viewer
         grtPipelineStateDesc desc;
         desc.BlendEnable = false;
         desc.DepthEnable = true;
-        desc.FillMode = greFillMode::kSolid;
+        desc.FillMode = greFillMode::kWireframe;
         desc.CullMode = greCullMode::kBack;
         desc.PrimitiveTolopologyType = grePrimitiveTopologyType::kTriangle;
         desc.VertexType = greVertexType::kNormalTex;

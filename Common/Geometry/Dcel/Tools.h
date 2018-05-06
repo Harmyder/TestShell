@@ -34,7 +34,7 @@ namespace Common
         Mesh<typename It::value_type> Create(It triBegin, It triEnd, const typename It::value_type verticesCount, const typename It::value_type edgesCount) {
             using Id = typename It::value_type;
             assert(distance(triBegin, triEnd) % 3 == 0);
-            const Id trianglesCount = distance(triBegin, triEnd) / 3;
+            const Id trianglesCount = static_cast<Id>(distance(triBegin, triEnd) / 3);
             Mesh<Id> mesh(verticesCount, edgesCount, trianglesCount);
 
             std::unordered_set<std::pair<Id, Id>, Common::pairhash> boundaryEdges;

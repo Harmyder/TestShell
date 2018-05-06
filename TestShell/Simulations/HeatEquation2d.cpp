@@ -32,7 +32,7 @@ void HeatEquation2d::Init() {
     InitTemperature();
 
     auto inputMesh = make_unique<InputMesh>("splineSurface");
-    Helpers::CreateGridXy(kSurfaceWidth, kSurfaceHeight, kPlateWidth, kPlateHeight, *inputMesh);
+    Helpers::CreateGridXy(kSurfaceWidth, kSurfaceHeight, kPlateWidth, kPlateHeight, Common::GeometryGenerator::QuadDivision::MainDiagonal, *inputMesh);
     inputScene_ = make_unique<InputScene>();
     inputScene_->AddMesh(move(inputMesh));
 

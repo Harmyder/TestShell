@@ -181,7 +181,7 @@ void TextureDemo::Init() {
 
     {
         auto inputMesh = make_unique<InputMesh>("cartman");
-        Helpers::CreateGridXy(50, 25, 1.f, .5f, *inputMesh);
+        Helpers::CreateGridXy(50, 25, 1.f, .5f, Common::GeometryGenerator::QuadDivision::MainDiagonal, *inputMesh);
         inputMesh->SetTransform(OrthogonalTransform::MakeTranslation(Vector3(0.f, 2.f, 0.f)));
         inputScene_->AddMesh(move(inputMesh));
 
@@ -205,7 +205,7 @@ void TextureDemo::Init() {
         for (int i = 0; i < (int)vertices.size(); ++i) heights[i] = vertices[i].GetZ();
 
         auto inputMesh = make_unique<InputMesh>("splineSurface");
-        Helpers::CreateGridXy(surfaceWidth, surfaceHeight, 2.f, 2.f, *inputMesh, [&heights, surfaceWidth](int i, int j) { return heights[j * surfaceWidth + i]; });
+        Helpers::CreateGridXy(surfaceWidth, surfaceHeight, 2.f, 2.f, Common::GeometryGenerator::QuadDivision::MainDiagonal, *inputMesh, [&heights, surfaceWidth](int i, int j) { return heights[j * surfaceWidth + i]; });
         inputScene_->AddMesh(move(inputMesh));
 
         const auto maxHeight = *max_element(cbegin(heights), cend(heights));

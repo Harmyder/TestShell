@@ -5,6 +5,7 @@
 #include "Math\Vector\Matrix.h"
 
 namespace Common {
+    inline Scalar SqrtEst(Scalar s) { return Scalar(XMVectorSqrtEst(s)); }
     inline Scalar Length(Vector3 v) { return Scalar(XMVector3Length(v)); }
     inline Scalar LengthEst(Vector3 v) { return Scalar(XMVector3LengthEst(v)); }
     inline Scalar LengthSq(Vector3 v) { return Scalar(XMVector3LengthSq(v)); }

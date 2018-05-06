@@ -14,14 +14,9 @@ namespace Pipeline {
 
         
         void CreateGridXyInternal(Common::GeometryGenerator::Geometry& grid, InputMesh& output);
-
-        template <class F>
-        void CreateGridXy(uint16 xCount, uint16 yCount, float width, float height, InputMesh& output, F&& getHeight) {
-            auto grid = Common::GeometryGenerator::CreateGridXY(xCount, yCount, width, height, std::forward<F>(getHeight));
-            CreateGridXyInternal(grid, output);
-        }
-        inline void CreateGridXy(uint16 xCount, uint16 yCount, float width, float height, InputMesh& output) {
-            auto grid = Common::GeometryGenerator::CreateGridXY(xCount, yCount, width, height);
+        
+        inline void CreateGridXy(uint16 xCount, uint16 yCount, float width, float height, Common::GeometryGenerator::QuadDivision division, InputMesh& output, std::function<float(int, int)> getZ = [](int,int) { return 0.f; }) {
+            auto grid = Common::GeometryGenerator::CreateGridXy(xCount, yCount, width, height, division, getZ);
             CreateGridXyInternal(grid, output);
         }
     }
